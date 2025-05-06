@@ -11,5 +11,6 @@ export const ROUTES = {
   BRANCH: {
     ROOT: "/branch",
     DASHBOARD: "/branch/dashboard",
+    ADD_STOCK: "/branch/stock/add",
   },
 };

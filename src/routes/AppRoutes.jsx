@@ -7,6 +7,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import BranchLayout from "../layouts/BranchLayout";
 import AdminDashboard from "../pages/admin/Dashboard";
 import BranchDashboard from "../pages/branch/Dashboard";
+import AddStock from "../pages/branch/AddStock";
 
 const AppRoutes = () => (
     <Routes>
@@ -33,6 +34,7 @@ const AppRoutes = () => (
             }
         >
             <Route path="dashboard" element={<BranchDashboard />} />
+            <Route path="stock/add" element={<AddStock />} />
         </Route>
 
         <Route path="*" element={<div>404 Not Found</div>} />
