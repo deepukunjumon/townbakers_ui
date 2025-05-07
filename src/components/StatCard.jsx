@@ -36,17 +36,22 @@ const StatCard = ({
       sx={{
         bgcolor: "#fff",
         borderRadius: 3,
-        boxShadow: "0 2px 8px 0 rgba(31,41,55,0.07)",
+        boxShadow: "0 2px 8px rgba(31,41,55,0.07)",
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
         cursor: "pointer",
-        height: 90,
-        minWidth: 180,
+        height: { xs: 100, sm: 120, md: 140 },
         width: "100%",
+        minWidth: 260,
         px: 2,
         py: 1,
+        transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+        "&:hover": {
+          transform: "scale(1.03)",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+        },
         ...sx,
       }}
       {...rest}
@@ -56,14 +61,15 @@ const StatCard = ({
           sx={{
             bgcolor: theme.palette[paletteColor].light,
             color: theme.palette[paletteColor].main,
-            width: 38,
-            height: 38,
+            width: 50,
+            height: 50,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             borderRadius: "50%",
             fontSize: 24,
             mr: 2,
+            ml: 2,
           }}
         >
           {icon}
