@@ -7,7 +7,7 @@ import {
     Menu,
     MenuItem,
     Avatar,
-    Box
+    Box,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
@@ -18,10 +18,7 @@ const Navbar = ({ toggleDrawer }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
 
-    const handleAvatarClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
+    const handleAvatarClick = (event) => setAnchorEl(event.currentTarget);
     const handleClose = () => setAnchorEl(null);
 
     const handleLogout = () => {
@@ -36,10 +33,22 @@ const Navbar = ({ toggleDrawer }) => {
     };
 
     return (
-        <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <AppBar
+            position="fixed"
+            sx={{
+                zIndex: (theme) => theme.zIndex.drawer + 1,
+                width: "100%",
+            }}
+        >
             <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Box display="flex" alignItems="center">
-                    <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer}>
+                    <IconButton
+                        edge="start"
+                        color="inherit"
+                        aria-label="menu"
+                        onClick={toggleDrawer}
+                        sx={{ mr: 1 }}
+                    >
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" component="div">
@@ -49,7 +58,14 @@ const Navbar = ({ toggleDrawer }) => {
 
                 <Box>
                     <IconButton onClick={handleAvatarClick} color="inherit">
-                        <Avatar sx={{ bgcolor: "secondary.main", width: 32, height: 32 }}>
+                        <Avatar
+                            sx={{
+                                bgcolor: "secondary.main",
+                                width: { xs: 32, sm: 36, md: 40 },
+                                height: { xs: 32, sm: 36, md: 40 },
+                                fontSize: { xs: 14, sm: 16, md: 18 },
+                            }}
+                        >
                             U
                         </Avatar>
                     </IconButton>

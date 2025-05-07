@@ -1,16 +1,28 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { Box, Typography, Link, Avatar, Button } from "@mui/material";
-import { ROUTES } from "../constants/routes";
+import {
+  Box,
+  Typography,
+  Button,
+  Grid,
+  useTheme,
+  useMediaQuery,
+  Avatar,
+} from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import TextFieldComponent from "../components/TextFieldComponent";
+
+import { ROUTES } from "../constants/routes";
 import apiConfig from "../config/apiConfig";
-import illustration from "../assets/images/illustration.png";
+import TextFieldComponent from "../components/TextFieldComponent";
 import SnackbarAlert from "../components/SnackbarAlert";
+import login_page_image from "../assets/images/login_page_image.svg";
 
 const Login = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,26 +56,14 @@ const Login = () => {
         });
 
         localStorage.setItem("token", data.token);
-
-        let role = "user";
-        try {
-          const decoded = jwtDecode(data.token);
-          role = decoded.role || "user";
-        } catch {
-          role = "user";
-        }
+        const decoded = jwtDecode(data.token);
+        const role = decoded.role || "user";
 
         setTimeout(() => {
           setSnack((prev) => ({ ...prev, open: false }));
-
-          if (role === "admin") {
-            navigate(ROUTES.ADMIN.DASHBOARD);
-          }
-          if (role === "branch") {
-            navigate(ROUTES.BRANCH.DASHBOARD);
-          }
-        });
-
+          if (role === "admin") navigate(ROUTES.ADMIN.DASHBOARD);
+          else if (role === "branch") navigate(ROUTES.BRANCH.DASHBOARD);
+        }, 1000);
       } else {
         setSnack({
           open: true,
@@ -82,12 +82,14 @@ const Login = () => {
   };
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      bgcolor="#f7f7f7"
+    <Grid
+      container
+      sx={{
+        minHeight: "100vh",
+        maxWidth: "1600px",
+        mx: "auto",
+        px: { xs: 6, sm: 18, md: 16 },
+      }}
     >
       <SnackbarAlert
         open={snack.open}
@@ -95,71 +97,82 @@ const Login = () => {
         severity={snack.severity}
         message={snack.message}
       />
-      <Box
-        sx={{
-          display: { xs: "none", md: "flex" },
-          alignItems: "center",
-          justifyContent: "center",
-          mr: 6,
-        }}
-      >
-        <img
-          src={illustration}
-          alt="Login Illustration"
-          style={{ maxWidth: 350, width: "100%", height: "auto" }}
-        />
-      </Box>
 
-      <Box
-        sx={{
-          width: { xs: "100%", sm: 350 },
-          mx: "auto",
-          p: { xs: 2, sm: 3 },
-          boxSizing: "border-box",
-        }}
+      {/* Right Side - Illustration and Heading */}
+      {!isMobile && (
+        <Grid
+          item
+          md={6}
+          display={{ xs: "none", md: "flex" }}
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="flex-start"
+          sx={{
+            pr: { md: 10 },
+            pl: { md: 6 },
+            display: { xs: "none", md: "flex" }, // ensure correct hiding
+          }}        >
+          <Box
+            component="img"
+            src={login_page_image}
+            alt="Login Illustration"
+            sx={{ width: "100%", maxWidth: 480, ml: 4 }}
+          />
+        </Grid>
+      )}
+
+      {/* Left Side - Login Form */}
+      <Grid
+        item
+        xs={12}
+        md={6}
+        display="flex"
+        alignItems="center"
+        justifyContent="flex-start"
+        sx={{ pl: { xs: 3, md: 12 }, pr: { md: 5 } }}
       >
-        <Box display="flex" flexDirection="column" alignItems="center" mb={2}>
-          <Avatar
-            sx={{
-              width: 100,
-              height: 100,
-              bgcolor: "primary.main",
-              m: 5,
-            }}
-          >
-            <LockOutlinedIcon sx={{ fontSize: 36 }} />
-          </Avatar>
+        <Box sx={{ width: "100%", maxWidth: 360 }}>
+          <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
+            <Avatar sx={{ bgcolor: "primary.main", width: 64, height: 64, mb: 1 }}>
+              <LockOutlinedIcon fontSize="large" />
+            </Avatar>
+            <Typography variant="h5" fontWeight={600}>
+              Sign in
+            </Typography>
+          </Box>
+
+          <form onSubmit={handleLogin}>
+            <TextFieldComponent
+              label="Login ID"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+            <TextFieldComponent
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              showPassword={showPassword}
+              setShowPassword={setShowPassword}
+              required
+            />
+
+            <Button
+              type="submit"
+              disabled={loading}
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 3 }}
+            >
+              {loading ? "Logging in..." : "SIGN IN"}
+            </Button>
+          </form>
         </Box>
-        <form onSubmit={handleLogin}>
-          <TextFieldComponent
-            label="Username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-          <TextFieldComponent
-            label="Password"
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            showPassword={showPassword}
-            setShowPassword={setShowPassword}
-          />
-          <Button
-            type="submit"
-            disabled={loading}
-            variant="contained"
-            color="primary"
-            fullWidth
-            sx={{ mt: 2 }}
-          >
-            {loading ? "Logging In..." : "Login"}
-          </Button>
-        </form>
-      </Box>
-    </Box>
+      </Grid>
+    </Grid>
   );
 };
 

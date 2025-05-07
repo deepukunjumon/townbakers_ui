@@ -1,19 +1,35 @@
+// AdminLayout.jsx
 import React from "react";
-import MainLayout from "../components/MainLayout";
 import { Outlet, useNavigate } from "react-router-dom";
+import MainLayout from "../components/MainLayout";
+import { ROUTES } from "../constants/routes";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import InventoryIcon from "@mui/icons-material/Inventory";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
+
   const menuItems = [
-    { label: "Dashboard", onClick: () => navigate("/admin/dashboard") },
+    {
+      label: "Dashboard",
+      icon: <DashboardIcon />,
+      onClick: () => navigate(ROUTES.ADMIN.DASHBOARD),
+    },
     {
       label: "Stocks Summary",
-      onClick: () => navigate("/admin/stocks/summary"),
+      icon: <InventoryIcon />,
+      onClick: () => navigate(ROUTES.ADMIN.STOCK_SUMMARY),
     },
   ];
 
   return (
-    <MainLayout menuItems={menuItems}>
+    <MainLayout
+      menuItems={menuItems}
+      drawerWidth={280}
+      collapsedWidth={60}
+      showIconsWhenCollapsed={true}
+      title="Admin Dashboard"
+    >
       <Outlet />
     </MainLayout>
   );
