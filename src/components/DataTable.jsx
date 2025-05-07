@@ -10,6 +10,7 @@ import {
   CircularProgress,
   TablePagination,
   Typography,
+  useTheme,
 } from "@mui/material";
 
 const DataTable = ({
@@ -22,19 +23,27 @@ const DataTable = ({
   onRowsPerPageChange = () => { },
   totalCount = null,
 }) => {
-  // For client-side pagination fallback
+  const theme = useTheme();
+
   const paginatedData =
     totalCount == null
       ? data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       : data;
 
   return (
-    <Paper sx={{ width: "100%", overflow: "auto", p: { xs: 1, sm: 2 } }}>
+    <Paper
+      sx={{
+        width: "100%",
+        overflow: "hidden",
+        p: { xs: 1, sm: 2 },
+        borderRadius: 3,
+      }}
+      elevation={3}
+    >
       <TableContainer
         sx={{
           maxHeight: 500,
-          overflowX: "auto",
-          overflowY: "auto",
+          borderRadius: 3,
         }}
       >
         <Table sx={{ minWidth: 650, tableLayout: "auto" }}>
@@ -44,13 +53,15 @@ const DataTable = ({
                 <TableCell
                   key={col.field || col.headerName}
                   sx={{
-                    position: "sticky",
-                    top: 0,
-                    background: "#fff",
-                    zIndex: 2,
+                    backgroundColor: theme.palette.primary.main,
+                    color: "#fff",
                     fontWeight: 600,
                     whiteSpace: "nowrap",
-                    borderBottom: "2px solid #e0e0e0",
+                    position: "sticky",
+                    top: 0,
+                    zIndex: 2,
+                    width: col.width || "auto",
+                    maxWidth: col.width || "auto",
                   }}
                 >
                   {col.headerName}
@@ -58,6 +69,7 @@ const DataTable = ({
               ))}
             </TableRow>
           </TableHead>
+
           <TableBody>
             {loading ? (
               <TableRow>
@@ -79,9 +91,10 @@ const DataTable = ({
                       key={col.field || col.headerName}
                       sx={{
                         whiteSpace: "nowrap",
-                        maxWidth: 220,
                         overflow: "hidden",
                         textOverflow: "ellipsis",
+                        width: col.width || "auto",
+                        maxWidth: col.width || "auto",
                       }}
                     >
                       {col.field === "sl_no"

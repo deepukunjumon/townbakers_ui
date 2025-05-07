@@ -104,9 +104,9 @@ const ViewStocks = () => {
   }, [date]);
 
   const columns = [
-    { field: "sl_no", headerName: "Sl. No." },
-    { field: "item_name", headerName: "Item" },
-    { field: "total_quantity", headerName: "Total Quantity" },
+    { field: "sl_no", headerName: "Sl. No.", width: 100 },
+    { field: "item_name", headerName: "Item", width: 500 },
+    { field: "total_quantity", headerName: "Total Quantity", width: 100 },
   ];
 
   return (

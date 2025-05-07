@@ -4,25 +4,25 @@ import { createTheme } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#009688", // Green color for the app header
+      main: "#009688",
     },
     secondary: {
-      main: "#1a365d", // Secondary color (used for hover effects, etc.)
+      main: "#1a365d",
     },
     error: {
-      main: "#f44336", // Error color for Alert
+      main: "#f44336",
     },
     success: {
-      main: "#4caf50", // Success color for Alert
+      main: "#4caf50",
     },
     background: {
-      default: "#f8f9fa", // Light background color of the app
-      paper: "#ffffff", // Background color for Paper elements like boxes
+      default: "#f8f9fa",
+      paper: "#ffffff",
     },
   },
   typography: {
-    fontFamily: "'Segoe UI', 'Roboto', 'Arial', sans-serif", // Changed to Segoe UI with fallbacks
-    fontSize: 17, // Increased base font size (default is 14)
+    fontFamily: "'Segoe UI', 'Roboto', 'Arial', sans-serif",
+    fontSize: 17,
     h1: {
       fontWeight: 700,
       fontSize: "2.8rem",
@@ -50,7 +50,7 @@ const theme = createTheme({
       fontSize: "1.15rem",
     },
     body1: {
-      fontWeight: 400, // Body text styles
+      fontWeight: 400,
       fontSize: "1rem",
     },
     body2: {
@@ -62,7 +62,7 @@ const theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: "#009688", // Ensure app bar is green
+          backgroundColor: "#009688",
         },
       },
     },
