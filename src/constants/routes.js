@@ -15,6 +15,7 @@ export const ROUTES = {
     DASHBOARD: "/branch/dashboard",
     CREATE_EMPLOYEE: "/branch/employee/create",
     ADD_STOCK: "/branch/stock/add",
-    VIEW_STOCKS: "/branch/stocks/view"
+    VIEW_STOCKS: "/branch/stocks/view",
+    LIST_EMPLOYEES: "/branch/employees"
   },
 };

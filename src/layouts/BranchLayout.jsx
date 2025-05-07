@@ -11,6 +11,10 @@ const BranchLayout = () => {
       label: "Create Employee",
       onClick: () => navigate(ROUTES.BRANCH.CREATE_EMPLOYEE),
     },
+    {
+      label: "All Employees",
+      onClick: () => navigate(ROUTES.BRANCH.LIST_EMPLOYEES),
+    },
     { label: "Add Stock", onClick: () => navigate(ROUTES.BRANCH.ADD_STOCK) },
     {
       label: "View Stocks",

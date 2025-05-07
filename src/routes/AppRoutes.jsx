@@ -17,6 +17,7 @@ import BranchDashboard from "../pages/branch/Dashboard";
 import AddStock from "../pages/branch/AddStock";
 import CreateEmployee from "../pages/branch/CreateEmployee";
 import ViewStocks from "../pages/branch/ViewStocks";
+import BranchEmployees from "../pages/branch/BranchEmployees";
 
 const AppRoutes = () => (
   <Routes>
@@ -49,6 +50,7 @@ const AppRoutes = () => (
     >
       <Route path={ROUTES.BRANCH.DASHBOARD} element={<BranchDashboard />} />
       <Route path={ROUTES.BRANCH.CREATE_EMPLOYEE} element={<CreateEmployee />} />
+      <Route path={ROUTES.BRANCH.LIST_EMPLOYEES} element={<BranchEmployees />} />
       <Route path={ROUTES.BRANCH.ADD_STOCK} element={<AddStock />} />
       <Route path={ROUTES.BRANCH.VIEW_STOCKS} element={<ViewStocks />} />
     </Route>
