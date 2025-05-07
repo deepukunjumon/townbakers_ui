@@ -23,14 +23,3 @@ export const getBranchIdFromToken = () => {
     return null;
   }
 };
-
-export const getBranchIdFromToken = () => {
-    try {
-        const token = getToken();
-        if (!token) return null;
-        const decoded = jwtDecode(token);
-        return decoded.branch_id || null;
-    } catch {
-        return null;
-    }
-};
