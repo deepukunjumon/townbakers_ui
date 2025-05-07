@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from "react";
 import {
-    Box, TextField, Button, Typography, Grid, IconButton, MenuItem
+    Box,
+    Grid,
+    Typography,
+    Button,
+    IconButton,
+    MenuItem,
+    Divider,
+    TextField,
 } from "@mui/material";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import SnackbarAlert from "../../components/SnackbarAlert";
+import SelectFieldComponent from "../../components/SelectFieldComponent";
+import TextFieldComponent from "../../components/TextFieldComponent";
 import apiConfig from "../../config/apiConfig";
 import { getBranchIdFromToken } from "../../utils/auth";
 
@@ -12,90 +21,80 @@ const AddStock = () => {
     const branchId = getBranchIdFromToken();
     const [employeeId, setEmployeeId] = useState("");
     const [employeeList, setEmployeeList] = useState([]);
-    const [items, setItems] = useState([{ item_id: "", quantity: "" }]);
     const [itemList, setItemList] = useState([]);
-    const [snack, setSnack] = useState({ open: false, severity: "info", message: "" });
+    const [items, setItems] = useState([{ item_id: "", quantity: "" }]);
+    const [snack, setSnack] = useState({
+        open: false,
+        severity: "info",
+        message: "",
+    });
 
-    // Fetch employees and items on mount
     useEffect(() => {
         const token = localStorage.getItem("token");
 
-        const fetchEmployees = async () => {
-            try {
-                const res = await fetch(`${apiConfig.BASE_URL}/employees/minimal`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                const data = await res.json();
-                if (res.ok) setEmployeeList(data.employees || []);
-                else throw new Error();
-            } catch {
-                setSnack({ open: true, severity: "error", message: "Failed to fetch employees" });
-            }
-        };
+        fetch(`${apiConfig.BASE_URL}/employees/minimal`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((res) => res.json())
+            .then((data) => setEmployeeList(data.employees || []))
+            .catch(() =>
+                setSnack({
+                    open: true,
+                    severity: "error",
+                    message: "Failed to load employees",
+                })
+            );
 
-        const fetchItems = async () => {
-            try {
-                const res = await fetch(`${apiConfig.BASE_URL}/items/list`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                const data = await res.json();
-                if (res.ok) setItemList(data.items || []);
-                else throw new Error();
-            } catch {
-                setSnack({ open: true, severity: "error", message: "Failed to fetch items" });
-            }
-        };
-
-        fetchEmployees();
-        fetchItems();
+        fetch(`${apiConfig.BASE_URL}/items/list`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((res) => res.json())
+            .then((data) => setItemList(data.items || []))
+            .catch(() =>
+                setSnack({
+                    open: true,
+                    severity: "error",
+                    message: "Failed to load items",
+                })
+            );
     }, []);
 
     const handleItemChange = (index, field, value) => {
-        const updated = [...items];
-        updated[index][field] = value;
-        setItems(updated);
+        const updatedItems = [...items];
+        updatedItems[index][field] = value;
+        setItems(updatedItems);
     };
-
-    const addItem = () => setItems([...items, { item_id: "", quantity: "" }]);
-    const removeItem = (index) => setItems(items.filter((_, i) => i !== index));
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const payload = {
-            branch_id: branchId,
-            employee_id: employeeId,
-            items,
-        };
+        const payload = { branch_id: branchId, employee_id: employeeId, items };
 
         try {
             const res = await fetch(`${apiConfig.BASE_URL}/stock/add`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
                 body: JSON.stringify(payload),
             });
-
             const data = await res.json();
             setSnack({
                 open: true,
                 severity: res.ok ? "success" : "error",
-                message: data.message || "Error submitting stock",
+                message: data.message || "Submission failed",
             });
-
             if (res.ok) {
-                setItems([{ item_id: "", quantity: "" }]);
                 setEmployeeId("");
+                setItems([{ item_id: "", quantity: "" }]);
             }
         } catch {
-            setSnack({ open: true, severity: "error", message: "Network error while submitting" });
+            setSnack({ open: true, severity: "error", message: "Network error" });
         }
     };
 
     return (
-        <Box>
+        <Box sx={{ maxWidth: 720, mx: "auto", py: 2, px: 2 }}>
             <SnackbarAlert
                 open={snack.open}
                 onClose={() => setSnack((s) => ({ ...s, open: false }))}
@@ -103,69 +102,98 @@ const AddStock = () => {
                 message={snack.message}
             />
 
-            <Typography variant="h5" gutterBottom>Add Stock</Typography>
+            <Typography variant="h5" gutterBottom>
+                Add Stock Entry
+            </Typography>
+
+            <Divider sx={{ my: 2 }} />
+
             <form onSubmit={handleSubmit}>
                 <TextField
                     select
-                    label="Employee"
+                    label="Select Employee"
                     value={employeeId}
                     onChange={(e) => setEmployeeId(e.target.value)}
                     fullWidth
-                    margin="normal"
                     required
+                    size="small"
+                    margin="dense"
                 >
-                    {employeeList.map((emp) => (
-                        <MenuItem key={emp.id} value={emp.id}>
-                            {emp.name}
-                        </MenuItem>
-                    ))}
+                    {employeeList.length === 0 ? (
+                        <MenuItem disabled>Loading...</MenuItem>
+                    ) : (
+                        employeeList.map((emp) => (
+                            <MenuItem key={emp.id} value={emp.id}>
+                                {emp.employee_code} - {emp.name}
+                            </MenuItem>
+                        ))
+                    )}
                 </TextField>
 
-                <Typography variant="h6" sx={{ mt: 2 }}>Items</Typography>
+                <Typography variant="subtitle1" sx={{ mt: 3, mb: 1 }}>
+                    Item Details
+                </Typography>
+
                 {items.map((item, index) => (
-                    <Grid container spacing={2} key={index} alignItems="center">
-                        <Grid item xs={5}>
-                            <TextField
-                                select
+                    <Grid
+                        container
+                        spacing={1.5}
+                        alignItems="center"
+                        key={index}
+                        sx={{ mb: 1 }}
+                    >
+                        <Grid item xs={12} sm={5}>
+                            <SelectFieldComponent
                                 label="Item"
                                 value={item.item_id}
-                                onChange={(e) => handleItemChange(index, "item_id", e.target.value)}
-                                fullWidth
+                                onChange={(e) =>
+                                    handleItemChange(index, "item_id", e.target.value)
+                                }
+                                options={itemList}
+                                valueKey="id"
+                                displayKey="name"
                                 required
-                            >
-                                {itemList.map((itm) => (
-                                    <MenuItem key={itm.id} value={itm.id}>
-                                        {itm.name}
-                                    </MenuItem>
-                                ))}
-                            </TextField>
+                                fullWidth
+                            />
                         </Grid>
-                        <Grid item xs={5}>
-                            <TextField
+
+                        <Grid item xs={12} sm={5}>
+                            <TextFieldComponent
                                 label="Quantity"
                                 type="number"
-                                inputProps={{ min: "0.01", step: "0.01" }}
                                 value={item.quantity}
-                                onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
-                                fullWidth
+                                onChange={(e) =>
+                                    handleItemChange(index, "quantity", e.target.value)
+                                }
                                 required
                             />
                         </Grid>
-                        <Grid item xs={2}>
-                            <IconButton onClick={() => removeItem(index)} disabled={items.length === 1}>
-                                <RemoveCircleOutlineIcon />
+
+                        <Grid item xs={12} sm={2}>
+                            <IconButton
+                                onClick={() =>
+                                    setItems((prev) => prev.filter((_, i) => i !== index))
+                                }
+                                disabled={items.length === 1}
+                                color="error"
+                            >
+                                <DeleteOutlineIcon />
                             </IconButton>
-                            {index === items.length - 1 && (
-                                <IconButton onClick={addItem}>
-                                    <AddCircleOutlineIcon />
-                                </IconButton>
-                            )}
                         </Grid>
                     </Grid>
                 ))}
 
-                <Button type="submit" variant="contained" color="primary" sx={{ mt: 3 }}>
-                    Submit
+                <Button
+                    startIcon={<AddCircleIcon />}
+                    onClick={() => setItems([...items, { item_id: "", quantity: "" }])}
+                    sx={{ mt: 1, mb: 2 }}
+                    size="small"
+                >
+                    Add Another Item
+                </Button>
+
+                <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
+                    Submit Stock
                 </Button>
             </form>
         </Box>

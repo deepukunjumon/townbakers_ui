@@ -10,7 +10,9 @@ export const ROUTES = {
 
   BRANCH: {
     ROOT: "/branch",
+    CREATE_EMPLOYEE: "/branch/employee/create",
     DASHBOARD: "/branch/dashboard",
     ADD_STOCK: "/branch/stock/add",
+    VIEW_STOCKS: "/branch/stocks/view",
   },
 };
