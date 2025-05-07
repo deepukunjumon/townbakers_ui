@@ -1,24 +1,16 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  IconButton,
-  Menu,
-  MenuItem,
-} from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import format from "date-fns/format";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
-import DataTable from "../../components/DataTable";
+import TableComponent from "../../components/TableComponent";
+import DateSelector from "../../components/DateSelector";
+import ExportMenu from "../../components/ExportMenu";
 
 const ViewStocks = () => {
   const [date, setDate] = useState(new Date());
   const [stockData, setStockData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [snack, setSnack] = useState({
     open: false,
     severity: "info",
@@ -28,13 +20,15 @@ const ViewStocks = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
 
-  const handleExportClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleExportClick = (eventOrType) => {
+    if (typeof eventOrType === "string") {
+      handleExport(eventOrType);
+    } else {
+      setAnchorEl(eventOrType.currentTarget);
+    }
   };
 
-  const handleExportClose = () => {
-    setAnchorEl(null);
-  };
+  const handleExportClose = () => setAnchorEl(null);
 
   const handleExport = (type) => {
     const formattedDate = format(date, "yyyy-MM-dd");
@@ -53,7 +47,6 @@ const ViewStocks = () => {
 
     const token = localStorage.getItem("token");
     if (token) addField("token", token);
-
     addField("date", formattedDate);
     addField("export", "true");
     addField("type", type);
@@ -61,11 +54,11 @@ const ViewStocks = () => {
     document.body.appendChild(form);
     form.submit();
     document.body.removeChild(form);
-
     handleExportClose();
   };
 
   const fetchStocks = async () => {
+    setLoading(true);
     const formattedDate = format(date, "yyyy-MM-dd");
 
     try {
@@ -87,15 +80,21 @@ const ViewStocks = () => {
           message: data.message || "Stock summary loaded",
         });
       } else {
+        setStockData([]);
         setSnack({
           open: true,
           severity: "error",
           message: data.message || "Error fetching stocks",
         });
-        setStockData([]);
       }
     } catch (err) {
-      setSnack({ open: true, severity: "error", message: "Network error" });
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Network error",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -104,13 +103,16 @@ const ViewStocks = () => {
   }, [date]);
 
   const columns = [
-    { field: "sl_no", headerName: "Sl. No.", width: 100 },
-    { field: "item_name", headerName: "Item", width: 500 },
-    { field: "total_quantity", headerName: "Total Quantity", width: 100 },
+    { field: "item_name", headerName: "Item", flex: 2 },
+    { field: "total_quantity", headerName: "Total Quantity", flex: 1 },
   ];
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: 1000, mx: "auto", p: 3 }}>
+      <Typography variant="h5" gutterBottom>
+        Stock Summary
+      </Typography>
+
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
@@ -118,50 +120,30 @@ const ViewStocks = () => {
         message={snack.message}
       />
 
-      <Typography variant="h5" gutterBottom>
-        Stock Summary
-      </Typography>
-
       <Box display="flex" gap={2} my={2} alignItems="center">
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DatePicker
-            label="Select Date"
-            value={date}
-            onChange={(newDate) => setDate(newDate)}
-            format="yyyy-MM-dd"
-            maxDate={new Date()}
-          />
-        </LocalizationProvider>
-
+        <DateSelector date={date} setDate={setDate} />
         <Button variant="outlined" onClick={fetchStocks}>
           Refresh
         </Button>
-
-        <IconButton onClick={handleExportClick}>
-          <MoreVertIcon />
-        </IconButton>
-
-        <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleExportClose}>
-          <MenuItem onClick={() => handleExport("excel")}>Export to Excel</MenuItem>
-          <MenuItem onClick={() => handleExport("pdf")}>Export to PDF</MenuItem>
-        </Menu>
+        <ExportMenu
+          anchorEl={anchorEl}
+          open={menuOpen}
+          onClose={handleExportClose}
+          onExportClick={handleExportClick}
+        />
       </Box>
 
-      <DataTable
-        columns={columns}
-        data={stockData}
-        loading={false}
-        searchValue=""
-        onSearch={() => { }}
-        statusOptions={[]} // not needed here
-        onStatusFilter={() => { }}
-        statusValue=""
-        totalCount={stockData.length}
-        page={0}
-        rowsPerPage={10}
-        onPageChange={() => { }}
-        onRowsPerPageChange={() => { }}
-      />
+      {loading ? (
+        <Box sx={{ textAlign: "center", mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <TableComponent
+          rows={stockData}
+          columns={columns}
+          rowIdField="item_name"
+        />
+      )}
     </Box>
   );
 };

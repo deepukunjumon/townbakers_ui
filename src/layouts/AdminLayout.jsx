@@ -16,6 +16,11 @@ const AdminLayout = () => {
       onClick: () => navigate(ROUTES.ADMIN.DASHBOARD),
     },
     {
+      label: "Add Employee",
+      icon: <InventoryIcon />,
+      onClick: () => navigate(ROUTES.ADMIN.CREATE_EMPLOYEE),
+    },
+    {
       label: "Stocks Summary",
       icon: <InventoryIcon />,
       onClick: () => navigate(ROUTES.ADMIN.STOCK_SUMMARY),

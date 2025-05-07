@@ -2,16 +2,17 @@ import React, { useEffect, useState } from "react";
 import { Box, TextField, Button, Typography, MenuItem } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
-import { getBranchIdFromToken } from "../../utils/auth";
 
-const CreateEmployee = () => {
+const CreateEmployeeByAdmin = () => {
   const [form, setForm] = useState({
     employee_code: "",
     name: "",
     mobile: "",
     designation_id: "",
+    branch_id: "",
   });
 
+  const [branches, setBranches] = useState([]);
   const [designations, setDesignations] = useState([]);
   const [snack, setSnack] = useState({
     open: false,
@@ -20,6 +21,23 @@ const CreateEmployee = () => {
   });
 
   useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const res = await fetch(`${apiConfig.BASE_URL}/branches/minimal`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const data = await res.json();
+        if (res.ok) setBranches(data.branches || []);
+        else throw new Error();
+      } catch {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to fetch branches",
+        });
+      }
+    };
+
     const fetchDesignations = async () => {
       try {
         const res = await fetch(`${apiConfig.BASE_URL}/designations`, {
@@ -37,6 +55,7 @@ const CreateEmployee = () => {
       }
     };
 
+    fetchBranches();
     fetchDesignations();
   }, []);
 
@@ -46,33 +65,14 @@ const CreateEmployee = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const branch_id = getBranchIdFromToken();
-    if (!branch_id) {
-      setSnack({
-        open: true,
-        severity: "error",
-        message: "Branch ID missing in token.",
-      });
-      return;
-    }
-
-    const payload = {
-      ...form,
-      branch_id,
-    };
-
-    console.log("Submitting form", form);
-    console.log("Branch ID from token", getBranchIdFromToken());
-
     try {
-      const res = await fetch(`${apiConfig.BASE_URL}/branch/create/employee`, {
+      const res = await fetch(`${apiConfig.BASE_URL}/create/employee`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(form),
       });
 
       const data = await res.json();
@@ -88,6 +88,7 @@ const CreateEmployee = () => {
           name: "",
           mobile: "",
           designation_id: "",
+          branch_id: "",
         });
       }
     } catch {
@@ -162,6 +163,27 @@ const CreateEmployee = () => {
           )}
         </TextField>
 
+        <TextField
+          select
+          name="branch_id"
+          label="Branch"
+          value={form.branch_id}
+          onChange={handleChange}
+          fullWidth
+          required
+          margin="normal"
+        >
+          {branches.length === 0 ? (
+            <MenuItem disabled>Loading branches...</MenuItem>
+          ) : (
+            branches.map((branch) => (
+              <MenuItem key={branch.id} value={branch.id}>
+                {branch.name}
+              </MenuItem>
+            ))
+          )}
+        </TextField>
+
         <Button
           type="submit"
           variant="contained"
@@ -175,4 +197,4 @@ const CreateEmployee = () => {
   );
 };
 
-export default CreateEmployee;
+export default CreateEmployeeByAdmin;

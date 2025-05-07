@@ -26,9 +26,7 @@ const TableComponent = ({ columns, rows }) => (
             <TableRow key={idx}>
               <TableCell>{idx + 1}</TableCell>
               {columns.map((col) => (
-                <TableCell key={col.field}>
-                  {row[col.field] ?? "-"}
-                </TableCell>
+                <TableCell key={col.field}>{row[col.field] ?? "-"}</TableCell>
               ))}
             </TableRow>
           ))
