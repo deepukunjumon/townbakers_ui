@@ -14,6 +14,7 @@ const TableComponent = ({ columns, rows }) => (
     <Table>
       <TableHead>
         <TableRow>
+          <TableCell>Sl. No.</TableCell>
           {columns.map((col) => (
             <TableCell key={col.field}>{col.headerName}</TableCell>
           ))}
@@ -23,14 +24,17 @@ const TableComponent = ({ columns, rows }) => (
         {rows.length > 0 ? (
           rows.map((row, idx) => (
             <TableRow key={idx}>
+              <TableCell>{idx + 1}</TableCell>
               {columns.map((col) => (
-                <TableCell key={col.field}>{row[col.field]}</TableCell>
+                <TableCell key={col.field}>
+                  {row[col.field] ?? "-"}
+                </TableCell>
               ))}
             </TableRow>
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={columns.length}>No data found.</TableCell>
+            <TableCell colSpan={columns.length + 1}>No data found.</TableCell>
           </TableRow>
         )}
       </TableBody>
