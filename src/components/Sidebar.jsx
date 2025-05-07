@@ -19,7 +19,11 @@ const Sidebar = ({ open, toggleDrawer, menuItems = [], isMobile }) => {
             </Typography>
             <List>
                 {menuItems.map((item, index) => (
-                    <ListItem button key={index} onClick={item.onClick}>
+                    <ListItem
+                        button key={index}
+                        onClick={item.onClick}
+                        sx={{ cursor: "pointer" }}
+                    >
                         <ListItemIcon>{item.icon}</ListItemIcon>
                         <ListItemText primary={item.label} />
                     </ListItem>
@@ -30,7 +34,7 @@ const Sidebar = ({ open, toggleDrawer, menuItems = [], isMobile }) => {
 
     return (
         <Drawer
-            variant={isMobile ? "temporary" : "persistent"} // ✅ Key line
+            variant={isMobile ? "temporary" : "persistent"}
             open={open}
             onClose={toggleDrawer}
             sx={{

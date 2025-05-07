@@ -12,9 +12,9 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import format from "date-fns/format";
-import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
+import DataTable from "../../components/DataTable";
 
 const ViewStocks = () => {
   const [date, setDate] = useState(new Date());
@@ -73,7 +73,7 @@ const ViewStocks = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // standard secure method
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({ date: formattedDate }),
       });
@@ -104,12 +104,13 @@ const ViewStocks = () => {
   }, [date]);
 
   const columns = [
+    { field: "sl_no", headerName: "Sl. No." },
     { field: "item_name", headerName: "Item" },
     { field: "total_quantity", headerName: "Total Quantity" },
   ];
 
   return (
-    <Box sx={{ maxWidth: 900, mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: 1200, mx: "auto", p: 2 }}>
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
@@ -128,6 +129,7 @@ const ViewStocks = () => {
             value={date}
             onChange={(newDate) => setDate(newDate)}
             format="yyyy-MM-dd"
+            maxDate={new Date()}
           />
         </LocalizationProvider>
 
@@ -145,7 +147,21 @@ const ViewStocks = () => {
         </Menu>
       </Box>
 
-      <TableComponent columns={columns} rows={stockData} />
+      <DataTable
+        columns={columns}
+        data={stockData}
+        loading={false}
+        searchValue=""
+        onSearch={() => { }}
+        statusOptions={[]} // not needed here
+        onStatusFilter={() => { }}
+        statusValue=""
+        totalCount={stockData.length}
+        page={0}
+        rowsPerPage={10}
+        onPageChange={() => { }}
+        onRowsPerPageChange={() => { }}
+      />
     </Box>
   );
 };
