@@ -44,7 +44,7 @@ const ViewBranchStockSummary = () => {
 
     try {
       const res = await fetch(
-        `${apiConfig.BASE_URL}/branchwise/stocks/summary?branch_id=${branchId}&date=${date}`,
+        `${apiConfig.BASE_URL}/admin/branchwise/stocks/summary?branch_id=${branchId}&date=${date}`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }

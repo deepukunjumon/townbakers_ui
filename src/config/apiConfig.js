@@ -7,6 +7,8 @@ const API_BASE_URL =
 const apiConfig = {
   BASE_URL: API_BASE_URL,
 
+  DASHBOARD_STATS: `${API_BASE_URL}/admin/dashboard/stats`,
+
   LOGIN_URL: `${API_BASE_URL}/login`,
   LOGOUT_URL: `${API_BASE_URL}/logout`,
 
