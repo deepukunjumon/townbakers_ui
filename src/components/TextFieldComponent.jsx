@@ -1,43 +1,70 @@
-// src/components/TextFieldComponent.js
 import React from "react";
-import { TextField, InputAdornment, IconButton } from "@mui/material";
+import {
+  TextField,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const TextFieldComponent = ({
   label,
-  type,
+  type = "text",
   value,
   onChange,
   showPassword,
   setShowPassword,
+  name,
+  children,
+  ...props
 }) => {
+  const isPassword = type === "password" || label.toLowerCase().includes("password");
+  const isSelect = type === "select";
+
   return (
     <TextField
+      select={isSelect}
+      name={name}
       label={label}
-      type={type}
+      type={isPassword && !showPassword ? "password" : type}
       value={value}
-      fullWidth
       onChange={onChange}
+      fullWidth
       margin="normal"
       variant="outlined"
       size="small"
       InputProps={{
         endAdornment:
-          label === "Password" ? (
+          isPassword ? (
             <InputAdornment position="end">
               <IconButton
-                aria-label="toggle password visibility"
-                onClick={() => setShowPassword((prev) => !prev)}
+                onClick={() => setShowPassword?.((prev) => !prev)}
                 edge="end"
               >
                 {showPassword ? <VisibilityOff /> : <Visibility />}
               </IconButton>
             </InputAdornment>
           ) : null,
-        style: { fontSize: 16 },
       }}
-    />
+      SelectProps={
+        isSelect
+          ? {
+            MenuProps: {
+              PaperProps: {
+                sx: {
+                  maxHeight: 200,
+                  overflowY: "auto",
+                },
+              },
+            },
+          }
+          : undefined
+      }
+      {...props}
+    >
+      {isSelect && children}
+    </TextField>
+
   );
 };
 
