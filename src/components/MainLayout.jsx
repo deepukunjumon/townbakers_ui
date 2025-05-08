@@ -26,8 +26,9 @@ const MainLayout = ({ children, menuItems = [] }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: { xs: 2, sm: 3 },
-          ml: !isMobile && open ? `${drawerWidth}px` : 0,
+          p: { xs: 2, sm: 2 },
+          // ml: !isMobile && open ? `${drawerWidth}px` : 0,
+          ml: { xs: -0, sm: open ? `${drawerWidth - 240}px` : -55 },
           transition: "margin-left 0.3s ease",
           mt: { xs: 7, sm: 1 },
           width: "100%",
