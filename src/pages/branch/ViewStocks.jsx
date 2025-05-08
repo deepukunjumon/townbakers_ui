@@ -4,7 +4,8 @@ import format from "date-fns/format";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
 import TableComponent from "../../components/TableComponent";
-import DateSelector from "../../components/DateSelector";
+import ButtonComponent from "../../components/ButtonComponent";
+import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ExportMenu from "../../components/ExportMenu";
 import { getToken } from "../../utils/auth";
 
@@ -122,7 +123,7 @@ const ViewStocks = () => {
       />
 
       <Box display="flex" gap={2} my={2} alignItems="center">
-        <DateSelector date={date} setDate={setDate} />
+        <DateSelectorComponent date={date} setDate={setDate} />
         <Button variant="outlined" onClick={fetchStocks}>
           Refresh
         </Button>

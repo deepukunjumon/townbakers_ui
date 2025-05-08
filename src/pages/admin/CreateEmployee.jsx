@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, TextField, Button, Typography, MenuItem } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
+import TextFieldComponent from "../../components/TextFieldComponent";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
 
@@ -67,7 +68,7 @@ const CreateEmployeeByAdmin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${apiConfig.BASE_URL}/create/employee`, {
+      const res = await fetch(`${apiConfig.BASE_URL}/admin/create/employee`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -115,7 +116,7 @@ const CreateEmployeeByAdmin = () => {
       </Typography>
 
       <form onSubmit={handleSubmit}>
-        <TextField
+        <TextFieldComponent
           name="employee_code"
           label="Employee Code"
           value={form.employee_code}
@@ -124,7 +125,7 @@ const CreateEmployeeByAdmin = () => {
           required
           margin="normal"
         />
-        <TextField
+        <TextFieldComponent
           name="name"
           label="Name"
           value={form.name}
@@ -133,7 +134,7 @@ const CreateEmployeeByAdmin = () => {
           required
           margin="normal"
         />
-        <TextField
+        <TextFieldComponent
           name="mobile"
           label="Mobile Number"
           value={form.mobile}
@@ -142,16 +143,13 @@ const CreateEmployeeByAdmin = () => {
           required
           margin="normal"
         />
-
-        <TextField
-          select
-          name="designation_id"
+        <TextFieldComponent
           label="Designation"
+          name="designation_id"
+          type="select"
           value={form.designation_id || ""}
           onChange={handleChange}
-          fullWidth
           required
-          margin="normal"
         >
           {designations.length === 0 ? (
             <MenuItem disabled>Loading designations...</MenuItem>
@@ -162,17 +160,17 @@ const CreateEmployeeByAdmin = () => {
               </MenuItem>
             ))
           )}
-        </TextField>
+        </TextFieldComponent>
 
-        <TextField
-          select
-          name="branch_id"
+
+        <TextFieldComponent
           label="Branch"
+          name="branch_id"
+          type="select"
           value={form.branch_id}
           onChange={handleChange}
-          fullWidth
           required
-          margin="normal"
+        // margin="normal"
         >
           {branches.length === 0 ? (
             <MenuItem disabled>Loading branches...</MenuItem>
@@ -183,7 +181,7 @@ const CreateEmployeeByAdmin = () => {
               </MenuItem>
             ))
           )}
-        </TextField>
+        </TextFieldComponent>
 
         <Button
           type="submit"
@@ -194,7 +192,7 @@ const CreateEmployeeByAdmin = () => {
           Create Employee
         </Button>
       </form>
-    </Box>
+    </Box >
   );
 };
 
