@@ -1,24 +1,18 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  IconButton,
-  Menu,
-  MenuItem,
-} from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import format from "date-fns/format";
-import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
+import TableComponent from "../../components/TableComponent";
+import ButtonComponent from "../../components/ButtonComponent";
+import DateSelectorComponent from "../../components/DateSelectorComponent";
+import ExportMenu from "../../components/ExportMenu";
+import { getToken } from "../../utils/auth";
 
 const ViewStocks = () => {
   const [date, setDate] = useState(new Date());
   const [stockData, setStockData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [snack, setSnack] = useState({
     open: false,
     severity: "info",
@@ -28,13 +22,15 @@ const ViewStocks = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
 
-  const handleExportClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleExportClick = (eventOrType) => {
+    if (typeof eventOrType === "string") {
+      handleExport(eventOrType);
+    } else {
+      setAnchorEl(eventOrType.currentTarget);
+    }
   };
 
-  const handleExportClose = () => {
-    setAnchorEl(null);
-  };
+  const handleExportClose = () => setAnchorEl(null);
 
   const handleExport = (type) => {
     const formattedDate = format(date, "yyyy-MM-dd");
@@ -53,7 +49,6 @@ const ViewStocks = () => {
 
     const token = localStorage.getItem("token");
     if (token) addField("token", token);
-
     addField("date", formattedDate);
     addField("export", "true");
     addField("type", type);
@@ -61,11 +56,11 @@ const ViewStocks = () => {
     document.body.appendChild(form);
     form.submit();
     document.body.removeChild(form);
-
     handleExportClose();
   };
 
   const fetchStocks = async () => {
+    setLoading(true);
     const formattedDate = format(date, "yyyy-MM-dd");
 
     try {
@@ -73,7 +68,7 @@ const ViewStocks = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // standard secure method
+          Authorization: getToken(),
         },
         body: JSON.stringify({ date: formattedDate }),
       });
@@ -87,15 +82,21 @@ const ViewStocks = () => {
           message: data.message || "Stock summary loaded",
         });
       } else {
+        setStockData([]);
         setSnack({
           open: true,
           severity: "error",
           message: data.message || "Error fetching stocks",
         });
-        setStockData([]);
       }
     } catch (err) {
-      setSnack({ open: true, severity: "error", message: "Network error" });
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Network error",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -104,12 +105,16 @@ const ViewStocks = () => {
   }, [date]);
 
   const columns = [
-    { field: "item_name", headerName: "Item" },
-    { field: "total_quantity", headerName: "Total Quantity" },
+    { field: "item_name", headerName: "Item", flex: 2 },
+    { field: "total_quantity", headerName: "Total Quantity", flex: 1 },
   ];
 
   return (
-    <Box sx={{ maxWidth: 900, mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: 1000, mx: "auto", p: 3 }}>
+      <Typography variant="h5" gutterBottom>
+        Stock Summary
+      </Typography>
+
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
@@ -117,35 +122,30 @@ const ViewStocks = () => {
         message={snack.message}
       />
 
-      <Typography variant="h5" gutterBottom>
-        Stock Summary
-      </Typography>
-
       <Box display="flex" gap={2} my={2} alignItems="center">
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DatePicker
-            label="Select Date"
-            value={date}
-            onChange={(newDate) => setDate(newDate)}
-            format="yyyy-MM-dd"
-          />
-        </LocalizationProvider>
-
+        <DateSelectorComponent date={date} setDate={setDate} />
         <Button variant="outlined" onClick={fetchStocks}>
           Refresh
         </Button>
-
-        <IconButton onClick={handleExportClick}>
-          <MoreVertIcon />
-        </IconButton>
-
-        <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleExportClose}>
-          <MenuItem onClick={() => handleExport("excel")}>Export to Excel</MenuItem>
-          <MenuItem onClick={() => handleExport("pdf")}>Export to PDF</MenuItem>
-        </Menu>
+        <ExportMenu
+          anchorEl={anchorEl}
+          open={menuOpen}
+          onClose={handleExportClose}
+          onExportClick={handleExportClick}
+        />
       </Box>
 
-      <TableComponent columns={columns} rows={stockData} />
+      {loading ? (
+        <Box sx={{ textAlign: "center", mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <TableComponent
+          rows={stockData}
+          columns={columns}
+          rowIdField="item_name"
+        />
+      )}
     </Box>
   );
 };

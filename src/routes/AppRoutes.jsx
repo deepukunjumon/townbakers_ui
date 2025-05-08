@@ -11,6 +11,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import BranchLayout from "../layouts/BranchLayout";
 
 import AdminDashboard from "../pages/admin/Dashboard";
+import CreateEmployeeByAdmin from "../pages/admin/CreateEmployee";
 import ViewBranchStockSummary from "../pages/admin/ViewBranchStockSummary";
 
 import BranchDashboard from "../pages/branch/Dashboard";
@@ -36,7 +37,14 @@ const AppRoutes = () => (
       }
     >
       <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
-      <Route path={ROUTES.ADMIN.STOCK_SUMMARY} element={<ViewBranchStockSummary />} />
+      <Route
+        path={ROUTES.ADMIN.CREATE_EMPLOYEE}
+        element={<CreateEmployeeByAdmin />}
+      />
+      <Route
+        path={ROUTES.ADMIN.STOCK_SUMMARY}
+        element={<ViewBranchStockSummary />}
+      />
     </Route>
 
     {/* Branch Protected */}
@@ -49,8 +57,14 @@ const AppRoutes = () => (
       }
     >
       <Route path={ROUTES.BRANCH.DASHBOARD} element={<BranchDashboard />} />
-      <Route path={ROUTES.BRANCH.CREATE_EMPLOYEE} element={<CreateEmployee />} />
-      <Route path={ROUTES.BRANCH.LIST_EMPLOYEES} element={<BranchEmployees />} />
+      <Route
+        path={ROUTES.BRANCH.CREATE_EMPLOYEE}
+        element={<CreateEmployee />}
+      />
+      <Route
+        path={ROUTES.BRANCH.LIST_EMPLOYEES}
+        element={<BranchEmployees />}
+      />
       <Route path={ROUTES.BRANCH.ADD_STOCK} element={<AddStock />} />
       <Route path={ROUTES.BRANCH.VIEW_STOCKS} element={<ViewStocks />} />
     </Route>

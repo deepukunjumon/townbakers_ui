@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { Box, TextField, Button, Typography, MenuItem } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
+import TextFieldComponent from "../../components/TextFieldComponent";
 import apiConfig from "../../config/apiConfig";
-import { getToken, getBranchIdFromToken } from "../../utils/auth";
+import { getToken } from "../../utils/auth";
 
-const CreateEmployee = () => {
+const CreateEmployeeByAdmin = () => {
   const [form, setForm] = useState({
     employee_code: "",
     name: "",
     mobile: "",
     designation_id: "",
+    branch_id: "",
   });
 
+  const [branches, setBranches] = useState([]);
   const [designations, setDesignations] = useState([]);
   const [snack, setSnack] = useState({
     open: false,
@@ -20,6 +23,23 @@ const CreateEmployee = () => {
   });
 
   useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const res = await fetch(`${apiConfig.BASE_URL}/branches/minimal`, {
+          headers: { Authorization: getToken() },
+        });
+        const data = await res.json();
+        if (res.ok) setBranches(data.branches || []);
+        else throw new Error();
+      } catch {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to fetch branches",
+        });
+      }
+    };
+
     const fetchDesignations = async () => {
       try {
         const res = await fetch(`${apiConfig.BASE_URL}/designations`, {
@@ -37,6 +57,7 @@ const CreateEmployee = () => {
       }
     };
 
+    fetchBranches();
     fetchDesignations();
   }, []);
 
@@ -46,33 +67,14 @@ const CreateEmployee = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const branch_id = getBranchIdFromToken();
-    if (!branch_id) {
-      setSnack({
-        open: true,
-        severity: "error",
-        message: "Branch ID missing in token.",
-      });
-      return;
-    }
-
-    const payload = {
-      ...form,
-      branch_id,
-    };
-
-    console.log("Submitting form", form);
-    console.log("Branch ID from token", getBranchIdFromToken());
-
     try {
-      const res = await fetch(`${apiConfig.BASE_URL}/branch/create/employee`, {
+      const res = await fetch(`${apiConfig.BASE_URL}/admin/create/employee`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: getToken(),
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(form),
       });
 
       const data = await res.json();
@@ -88,6 +90,7 @@ const CreateEmployee = () => {
           name: "",
           mobile: "",
           designation_id: "",
+          branch_id: "",
         });
       }
     } catch {
@@ -113,7 +116,7 @@ const CreateEmployee = () => {
       </Typography>
 
       <form onSubmit={handleSubmit}>
-        <TextField
+        <TextFieldComponent
           name="employee_code"
           label="Employee Code"
           value={form.employee_code}
@@ -122,7 +125,7 @@ const CreateEmployee = () => {
           required
           margin="normal"
         />
-        <TextField
+        <TextFieldComponent
           name="name"
           label="Name"
           value={form.name}
@@ -131,7 +134,7 @@ const CreateEmployee = () => {
           required
           margin="normal"
         />
-        <TextField
+        <TextFieldComponent
           name="mobile"
           label="Mobile Number"
           value={form.mobile}
@@ -140,16 +143,13 @@ const CreateEmployee = () => {
           required
           margin="normal"
         />
-
-        <TextField
-          select
-          name="designation_id"
+        <TextFieldComponent
           label="Designation"
+          name="designation_id"
+          type="select"
           value={form.designation_id || ""}
           onChange={handleChange}
-          fullWidth
           required
-          margin="normal"
         >
           {designations.length === 0 ? (
             <MenuItem disabled>Loading designations...</MenuItem>
@@ -160,7 +160,28 @@ const CreateEmployee = () => {
               </MenuItem>
             ))
           )}
-        </TextField>
+        </TextFieldComponent>
+
+
+        <TextFieldComponent
+          label="Branch"
+          name="branch_id"
+          type="select"
+          value={form.branch_id}
+          onChange={handleChange}
+          required
+        // margin="normal"
+        >
+          {branches.length === 0 ? (
+            <MenuItem disabled>Loading branches...</MenuItem>
+          ) : (
+            branches.map((branch) => (
+              <MenuItem key={branch.id} value={branch.id}>
+                {branch.name}
+              </MenuItem>
+            ))
+          )}
+        </TextFieldComponent>
 
         <Button
           type="submit"
@@ -171,8 +192,8 @@ const CreateEmployee = () => {
           Create Employee
         </Button>
       </form>
-    </Box>
+    </Box >
   );
 };
 
-export default CreateEmployee;
+export default CreateEmployeeByAdmin;

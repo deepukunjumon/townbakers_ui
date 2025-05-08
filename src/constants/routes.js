@@ -7,6 +7,7 @@ export const ROUTES = {
   ADMIN: {
     ROOT: "/admin",
     DASHBOARD: "/admin/dashboard",
+    CREATE_EMPLOYEE: "/admin/create/employee",
     STOCK_SUMMARY: "/admin/stocks/summary",
   },
 
@@ -16,6 +17,6 @@ export const ROUTES = {
     CREATE_EMPLOYEE: "/branch/employee/create",
     ADD_STOCK: "/branch/stock/add",
     VIEW_STOCKS: "/branch/stocks/view",
-    LIST_EMPLOYEES: "/branch/employees"
+    LIST_EMPLOYEES: "/branch/employees",
   },
 };
