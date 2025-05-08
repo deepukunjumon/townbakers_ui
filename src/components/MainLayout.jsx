@@ -30,6 +30,8 @@ const MainLayout = ({ children, menuItems = [] }) => {
           ml: {
             xs: 0,
             sm: open ? `${drawerWidth}px` : "50px",
+            md: open ? `${drawerWidth}px` : "50px",
+            lg: open ? `${drawerWidth - 100}px` : "-400px",
           },
           transition: "margin-left 0.3s ease",
           mt: { xs: 7, sm: 1 },
@@ -39,7 +41,7 @@ const MainLayout = ({ children, menuItems = [] }) => {
         <Toolbar sx={{ display: { xs: "none", sm: "block" } }} />
         {children}
       </Box>
-    </Box >
+    </Box>
   );
 };
 
