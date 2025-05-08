@@ -11,6 +11,7 @@ const SelectFieldComponent = ({
   required = false,
   fullWidth = true,
   margin = "normal",
+  sx = {},
 }) => {
   const getOptionLabel = (option) =>
     typeof option === "string" ? option : option[displayKey] || "";
@@ -32,6 +33,7 @@ const SelectFieldComponent = ({
         })
       }
       fullWidth={fullWidth}
+      sx={sx}
       renderInput={(params) => (
         <TextField
           {...params}

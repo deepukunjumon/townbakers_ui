@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  TextField,
-  InputAdornment,
-  IconButton,
-} from "@mui/material";
+import { TextField, InputAdornment, IconButton } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
@@ -16,13 +12,16 @@ const TextFieldComponent = ({
   setShowPassword,
   name,
   children,
+  sx = {},
   ...props
 }) => {
-  const isPassword = type === "password" || label.toLowerCase().includes("password");
+  const isPassword =
+    type === "password" || label.toLowerCase().includes("password");
   const isSelect = type === "select";
 
   return (
     <TextField
+      sx={sx}
       select={isSelect}
       name={name}
       label={label}
@@ -34,37 +33,35 @@ const TextFieldComponent = ({
       variant="outlined"
       size="small"
       InputProps={{
-        endAdornment:
-          isPassword ? (
-            <InputAdornment position="end">
-              <IconButton
-                onClick={() => setShowPassword?.((prev) => !prev)}
-                edge="end"
-              >
-                {showPassword ? <VisibilityOff /> : <Visibility />}
-              </IconButton>
-            </InputAdornment>
-          ) : null,
+        endAdornment: isPassword ? (
+          <InputAdornment position="end">
+            <IconButton
+              onClick={() => setShowPassword?.((prev) => !prev)}
+              edge="end"
+            >
+              {showPassword ? <VisibilityOff /> : <Visibility />}
+            </IconButton>
+          </InputAdornment>
+        ) : null,
       }}
       SelectProps={
         isSelect
           ? {
-            MenuProps: {
-              PaperProps: {
-                sx: {
-                  maxHeight: 200,
-                  overflowY: "auto",
+              MenuProps: {
+                PaperProps: {
+                  sx: {
+                    maxHeight: 200,
+                    overflowY: "auto",
+                  },
                 },
               },
-            },
-          }
+            }
           : undefined
       }
       {...props}
     >
       {isSelect && children}
     </TextField>
-
   );
 };
 

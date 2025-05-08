@@ -85,7 +85,7 @@ const Login = () => {
     <Grid
       container
       sx={{
-        minHeight: "100vh",
+        minHeight: { xs: "85vh", md: "100vh" },
         maxWidth: "1600px",
         mx: "auto",
         px: { xs: 6, sm: 18, md: 16 },
@@ -110,8 +110,9 @@ const Login = () => {
           sx={{
             pr: { md: 10 },
             pl: { md: 6 },
-            display: { xs: "none", md: "flex" }, // ensure correct hiding
-          }}        >
+            display: { xs: "none", md: "flex" },
+          }}
+        >
           <Box
             component="img"
             src={login_page_image}
@@ -133,7 +134,9 @@ const Login = () => {
       >
         <Box sx={{ width: "100%", maxWidth: 360 }}>
           <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
-            <Avatar sx={{ bgcolor: "primary.main", width: 64, height: 64, mb: 1 }}>
+            <Avatar
+              sx={{ bgcolor: "primary.main", width: 64, height: 64, mb: 1 }}
+            >
               <LockOutlinedIcon fontSize="large" />
             </Avatar>
             <Typography variant="h5" fontWeight={600}>
