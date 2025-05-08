@@ -5,7 +5,7 @@ import {
   Box,
   CircularProgress,
   useTheme,
-  Stack,
+  useMediaQuery,
 } from "@mui/material";
 
 const StatCard = ({
@@ -19,6 +19,7 @@ const StatCard = ({
   ...rest
 }) => {
   const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.only("xs"));
   const paletteColor = [
     "primary",
     "secondary",
@@ -38,7 +39,7 @@ const StatCard = ({
         borderRadius: 3,
         boxShadow: "0 2px 8px rgba(31,41,55,0.07)",
         display: "flex",
-        flexDirection: "row",
+        flexDirection: isXs ? "row" : "row",
         alignItems: "center",
         justifyContent: "space-between",
         cursor: "pointer",
@@ -51,6 +52,7 @@ const StatCard = ({
           xl: "40%",
         },
         minWidth: { xs: 100, sm: 245, md: 240 },
+        maxWidth: { xs: 135, sm: 240, md: 240 },
         px: 2,
         py: 1,
         transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
@@ -67,34 +69,30 @@ const StatCard = ({
           sx={{
             bgcolor: theme.palette[paletteColor].light,
             color: theme.palette[paletteColor].main,
-            width: 50,
-            height: 50,
+            width: isXs ? 40 : 50,
+            height: isXs ? 40 : 50,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             borderRadius: "50%",
-            fontSize: 24,
-            mr: 2,
-            ml: 2,
+            fontSize: isXs ? 20 : 24,
+            mr: isXs ? 1.5 : 2,
+            ml: isXs ? 0 : 2,
           }}
         >
           {icon}
         </Box>
       )}
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography
-          variant="body2"
-          sx={{
-            fontSize: 14,
-            fontWeight: 600,
-            color: theme.palette[paletteColor].main,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {title}
-        </Typography>
+
+      <Box
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
         {loading ? (
           <Box
             sx={{
@@ -102,28 +100,53 @@ const StatCard = ({
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-start",
+              width: "100%",
             }}
           >
             <CircularProgress size={20} color={paletteColor} />
           </Box>
         ) : (
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              color: "text.primary",
-              mb: 0.2,
-              fontSize: 20,
-              lineHeight: 1.1,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {value}
-          </Typography>
+          <>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: isXs ? "row" : "column",
+                alignItems: isXs ? "center" : "flex-start",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{
+                  fontSize: { xs: 12, sm: 14 },
+                  fontWeight: { xs: 500, sm: 600 },
+                  color: theme.palette[paletteColor].main,
+                  textAlign: isXs ? "left" : "inherit",
+                  mr: isXs ? 1 : 0,
+                }}
+              >
+                {title}
+              </Typography>
+            </Box>
+
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                color: "text.primary",
+                mb: 0.2,
+                fontSize: 20,
+                lineHeight: 1.1,
+                textAlign: isXs ? "center" : "left",
+              }}
+            >
+              {value}
+            </Typography>
+          </>
         )}
-        {subtitle && !loading && (
+
+        {!isXs && subtitle && !loading && (
           <Typography
             variant="caption"
             color="text.secondary"
