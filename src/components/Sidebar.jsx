@@ -12,7 +12,7 @@ import {
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 
-const drawerWidth = 240;
+const drawerWidth = 260;
 
 const Sidebar = ({ open, toggleDrawer, menuItems = [], isMobile }) => {
     const [openSubmenus, setOpenSubmenus] = useState({});
@@ -63,6 +63,7 @@ const Sidebar = ({ open, toggleDrawer, menuItems = [], isMobile }) => {
                                             }}
                                             sx={{ pl: 6, cursor: "pointer" }}
                                         >
+                                            {child.icon && <ListItemIcon>{child.icon}</ListItemIcon>}
                                             <ListItemText primary={child.label} />
                                         </ListItem>
                                     ))}
