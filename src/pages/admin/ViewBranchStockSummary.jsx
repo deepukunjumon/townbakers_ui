@@ -3,6 +3,7 @@ import { Box, Typography, TextField, MenuItem, Button } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TableComponent from "../../components/TableComponent";
 import apiConfig from "../../config/apiConfig";
+import { getToken } from "../../utils/auth";
 
 const ViewBranchStockSummary = () => {
   const [branches, setBranches] = useState([]);
@@ -19,7 +20,7 @@ const ViewBranchStockSummary = () => {
     const fetchBranches = async () => {
       try {
         const res = await fetch(`${apiConfig.BASE_URL}/branches/minimal`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: getToken() },
         });
         const data = await res.json();
         if (res.ok) {
@@ -46,7 +47,7 @@ const ViewBranchStockSummary = () => {
       const res = await fetch(
         `${apiConfig.BASE_URL}/admin/branchwise/stocks/summary?branch_id=${branchId}&date=${date}`,
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: getToken() },
         }
       );
 

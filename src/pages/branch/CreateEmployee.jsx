@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, TextField, Button, Typography, MenuItem } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
-import { getBranchIdFromToken } from "../../utils/auth";
+import { getToken, getBranchIdFromToken } from "../../utils/auth";
 
 const CreateEmployee = () => {
   const [form, setForm] = useState({
@@ -23,7 +23,7 @@ const CreateEmployee = () => {
     const fetchDesignations = async () => {
       try {
         const res = await fetch(`${apiConfig.BASE_URL}/designations`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: getToken() },
         });
         const data = await res.json();
         if (res.ok) setDesignations(data.data || []);
@@ -70,7 +70,7 @@ const CreateEmployee = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: getToken(),
         },
         body: JSON.stringify(payload),
       });

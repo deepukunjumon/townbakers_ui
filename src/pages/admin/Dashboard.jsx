@@ -5,6 +5,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import BusinessIcon from "@mui/icons-material/Business";
 import axios from "axios";
 import apiConfig from "../../config/apiConfig";
+import { getToken } from "../../utils/auth";
 
 const Dashboard = ({ token }) => {
     const [stats, setStats] = useState([]);
@@ -12,7 +13,7 @@ const Dashboard = ({ token }) => {
     useEffect(() => {
         axios.get(apiConfig.DASHBOARD_STATS, {
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Authorization: getToken(),
             },
         })
             .then((res) => {

@@ -6,6 +6,7 @@ import apiConfig from "../../config/apiConfig";
 import TableComponent from "../../components/TableComponent";
 import DateSelector from "../../components/DateSelector";
 import ExportMenu from "../../components/ExportMenu";
+import { getToken } from "../../utils/auth";
 
 const ViewStocks = () => {
   const [date, setDate] = useState(new Date());
@@ -66,7 +67,7 @@ const ViewStocks = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: getToken(),
         },
         body: JSON.stringify({ date: formattedDate }),
       });

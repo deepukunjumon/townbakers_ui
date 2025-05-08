@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, TextField, Button, Typography, MenuItem } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
+import { getToken } from "../../utils/auth";
 
 const CreateEmployeeByAdmin = () => {
   const [form, setForm] = useState({
@@ -24,7 +25,7 @@ const CreateEmployeeByAdmin = () => {
     const fetchBranches = async () => {
       try {
         const res = await fetch(`${apiConfig.BASE_URL}/branches/minimal`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: getToken() },
         });
         const data = await res.json();
         if (res.ok) setBranches(data.branches || []);
@@ -41,7 +42,7 @@ const CreateEmployeeByAdmin = () => {
     const fetchDesignations = async () => {
       try {
         const res = await fetch(`${apiConfig.BASE_URL}/designations`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: getToken() },
         });
         const data = await res.json();
         if (res.ok) setDesignations(data.data || []);
@@ -70,7 +71,7 @@ const CreateEmployeeByAdmin = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: getToken(),
         },
         body: JSON.stringify(form),
       });

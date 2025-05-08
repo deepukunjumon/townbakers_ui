@@ -1,6 +1,9 @@
 import { jwtDecode } from "jwt-decode";
 
-export const getToken = () => localStorage.getItem("token");
+export const getToken = () => {
+  const token = localStorage.getItem("token");
+  return token ? `Bearer ${token}` : "";
+};
 
 export const getRoleFromToken = () => {
   try {

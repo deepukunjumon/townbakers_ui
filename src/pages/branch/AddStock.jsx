@@ -15,7 +15,7 @@ import SnackbarAlert from "../../components/SnackbarAlert";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
 import TextFieldComponent from "../../components/TextFieldComponent";
 import apiConfig from "../../config/apiConfig";
-import { getBranchIdFromToken } from "../../utils/auth";
+import { getToken, getBranchIdFromToken } from "../../utils/auth";
 
 const AddStock = () => {
     const branchId = getBranchIdFromToken();
@@ -74,7 +74,7 @@ const AddStock = () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    Authorization: getToken(),
                 },
                 body: JSON.stringify(payload),
             });
