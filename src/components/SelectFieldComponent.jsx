@@ -1,5 +1,5 @@
 import React from "react";
-import { TextField, MenuItem } from "@mui/material";
+import { Autocomplete, TextField } from "@mui/material";
 
 const SelectFieldComponent = ({
   label,
@@ -11,27 +11,38 @@ const SelectFieldComponent = ({
   required = false,
   fullWidth = true,
   margin = "normal",
+  sx = {},
 }) => {
+  const getOptionLabel = (option) =>
+    typeof option === "string" ? option : option[displayKey] || "";
+
+  const getOptionSelected = (option, val) => option[valueKey] === val[valueKey];
+
   return (
-    <TextField
-      select
-      label={label}
-      value={value}
-      onChange={onChange}
-      required={required}
+    <Autocomplete
+      options={options}
+      getOptionLabel={getOptionLabel}
+      value={options.find((opt) => opt[valueKey] === value) || null}
+      isOptionEqualToValue={(option, val) => option[valueKey] === val[valueKey]}
+      onChange={(event, newValue) =>
+        onChange({
+          target: {
+            value: newValue ? newValue[valueKey] : "",
+            name: label,
+          },
+        })
+      }
       fullWidth={fullWidth}
-      margin={margin}
-    >
-      {options.length === 0 ? (
-        <MenuItem disabled>Loading...</MenuItem>
-      ) : (
-        options.map((option) => (
-          <MenuItem key={option[valueKey]} value={option[valueKey]}>
-            {option[displayKey]}
-          </MenuItem>
-        ))
+      sx={sx}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label={label}
+          required={required}
+          margin={margin}
+        />
       )}
-    </TextField>
+    />
   );
 };
 

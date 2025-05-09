@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Toolbar, useMediaQuery, useTheme } from "@mui/material";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
@@ -8,13 +8,20 @@ const drawerWidth = 240;
 const MainLayout = ({ children, menuItems = [] }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [open, setOpen] = useState(!isMobile);
-  const toggleDrawer = () => setOpen(!open);
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    setOpen(!isMobile);
+  }, [isMobile]);
+
+  const toggleDrawer = () => setOpen((prev) => !prev);
 
   return (
-    <Box sx={{ display: "flex", width: "100%", overflowX: "hidden" }}>
+    <Box sx={{ display: "flex", width: "100%", minHeight: "100vh", bgcolor: "background.default" }}>
+      {/* Top AppBar */}
       <Navbar toggleDrawer={toggleDrawer} />
 
+      {/* Sidebar */}
       <Sidebar
         open={open}
         toggleDrawer={toggleDrawer}
@@ -22,20 +29,22 @@ const MainLayout = ({ children, menuItems = [] }) => {
         isMobile={isMobile}
       />
 
+      {/* Main content */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          p: { xs: 2, sm: 2 },
+          width: {
+            xs: "100%",
+            sm: open ? `calc(100% - ${drawerWidth}px)` : "100%",
+          },
           ml: {
             xs: 0,
-            sm: open ? `${drawerWidth}px` : "50px",
-            md: open ? `${drawerWidth}px` : "50px",
-            lg: open ? `${drawerWidth - 100}px` : "-400px",
+            sm: open ? `${drawerWidth}px` : 0,
           },
-          transition: "margin-left 0.3s ease",
-          mt: { xs: 7, sm: 1 },
-          width: "100%",
+          transition: "margin-left 0.3s ease, width 0.3s ease",
+          p: { xs: 2, sm: 3 },
+          mt: { xs: 7, sm: 8, md: 0 },
         }}
       >
         <Toolbar sx={{ display: { xs: "none", sm: "block" } }} />

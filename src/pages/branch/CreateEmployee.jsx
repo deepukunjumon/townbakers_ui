@@ -100,7 +100,7 @@ const CreateEmployee = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 500, mx: "auto", p: 2 }}>
+    <Box sx={{ mx: "auto", p: 2 }}>
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
