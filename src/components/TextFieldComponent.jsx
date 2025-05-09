@@ -15,7 +15,8 @@ const TextFieldComponent = ({
   sx = {},
   ...props
 }) => {
-  const isPassword = type === "password" || (label && label.toLowerCase().includes("password"));
+  const isPassword =
+    type === "password" || (label && label.toLowerCase().includes("password"));
   const isSelect = type === "select";
 
   return (
