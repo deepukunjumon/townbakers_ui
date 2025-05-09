@@ -15,8 +15,7 @@ const TextFieldComponent = ({
   sx = {},
   ...props
 }) => {
-  const isPassword =
-    type === "password" || label.toLowerCase().includes("password");
+  const isPassword = type === "password" || (label && label.toLowerCase().includes("password"));
   const isSelect = type === "select";
 
   return (
@@ -47,15 +46,15 @@ const TextFieldComponent = ({
       SelectProps={
         isSelect
           ? {
-              MenuProps: {
-                PaperProps: {
-                  sx: {
-                    maxHeight: 200,
-                    overflowY: "auto",
-                  },
+            MenuProps: {
+              PaperProps: {
+                sx: {
+                  maxHeight: 200,
+                  overflowY: "auto",
                 },
               },
-            }
+            },
+          }
           : undefined
       }
       {...props}
