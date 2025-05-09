@@ -6,9 +6,9 @@ import {
   Typography,
   Button,
   Grid,
+  Avatar,
   useTheme,
   useMediaQuery,
-  Avatar,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
@@ -82,100 +82,97 @@ const Login = () => {
   };
 
   return (
-    <Grid
-      container
-      sx={{
-        minHeight: { xs: "85vh", md: "100vh" },
-        maxWidth: "1600px",
-        mx: "auto",
-        px: { xs: 6, sm: 18, md: 16 },
-      }}
-    >
-      <SnackbarAlert
-        open={snack.open}
-        onClose={handleClose}
-        severity={snack.severity}
-        message={snack.message}
-      />
-
-      {/* Right Side - Illustration and Heading */}
-      {!isMobile && (
-        <Grid
-          item
-          md={6}
-          display={{ xs: "none", md: "flex" }}
-          flexDirection="column"
-          justifyContent="center"
-          alignItems="flex-start"
-          sx={{
-            pr: { md: 10 },
-            pl: { md: 6 },
-            display: { xs: "none", md: "flex" },
-          }}
-        >
-          <Box
-            component="img"
-            src={login_page_image}
-            alt="Login Illustration"
-            sx={{ width: "100%", maxWidth: 480, ml: 4 }}
-          />
-        </Grid>
-      )}
-
-      {/* Left Side - Login Form */}
+    <Box sx={{ minHeight: "85vh", display: "block", alignItems: "center" }}>
       <Grid
-        item
-        xs={12}
-        md={6}
-        display="flex"
+        container
+        justifyContent="center"
         alignItems="center"
-        justifyContent="flex-start"
-        sx={{ pl: { xs: 3, md: 12 }, pr: { md: 5 } }}
+        spacing={12}
+        sx={{
+          px: { xs: 2, sm: 8, },
+          minHeight: "90vh",
+          ml: { xs: -4 }
+        }}
       >
-        <Box sx={{ width: "100%", maxWidth: 360 }}>
-          <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
-            <Avatar
-              sx={{ bgcolor: "primary.main", width: 64, height: 64, mb: 1 }}
+        <SnackbarAlert
+          open={snack.open}
+          onClose={handleClose}
+          severity={snack.severity}
+          message={snack.message}
+        />
+
+        {/* Left Side - Image */}
+        {!isMobile && (
+          <Grid item md={6}>
+            <Box
+              sx={{
+                mt: 10,
+                display: "flex",
+                justifyContent: "center",
+              }}
             >
-              <LockOutlinedIcon fontSize="large" />
+              <img
+                src={login_page_image}
+                alt="Login Illustration"
+                width={340}
+                style={{ maxWidth: "100%" }}
+              />
+            </Box>
+          </Grid>
+        )}
+
+        {/* Right Side - Login Form */}
+        <Grid item xs={12} md={4}>
+          <Box
+            sx={{
+              ml: 5,
+              mt: 8,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Avatar sx={{ bgcolor: "primary.main", mb: 1 }}>
+              <LockOutlinedIcon />
             </Avatar>
-            <Typography variant="h5" fontWeight={600}>
-              Sign in
-            </Typography>
-          </Box>
+            <Typography variant="h5">Sign in</Typography>
 
-          <form onSubmit={handleLogin}>
-            <TextFieldComponent
-              label="Login ID"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            <TextFieldComponent
-              label="Password"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              showPassword={showPassword}
-              setShowPassword={setShowPassword}
-              required
-            />
-
-            <Button
-              type="submit"
-              disabled={loading}
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ mt: 3 }}
+            <Box
+              component="form"
+              onSubmit={handleLogin}
+              sx={{ mt: 2, width: "100%", maxWidth: 360 }}
             >
-              {loading ? "Logging in..." : "SIGN IN"}
-            </Button>
-          </form>
-        </Box>
+              <TextFieldComponent
+                label="Login ID"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+              <TextFieldComponent
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                showPassword={showPassword}
+                setShowPassword={setShowPassword}
+                required
+              />
+
+              <Button
+                type="submit"
+                disabled={loading}
+                variant="contained"
+                fullWidth
+                sx={{ mt: 2 }}
+              >
+                {loading ? "Logging in..." : "SIGN IN"}
+              </Button>
+            </Box>
+          </Box>
+        </Grid>
       </Grid>
-    </Grid>
+    </Box>
   );
 };
 
