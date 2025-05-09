@@ -70,12 +70,9 @@ const Dashboard = () => {
   return (
     <Box sx={{
       p: 3,
-      maxWidth: 1200,
+      maxWidth: "100%",
       mx: "auto",
     }}>
-      <Typography variant="h5" mb={3}>
-        Dashboard Overview
-      </Typography>
 
       <Grid container spacing={2}>
         {stats.map((stat, index) => (
