@@ -18,5 +18,6 @@ export const ROUTES = {
     ADD_STOCK: "/branch/stock/add",
     VIEW_STOCKS: "/branch/stocks/view",
     LIST_EMPLOYEES: "/branch/employees",
+    CREATE_ORDER: "/branch/create/order",
   },
 };

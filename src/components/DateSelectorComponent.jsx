@@ -4,19 +4,44 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { Box } from "@mui/material";
 
-const DateSelectorComponent = ({ date, setDate, label = "Select Date" }) => (
-  <Box>
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <DatePicker
-        label={label}
-        value={date}
-        format="dd-MM-yyyy"
-        onChange={setDate}
-        maxDate={new Date()}
-        slotProps={{ textField: { fullWidth: true } }}
-      />
-    </LocalizationProvider>
-  </Box>
-);
+const DateSelectorComponent = ({
+  label = "Select Date",
+  value,
+  onChange,
+  name,
+  minDate,
+  maxDate,
+  required = false,
+  submitted = false,
+}) => {
+  const showError = submitted && required && !value;
+
+  return (
+    <Box>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <DatePicker
+          label={label}
+          value={value}
+          onChange={(newValue) => {
+            if (onChange) {
+              onChange(newValue, name);
+            }
+          }}
+          minDate={minDate}
+          maxDate={maxDate}
+          format="dd-MM-yyyy"
+          slotProps={{
+            textField: {
+              fullWidth: true,
+              required,
+              error: showError,
+              helperText: showError ? "This field is required" : "",
+            },
+          }}
+        />
+      </LocalizationProvider>
+    </Box>
+  );
+};
 
 export default DateSelectorComponent;

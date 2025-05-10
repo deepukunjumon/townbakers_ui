@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Box, TextField, Button, Typography, MenuItem } from "@mui/material";
+import {
+  Box,
+  Typography,
+  MenuItem,
+  Paper,
+  Divider,
+} from "@mui/material";
+import TextFieldComponent from "../../components/TextFieldComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
 import { getToken, getBranchIdFromToken } from "../../utils/auth";
+import ButtonComponent from "../../components/ButtonComponent";
 
 const CreateEmployee = () => {
   const [form, setForm] = useState({
@@ -57,13 +65,7 @@ const CreateEmployee = () => {
       return;
     }
 
-    const payload = {
-      ...form,
-      branch_id,
-    };
-
-    console.log("Submitting form", form);
-    console.log("Branch ID from token", getBranchIdFromToken());
+    const payload = { ...form, branch_id };
 
     try {
       const res = await fetch(`${apiConfig.BASE_URL}/branch/create/employee`, {
@@ -100,7 +102,10 @@ const CreateEmployee = () => {
   };
 
   return (
-    <Box sx={{ mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: 600, mx: "auto", px: 2, py: 4 }}>
+      <Typography variant="h5" gutterBottom>
+        Branch Employees
+      </Typography>
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
@@ -108,69 +113,68 @@ const CreateEmployee = () => {
         message={snack.message}
       />
 
-      <Typography variant="h5" gutterBottom>
-        Create New Employee
-      </Typography>
+      <Paper elevation={3} sx={{ p: 4 }}>
+        <Divider sx={{ mb: 3 }} />
 
-      <form onSubmit={handleSubmit}>
-        <TextField
-          name="employee_code"
-          label="Employee Code"
-          value={form.employee_code}
-          onChange={handleChange}
-          fullWidth
-          required
-          margin="normal"
-        />
-        <TextField
-          name="name"
-          label="Name"
-          value={form.name}
-          onChange={handleChange}
-          fullWidth
-          required
-          margin="normal"
-        />
-        <TextField
-          name="mobile"
-          label="Mobile Number"
-          value={form.mobile}
-          onChange={handleChange}
-          fullWidth
-          required
-          margin="normal"
-        />
+        <form onSubmit={handleSubmit}>
+          <TextFieldComponent
+            name="employee_code"
+            label="Employee Code"
+            value={form.employee_code}
+            onChange={handleChange}
+            fullWidth
+            required
+            margin="normal"
+          />
+          <TextFieldComponent
+            name="name"
+            label="Name"
+            value={form.name}
+            onChange={handleChange}
+            fullWidth
+            required
+            margin="normal"
+          />
+          <TextFieldComponent
+            name="mobile"
+            label="Mobile Number"
+            value={form.mobile}
+            onChange={handleChange}
+            fullWidth
+            required
+            margin="normal"
+          />
+          <TextFieldComponent
+            name="designation_id"
+            label="Designation"
+            type="select"
+            value={form.designation_id || ""}
+            onChange={handleChange}
+            required
+            fullWidth
+            margin="normal"
+          >
+            {designations.length === 0 ? (
+              <MenuItem disabled>Loading designations...</MenuItem>
+            ) : (
+              designations.map((des) => (
+                <MenuItem key={des.id} value={des.id}>
+                  {des.designation}
+                </MenuItem>
+              ))
+            )}
+          </TextFieldComponent>
 
-        <TextField
-          select
-          name="designation_id"
-          label="Designation"
-          value={form.designation_id || ""}
-          onChange={handleChange}
-          fullWidth
-          required
-          margin="normal"
-        >
-          {designations.length === 0 ? (
-            <MenuItem disabled>Loading designations...</MenuItem>
-          ) : (
-            designations.map((des) => (
-              <MenuItem key={des.id} value={des.id}>
-                {des.designation}
-              </MenuItem>
-            ))
-          )}
-        </TextField>
-
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          sx={{ mt: 2 }}
-        >
-          Create Employee
-        </Button>
-      </form>
+          <ButtonComponent
+            type="submit"
+            variant="contained"
+            color="primary"
+            sx={{ mt: 3 }}
+          >
+            Create Employee
+          </ButtonComponent>
+        </form>
+      </Paper>
     </Box>
   );
 };
