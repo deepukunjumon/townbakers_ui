@@ -19,6 +19,7 @@ import AddStock from "../pages/branch/AddStock";
 import CreateEmployee from "../pages/branch/CreateEmployee";
 import ViewStocks from "../pages/branch/ViewStocks";
 import BranchEmployees from "../pages/branch/BranchEmployees";
+import CreateOrder from "../pages/branch/CreateOrder";
 
 const AppRoutes = () => (
   <Routes>
@@ -67,6 +68,7 @@ const AppRoutes = () => (
       />
       <Route path={ROUTES.BRANCH.ADD_STOCK} element={<AddStock />} />
       <Route path={ROUTES.BRANCH.VIEW_STOCKS} element={<ViewStocks />} />
+      <Route path={ROUTES.BRANCH.CREATE_ORDER} element={<CreateOrder />} />
     </Route>
 
     <Route path="*" element={<div>404 Not Found</div>} />

@@ -3,7 +3,6 @@ import { Box, Grid, Typography, Divider, IconButton, useMediaQuery, useTheme } f
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import SnackbarAlert from "../../components/SnackbarAlert";
-import SelectFieldComponent from "../../components/SelectFieldComponent";
 import TextFieldComponent from "../../components/TextFieldComponent";
 import ButtonComponent from "../../components/ButtonComponent";
 import apiConfig from "../../config/apiConfig";
@@ -13,6 +12,7 @@ const AddStock = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const branchId = getBranchIdFromToken();
+
   const [employeeId, setEmployeeId] = useState("");
   const [employeeList, setEmployeeList] = useState([]);
   const [itemList, setItemList] = useState([]);
@@ -21,6 +21,8 @@ const AddStock = () => {
   const [items, setItems] = useState([]);
   const [snack, setSnack] = useState({ open: false, severity: "info", message: "" });
   const [loading, setLoading] = useState({ employees: false, items: false });
+
+  const branchId = getBranchIdFromToken();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,6 +61,30 @@ const AddStock = () => {
 
       } catch (error) {
         console.error("Fetch error:", error);
+        
+    const token = localStorage.getItem("token");
+
+    // Fetch employee list
+    fetch(`${apiConfig.BASE_URL}/employees/minimal`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setEmployeeList(data.employees || []))
+      .catch(() =>
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load employees",
+        })
+      );
+
+    // Fetch items list
+    fetch(`${apiConfig.BASE_URL}/items/list`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setItemList(data.items || []))
+      .catch(() =>
         setSnack({
           open: true,
           severity: "error",
@@ -175,7 +201,7 @@ const AddStock = () => {
   };
 
   return (
-    <Box sx={{ p: isMobile ? 2 : 3 }}>
+    <Box sx={{ maxWidth: 1200, mx: "auto", py: 2, px: 2 }}>
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack(prev => ({ ...prev, open: false }))}
@@ -190,20 +216,75 @@ const AddStock = () => {
       <Divider sx={{ my: 2 }} />
 
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
-          {/* Form Column */}
-          <Grid item xs={12} md={6}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {/* Employee Selection */}
-              <SelectFieldComponent
-                label="Employee"
-                value={employeeId}
-                onChange={(e) => setEmployeeId(e.target.value)}
-                options={employeeList}
-                valueKey="id"
-                displayKey="name"
-                loading={loading.employees}
+        <TextField
+          select
+          label="Select Employee"
+          value={employeeId}
+          onChange={(e) => setEmployeeId(e.target.value)}
+          fullWidth
+          required
+          size="small"
+          margin="dense"
+          sx={{ mb: 2, width: 320 }}
+        >
+          {employeeList.length === 0 ? (
+            <MenuItem disabled>Loading...</MenuItem>
+          ) : (
+            employeeList.map((emp) => (
+              <MenuItem key={emp.id} value={emp.id}>
+                {emp.employee_code} - {emp.name}
+              </MenuItem>
+            ))
+          )}
+        </TextField>
+
+        <Typography variant="subtitle1" sx={{ mt: 3, mb: 1 }}>
+          Item Details
+        </Typography>
+
+        {items.map((item, index) => (
+          <Grid
+            container
+            spacing={1.5}
+            alignItems="center"
+            key={index}
+            sx={{ mb: 1 }}
+          >
+            <Grid item xs={12} sm={5}>
+              <TextField
+                select
+                label="Item"
+                value={item.item_id}
+                onChange={(e) =>
+                  handleItemChange(index, "item_id", e.target.value)
+                }
                 fullWidth
+                required
+                size="small"
+                margin="dense"
+                sx={{ mb: 2, width: 320 }}
+              >
+                {itemList.length === 0 ? (
+                  <MenuItem disabled>Loading...</MenuItem>
+                ) : (
+                  itemList.map((item) => (
+                    <MenuItem key={item.id} value={item.id}>
+                      {item.name}
+                    </MenuItem>
+                  ))
+                )}
+              </TextField>
+            </Grid>
+
+            <Grid item xs={12} sm={5}>
+              <TextFieldComponent
+                label="Quantity"
+                type="number"
+                sx={{ width: 100, height: 48 }}
+                value={item.quantity}
+                onChange={(e) =>
+                  handleItemChange(index, "quantity", e.target.value)
+                }
                 required
               />
 

@@ -104,7 +104,7 @@ const CreateEmployee = () => {
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", px: 2, py: 4 }}>
       <Typography variant="h5" gutterBottom>
-        Branch Employees
+        Add Employee
       </Typography>
       <SnackbarAlert
         open={snack.open}

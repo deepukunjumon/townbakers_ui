@@ -22,8 +22,15 @@ const Dashboard = () => {
       onClick: () => navigate(ROUTES.BRANCH.LIST_EMPLOYEES),
     },
     {
-      title: "Total Branches",
-      subtitle: "Active branches count",
+      title: "Total Upcoming Orders",
+      subtitle: "Count of pending orders",
+      loading: true,
+      color: "warning",
+      icon: <BusinessIcon />,
+    },
+    {
+      title: "Today's Pending Oders",
+      subtitle: "Orders to be completed today",
       loading: true,
       color: "info",
       icon: <BusinessIcon />,
@@ -50,10 +57,24 @@ const Dashboard = () => {
                   loading: false,
                 };
               }
+              if (stat.title === "Total Upcoming Orders") {
+                return {
+                  ...stat,
+                  value: data.pending_orders_count,
+                  loading: false,
+                };
+              }
               if (stat.title === "Total Branches") {
                 return {
                   ...stat,
                   value: data.active_branches_count,
+                  loading: false,
+                };
+              }
+              if (stat.title === "Today's Pending Oders") {
+                return {
+                  ...stat,
+                  value: data.todays_pending_orders_count,
                   loading: false,
                 };
               }
@@ -73,7 +94,6 @@ const Dashboard = () => {
       maxWidth: "100%",
       mx: "auto",
     }}>
-
       <Grid container spacing={2}>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
