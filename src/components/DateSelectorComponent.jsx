@@ -13,6 +13,7 @@ const DateSelectorComponent = ({
   maxDate,
   required = false,
   submitted = false,
+  sx = {},
 }) => {
   const showError = submitted && required && !value;
 
@@ -36,6 +37,9 @@ const DateSelectorComponent = ({
               required,
               error: showError,
               helperText: showError ? "This field is required" : "",
+              sx: {
+                ...sx,
+              },
             },
           }}
         />

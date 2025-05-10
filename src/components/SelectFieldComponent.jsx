@@ -7,7 +7,7 @@ const SelectFieldComponent = ({
   onChange,
   options = [],
   valueKey = "id",
-  displayKey = "name",
+  displayKey = "",
   required = false,
   fullWidth = true,
   submitted = false,

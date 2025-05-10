@@ -132,7 +132,7 @@ const CreateOrder = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 1100, mx: "auto", my: 4 }}>
+    <Box sx={{ maxWidth: 1100, mx: "auto", my: 4, px: { xs: 3.5 } }}>
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
@@ -152,7 +152,7 @@ const CreateOrder = () => {
             Create New Order
           </Typography>
         </Grid>
-        <Grid item sx={{ width: 250 }}>
+        <Grid item sx={{ width: 250, mt: 1 }}>
           <Typography variant="body1" sx={{ fontWeight: 500 }}>
             Date: {new Date(form.order_date).toLocaleDateString("en-GB")}
           </Typography>
@@ -160,14 +160,14 @@ const CreateOrder = () => {
       </Grid>
       <form onSubmit={handleSubmit}>
         {/* Order Details */}
-        <Grid container spacing={3}>
+        <Grid container spacing={3} gap={{ xs: 0 }}>
           <Grid item xs={12} sm={8}>
             <TextFieldComponent
               label="Order Title"
               name="title"
               value={form.title}
               onChange={handleChange}
-              fullWidth
+              sx={{ minWidth: { xs: 340 } }}
               required
             />
           </Grid>
@@ -177,7 +177,7 @@ const CreateOrder = () => {
               name="description"
               value={form.description}
               onChange={handleChange}
-              fullWidth
+              sx={{ minWidth: { xs: 340 } }}
               multiline
               rows={3}
             />
@@ -188,7 +188,7 @@ const CreateOrder = () => {
               name="remarks"
               value={form.remarks}
               onChange={handleChange}
-              fullWidth
+              sx={{ minWidth: { xs: 340 } }}
               multiline
               rows={3}
             />
@@ -213,16 +213,17 @@ const CreateOrder = () => {
               value={form.delivery_date}
               onChange={handleDateChange}
               minDate={new Date()}
-              fullWidth
+              sx={{ minWidth: { xs: 340 } }}
               required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TimePickerComponent
-              label="Delivery Time*"
+              label="Delivery Time"
               name="delivery_time"
               value={form.delivery_time}
               onChange={handleTimeChange}
+              sx={{ minWidth: { xs: 340 } }}
               required
             />
           </Grid>
@@ -238,14 +239,14 @@ const CreateOrder = () => {
           Customer Details
         </Typography>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={3} gap={{ xs: 0 }}>
           <Grid item xs={12} sm={6}>
             <TextFieldComponent
               label="Customer Name"
               name="customer_name"
               value={form.customer_name}
               onChange={handleChange}
-              fullWidth
+              sx={{ minWidth: { xs: 340 } }}
               required
             />
           </Grid>
@@ -255,7 +256,7 @@ const CreateOrder = () => {
               name="customer_mobile"
               value={form.customer_mobile}
               onChange={handleChange}
-              fullWidth
+              sx={{ minWidth: { xs: 340 } }}
               required
             />
           </Grid>
@@ -265,7 +266,7 @@ const CreateOrder = () => {
               name="customer_email"
               value={form.customer_email}
               onChange={handleChange}
-              fullWidth
+              sx={{ minWidth: { xs: 340 } }}
               type="email"
             />
           </Grid>
@@ -282,7 +283,7 @@ const CreateOrder = () => {
         </Typography>
 
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={6} sx={{ width: 150 }}>
             <TextFieldComponent
               label="Total Amount"
               name="total_amount"
@@ -294,6 +295,25 @@ const CreateOrder = () => {
               inputProps={{ min: 0, step: 0.01 }}
             />
           </Grid>
+
+          {paymentStatus === "1" && (
+            <Grid item xs={12} sm={6} sx={{ mt: 0, width: 150 }}>
+              <TextFieldComponent
+                label="Advance Amount"
+                name="advance_amount"
+                type="number"
+                value={form.advance_amount}
+                onChange={handleChange}
+                required
+                fullWidth
+                inputProps={{
+                  min: 0,
+                  max: form.total_amount || undefined,
+                  step: 0.01,
+                }}
+              />
+            </Grid>
+          )}
 
           <Grid item xs={12} sm={6} sx={{ mt: -3 }}>
             <Typography variant="subtitle2" sx={{ mb: 1 }}>
@@ -317,25 +337,6 @@ const CreateOrder = () => {
               <FormControlLabel value="0" control={<Radio />} label="Unpaid" />
             </RadioGroup>
           </Grid>
-
-          {paymentStatus === "1" && (
-            <Grid item xs={12} sm={6}>
-              <TextFieldComponent
-                label="Advance Amount"
-                name="advance_amount"
-                type="number"
-                value={form.advance_amount}
-                onChange={handleChange}
-                required
-                fullWidth
-                inputProps={{
-                  min: 0,
-                  max: form.total_amount || undefined,
-                  step: 0.01,
-                }}
-              />
-            </Grid>
-          )}
         </Grid>
 
         <Divider sx={{ my: 3 }} />
@@ -359,7 +360,7 @@ const CreateOrder = () => {
               displayKey="name"
               required
               fullWidth
-              sx={{ minWidth: 300 }}
+              sx={{ minWidth: { xs: 340 } }}
             />
           </Grid>
         </Grid>
