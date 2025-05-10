@@ -16,10 +16,12 @@ const TimePickerComponent = ({
   ...props
 }) => {
   const handleTimeChange = (newValue) => {
-    const formattedTime = newValue
-      ? newValue.toTimeString().substring(0, 5)
-      : "";
-    onChange(formattedTime);
+    if (onChange) {
+      const formattedTime = newValue
+        ? newValue.toTimeString().substring(0, 5)
+        : "";
+      onChange(formattedTime);
+    }
   };
 
   const timeValue = value ? new Date(`1970-01-01T${value}`) : null;
@@ -30,7 +32,7 @@ const TimePickerComponent = ({
         label={label}
         value={timeValue}
         onChange={handleTimeChange}
-        ampm={false} // 24-hour format
+        ampm={true}
         slotProps={{
           textField: {
             fullWidth,
