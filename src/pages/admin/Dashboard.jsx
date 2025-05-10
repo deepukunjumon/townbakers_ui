@@ -23,6 +23,13 @@ const Dashboard = () => {
       color: "info",
       icon: <BusinessIcon />,
     },
+    {
+      title: "Pending Orders",
+      subtitle: "Pending orders count",
+      loading: true,
+      color: "warning",
+      icon: <BusinessIcon />,
+    },
   ]);
 
   useEffect(() => {
@@ -52,6 +59,13 @@ const Dashboard = () => {
                   loading: false,
                 };
               }
+              if (stat.title === "Pending Orders") {
+                return {
+                  ...stat,
+                  value: data.pending_orders_count,
+                  loading: false,
+                };
+              }
               return stat;
             })
           );
@@ -63,12 +77,13 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <Box sx={{
-      p: 3,
-      maxWidth: "100%",
-      mx: "auto"
-    }}>
-
+    <Box
+      sx={{
+        p: 3,
+        maxWidth: "100%",
+        mx: "auto",
+      }}
+    >
       <Grid container spacing={2}>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
