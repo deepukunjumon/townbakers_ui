@@ -12,14 +12,12 @@ import {
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import SnackbarAlert from "../../components/SnackbarAlert";
-import SelectFieldComponent from "../../components/SelectFieldComponent";
 import TextFieldComponent from "../../components/TextFieldComponent";
 import apiConfig from "../../config/apiConfig";
 import { getToken, getBranchIdFromToken } from "../../utils/auth";
 import ButtonComponent from "../../components/ButtonComponent";
 
 const AddStock = () => {
-  const branchId = getBranchIdFromToken();
   const [employeeId, setEmployeeId] = useState("");
   const [employeeList, setEmployeeList] = useState([]);
   const [itemList, setItemList] = useState([]);
@@ -30,9 +28,12 @@ const AddStock = () => {
     message: "",
   });
 
+  const branchId = getBranchIdFromToken();
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
+    // Fetch employee list
     fetch(`${apiConfig.BASE_URL}/employees/minimal`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -46,6 +47,7 @@ const AddStock = () => {
         })
       );
 
+    // Fetch items list
     fetch(`${apiConfig.BASE_URL}/items/list`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -95,7 +97,7 @@ const AddStock = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 720, mx: "auto", py: 2, px: 2 }}>
+    <Box sx={{ maxWidth: 1200, mx: "auto", py: 2, px: 2 }}>
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
@@ -119,7 +121,7 @@ const AddStock = () => {
           required
           size="small"
           margin="dense"
-          sx={{ mb: 2, width: 500 }}
+          sx={{ mb: 2, width: 320 }}
         >
           {employeeList.length === 0 ? (
             <MenuItem disabled>Loading...</MenuItem>
@@ -145,19 +147,29 @@ const AddStock = () => {
             sx={{ mb: 1 }}
           >
             <Grid item xs={12} sm={5}>
-              <SelectFieldComponent
+              <TextField
+                select
                 label="Item"
                 value={item.item_id}
                 onChange={(e) =>
                   handleItemChange(index, "item_id", e.target.value)
                 }
-                options={itemList}
-                valueKey="id"
-                displayKey="name"
-                required
                 fullWidth
-                sx={{ width: 300 }}
-              />
+                required
+                size="small"
+                margin="dense"
+                sx={{ mb: 2, width: 320 }}
+              >
+                {itemList.length === 0 ? (
+                  <MenuItem disabled>Loading...</MenuItem>
+                ) : (
+                  itemList.map((item) => (
+                    <MenuItem key={item.id} value={item.id}>
+                      {item.name}
+                    </MenuItem>
+                  ))
+                )}
+              </TextField>
             </Grid>
 
             <Grid item xs={12} sm={5}>
