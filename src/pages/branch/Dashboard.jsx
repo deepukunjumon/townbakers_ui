@@ -89,13 +89,11 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <Box
-      sx={{
-        p: 3,
-        maxWidth: "100%",
-        mx: "auto",
-      }}
-    >
+    <Box sx={{
+      p: 3,
+      maxWidth: "100%",
+      mx: "auto",
+    }}>
       <Grid container spacing={2}>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={index}>

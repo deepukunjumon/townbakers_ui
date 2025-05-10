@@ -58,13 +58,15 @@ const BranchEmployees = () => {
         message={snack.message}
       />
 
-      {loading ? (
-        <Box sx={{ textAlign: "center", mt: 4 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <TableComponent rows={employees} columns={columns} rowIdField="id" />
-      )}
+      {
+        loading ? (
+          <Box sx={{ textAlign: "center", mt: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <TableComponent rows={employees} columns={columns} rowIdField="id" />
+        )
+      }
     </Box>
   );
 };
