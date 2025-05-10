@@ -113,7 +113,6 @@ const AddStock = () => {
       <Divider sx={{ my: 2 }} />
 
       <form onSubmit={handleSubmit}>
-        {/* Employee Selection */}
         <TextField
           select
           label="Select Employee"
@@ -123,7 +122,7 @@ const AddStock = () => {
           required
           size="small"
           margin="dense"
-          sx={{ mb: 2, width: 500 }}
+          sx={{ mb: 2, width: { xs: 320 } }}
         >
           {employeeList.length === 0 ? (
             <MenuItem disabled>Loading...</MenuItem>
@@ -140,7 +139,6 @@ const AddStock = () => {
           Item Details
         </Typography>
 
-        {/* Item List Iteration */}
         {items.map((item, index) => (
           <Grid
             container
@@ -153,7 +151,7 @@ const AddStock = () => {
               <TextField
                 select
                 label="Item"
-                value={item.item_id} // Use item.item_id to manage item selection for each row
+                value={item.item_id}
                 onChange={(e) =>
                   handleItemChange(index, "item_id", e.target.value)
                 }
@@ -161,7 +159,7 @@ const AddStock = () => {
                 required
                 size="small"
                 margin="dense"
-                sx={{ mb: 2, width: 500 }}
+                sx={{ mb: 2, width: { xs: 320 } }}
               >
                 {itemList.length === 0 ? (
                   <MenuItem disabled>Loading...</MenuItem>
