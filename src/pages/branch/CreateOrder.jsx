@@ -17,7 +17,6 @@ import TextFieldComponent from "../../components/TextFieldComponent";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import TimePickerComponent from "../../components/TimePickerComponent";
 import axios from "axios";
-import { color } from "framer-motion";
 
 const initialFormState = {
   title: "",
@@ -69,7 +68,24 @@ const CreateOrder = () => {
   };
 
   const handleTimeChange = (time, name) => {
-    setForm({ ...form, [name]: time });
+    if (!time) {
+      setForm({ ...form, [name]: null });
+      return;
+    }
+
+    if (time instanceof Date) {
+      const hours = String(time.getHours()).padStart(2, "0");
+      const minutes = String(time.getMinutes()).padStart(2, "0");
+      setForm({ ...form, [name]: `${hours}:${minutes}` });
+      return;
+    }
+
+    if (typeof time === "string" && time.match(/^\d{2}:\d{2}$/)) {
+      setForm({ ...form, [name]: time });
+      return;
+    }
+
+    setForm({ ...form, [name]: null });
   };
 
   const handleSubmit = async (e) => {
@@ -101,7 +117,7 @@ const CreateOrder = () => {
       delivery_date: form.delivery_date
         ? new Date(form.delivery_date).toISOString().split("T")[0]
         : "",
-      delivery_time: form.delivery_time ? formatTime(form.delivery_time) : "",
+      delivery_time: form.delivery_time || "",
       payment_status: parseInt(paymentStatus),
     };
 
@@ -222,7 +238,7 @@ const CreateOrder = () => {
               label="Delivery Time"
               name="delivery_time"
               value={form.delivery_time}
-              onChange={handleTimeChange}
+              onChange={(time) => handleTimeChange(time, "delivery_time")}
               sx={{ minWidth: { xs: 340 } }}
               required
             />
