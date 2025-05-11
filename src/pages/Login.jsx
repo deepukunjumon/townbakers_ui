@@ -48,9 +48,12 @@ const Login = () => {
       });
       const data = await res.json();
 
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
       if (data.password_reset_required) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
 
         setSnack({
           open: true,
