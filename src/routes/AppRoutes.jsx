@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { ROUTES } from "../constants/routes";
 
 import Login from "../pages/Login";
+import ResetPassword from "../pages/ResetPassword";
 import Unauthorized from "../pages/Unauthorized";
 
 import ProtectedRoute from "./ProtectedRoute";
@@ -27,6 +28,7 @@ const AppRoutes = () => (
     <Route path={ROUTES.ROOT} element={<Login />} />
     <Route path={ROUTES.LOGIN} element={<Login />} />
     <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
+    <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
 
     {/* Admin Protected */}
     <Route

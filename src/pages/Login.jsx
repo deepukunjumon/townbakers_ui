@@ -48,6 +48,24 @@ const Login = () => {
       });
       const data = await res.json();
 
+      if (data.password_reset_required) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        setSnack({
+          open: true,
+          severity: "info",
+          message: "Password reset required. Redirecting...",
+        });
+
+        setTimeout(() => {
+          navigate(ROUTES.RESET_PASSWORD);
+        }, 1000);
+
+        setLoading(false);
+        return;
+      }
+
       if (res.ok && data.success) {
         setSnack({
           open: true,
@@ -89,9 +107,9 @@ const Login = () => {
         alignItems="center"
         spacing={12}
         sx={{
-          px: { xs: 2, sm: 8, },
+          px: { xs: 2, sm: 8 },
           minHeight: "90vh",
-          ml: { xs: -4 }
+          ml: { xs: -4 },
         }}
       >
         <SnackbarAlert
