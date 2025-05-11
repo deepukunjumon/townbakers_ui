@@ -8,6 +8,7 @@ import ButtonComponent from "../../components/ButtonComponent";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ExportMenu from "../../components/ExportMenu";
 import { getToken } from "../../utils/auth";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 const ViewStocks = () => {
   const [date, setDate] = useState(new Date());
@@ -123,10 +124,13 @@ const ViewStocks = () => {
       />
 
       <Box display="flex" gap={2} my={2} alignItems="center">
-        <DateSelectorComponent date={date} setDate={setDate} />
-        <Button variant="outlined" onClick={fetchStocks}>
-          Refresh
-        </Button>
+        <DateSelectorComponent
+          sx={{ width: { xs: 200 } }}
+          date={new Date(date)}
+          maxDate={new Date()}
+          setDate={setDate}
+        />
+        <RefreshIcon sx={{ cursor: "pointer" }} onClick={fetchStocks} />
         <ExportMenu
           anchorEl={anchorEl}
           open={menuOpen}

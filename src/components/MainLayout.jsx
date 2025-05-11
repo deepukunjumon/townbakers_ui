@@ -17,7 +17,14 @@ const MainLayout = ({ children, menuItems = [] }) => {
   const toggleDrawer = () => setOpen((prev) => !prev);
 
   return (
-    <Box sx={{ display: "flex", width: "100%", minHeight: "100vh", bgcolor: "background.default" }}>
+    <Box
+      sx={{
+        display: "flex",
+        width: "100%",
+        minHeight: "100vh",
+        bgcolor: "background.default",
+      }}
+    >
       {/* Top AppBar */}
       <Navbar toggleDrawer={toggleDrawer} />
 
