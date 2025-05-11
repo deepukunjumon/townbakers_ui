@@ -11,6 +11,7 @@ const apiConfig = {
   BRANCH_DASHBOARD_STATS: `${API_BASE_URL}/branch/dashboard/stats`,
 
   LOGIN_URL: `${API_BASE_URL}/login`,
+  RESET_PASSWORD_URL: `${API_BASE_URL}/password/reset`,
   LOGOUT_URL: `${API_BASE_URL}/logout`,
 
   USERS_COUNTS: `${API_BASE_URL}/admin/users/status/counts`,
