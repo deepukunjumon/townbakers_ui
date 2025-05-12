@@ -20,7 +20,7 @@ const MainLayout = ({ children, menuItems = [] }) => {
     <Box
       sx={{
         display: "flex",
-        width: "100%",
+        maxWidth: "100%",
         minHeight: "100vh",
         bgcolor: "background.default",
       }}
@@ -51,7 +51,7 @@ const MainLayout = ({ children, menuItems = [] }) => {
           },
           transition: "margin-left 0.3s ease, width 0.3s ease",
           p: { xs: 2, sm: 3 },
-          mt: { xs: 7, sm: 8, md: 0 },
+          mt: { xs: 7, sm: 0, md: 0 },
         }}
       >
         <Toolbar sx={{ display: { xs: "none", sm: "block" } }} />

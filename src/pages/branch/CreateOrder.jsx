@@ -148,7 +148,7 @@ const CreateOrder = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 1100, mx: "auto", my: 4, px: { xs: -3 } }}>
+    <Box sx={{ mx: "auto", my: 4, px: { xs: -3, md: 9 } }}>
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
@@ -176,14 +176,14 @@ const CreateOrder = () => {
       </Grid>
       <form onSubmit={handleSubmit}>
         {/* Order Details */}
-        <Grid container spacing={3} gap={{ xs: 0 }}>
+        <Grid container spacing={3} gap={{ xs: 0, sm: 3, md: 3 }}>
           <Grid item xs={12} sm={8}>
             <TextFieldComponent
               label="Order Title"
               name="title"
               value={form.title}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 340, sm: 705, md: 705 } }}
               required
             />
           </Grid>
@@ -193,7 +193,7 @@ const CreateOrder = () => {
               name="description"
               value={form.description}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 340, md: 360 } }}
               multiline
               rows={3}
             />
@@ -204,7 +204,7 @@ const CreateOrder = () => {
               name="remarks"
               value={form.remarks}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 340, md: 320 } }}
               multiline
               rows={3}
             />
@@ -255,7 +255,12 @@ const CreateOrder = () => {
           Customer Details
         </Typography>
 
-        <Grid container spacing={3} gap={{ xs: 0 }}>
+        <Grid
+          container
+          spacing={3}
+          gap={{ xs: 0, sm: 3 }}
+          pr={{ xs: 0, sm: 3 }}
+        >
           <Grid item xs={12} sm={6}>
             <TextFieldComponent
               label="Customer Name"
@@ -368,7 +373,7 @@ const CreateOrder = () => {
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <SelectFieldComponent
-              label="employee"
+              label="Employee"
               value={form.employee}
               onChange={(e) => setForm({ ...form, employee: e.target.value })}
               options={employeeList}
@@ -384,13 +389,13 @@ const CreateOrder = () => {
         <Divider sx={{ my: 3 }} />
 
         {/* Submit */}
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
           <ButtonComponent
             type="submit"
             variant="contained"
             color="primary"
             size="large"
-            sx={{ px: 5, py: 1.5, fontSize: "1rem" }}
+            sx={{ fontSize: "0.9rem" }}
           >
             Create Order
           </ButtonComponent>
