@@ -378,7 +378,7 @@ const CreateOrder = () => {
               onChange={(e) => setForm({ ...form, employee: e.target.value })}
               options={employeeList}
               valueKey="id"
-              displayKey="name"
+              displayKey={(emp) => `${emp.employee_code} - ${emp.name}`}
               required
               fullWidth
               sx={{ minWidth: { xs: 340 } }}

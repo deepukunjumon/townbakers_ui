@@ -7,7 +7,7 @@ const SelectFieldComponent = ({
   onChange,
   options = [],
   valueKey = "id",
-  displayKey = "",
+  displayKey = "name",
   required = false,
   fullWidth = true,
   submitted = false,
@@ -15,10 +15,17 @@ const SelectFieldComponent = ({
 }) => {
   const showError = submitted && required && !value;
 
+  const getOptionLabel = (option) => {
+    if (typeof displayKey === "function") {
+      return displayKey(option);
+    }
+    return option?.[displayKey] || "";
+  };
+
   return (
     <Autocomplete
       options={options}
-      getOptionLabel={(option) => option?.[displayKey] || ""}
+      getOptionLabel={getOptionLabel}
       isOptionEqualToValue={(option, value) =>
         option?.[valueKey] === value?.[valueKey]
       }
