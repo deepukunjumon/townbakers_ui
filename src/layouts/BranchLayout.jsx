@@ -59,6 +59,11 @@ const BranchLayout = () => {
           label: "Create Order",
           onClick: () => navigate(ROUTES.BRANCH.CREATE_ORDER),
         },
+        {
+          icon: <FormatListBulletedAddIcon />,
+          label: "Orders",
+          onClick: () => navigate(ROUTES.BRANCH.LIST_ORDERS),
+        },
       ],
     },
   ];
