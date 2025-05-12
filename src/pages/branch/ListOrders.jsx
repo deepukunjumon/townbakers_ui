@@ -133,14 +133,14 @@ const ListOrders = () => {
 
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
         <Grid container spacing={2} sx={{ maxWidth: 600 }}>
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={6}>
             <DateSelectorComponent
               label="Start Date"
               value={startDate}
               onChange={handleStartDateChange}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={6}>
             <DateSelectorComponent
               label="End Date"
               value={endDate}
@@ -155,7 +155,7 @@ const ListOrders = () => {
           value={search}
           onChange={handleSearchChange}
           variant="outlined"
-          sx={{ mb: 2, width: 250 }}
+          sx={{ mb: 2, width: { xs: "100%", sm: 250 } }}
         />
       </Box>
 
