@@ -8,11 +8,7 @@ const drawerWidth = 240;
 const MainLayout = ({ children, menuItems = [] }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const [open, setOpen] = useState(true);
-
-  useEffect(() => {
-    setOpen(!isMobile);
-  }, [isMobile]);
+  const [open, setOpen] = useState(false);
 
   const toggleDrawer = () => setOpen((prev) => !prev);
 
