@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Button, CircularProgress } from "@mui/material";
+import { Box, Typography, CircularProgress } from "@mui/material";
 import format from "date-fns/format";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
 import TableComponent from "../../components/TableComponent";
-import ButtonComponent from "../../components/ButtonComponent";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ExportMenu from "../../components/ExportMenu";
 import { getToken } from "../../utils/auth";
@@ -60,9 +59,9 @@ const ViewStocks = () => {
     handleExportClose();
   };
 
-  const fetchStocks = async () => {
+  const fetchStocks = async (selectedDate) => {
     setLoading(true);
-    const formattedDate = format(date, "yyyy-MM-dd");
+    const formattedDate = format(selectedDate, "yyyy-MM-dd");
 
     try {
       const res = await fetch(`${apiConfig.BASE_URL}/stocks/summary`, {
@@ -102,8 +101,17 @@ const ViewStocks = () => {
   };
 
   useEffect(() => {
-    fetchStocks();
+    fetchStocks(date);
   }, [date]);
+
+  const handleDateChange = (newDate) => {
+    setDate(newDate);
+    fetchStocks(newDate);
+  };
+
+  const handleRefresh = () => {
+    fetchStocks(date);
+  };
 
   const columns = [
     { field: "item_name", headerName: "Item", flex: 2 },
@@ -126,11 +134,14 @@ const ViewStocks = () => {
       <Box display="flex" gap={2} my={2} alignItems="center">
         <DateSelectorComponent
           sx={{ width: { xs: 200 } }}
-          date={new Date(date)}
+          value={date}
           maxDate={new Date()}
-          setDate={setDate}
+          onChange={handleDateChange}
         />
-        <RefreshIcon sx={{ cursor: "pointer" }} onClick={fetchStocks} />
+        <RefreshIcon 
+          sx={{ cursor: "pointer", color: "primary.main" }} 
+          onClick={handleRefresh} 
+        />
         <ExportMenu
           anchorEl={anchorEl}
           open={menuOpen}
