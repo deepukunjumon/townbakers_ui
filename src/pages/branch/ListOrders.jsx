@@ -5,8 +5,8 @@ import SnackbarAlert from "../../components/SnackbarAlert";
 import { getToken } from "../../utils/auth";
 import apiConfig from "../../config/apiConfig";
 import Pagination from "@mui/material/Pagination";
-import { format } from "date-fns";
-import DateSelectorComponent from "../../components/DateSelectorComponent"; // Ensure this is the correct DatePicker component
+import { format, startOfMonth, endOfMonth } from "date-fns";
+import DateSelectorComponent from "../../components/DateSelectorComponent";
 
 const ListOrders = () => {
   const currentDate = new Date();
@@ -14,8 +14,8 @@ const ListOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, per_page: 10, total: 0 });
-  const [startDate, setStartDate] = useState(currentDate);
-  const [endDate, setEndDate] = useState(currentDate);
+  const [startDate, setStartDate] = useState(startOfMonth(currentDate));
+  const [endDate, setEndDate] = useState(endOfMonth(currentDate));
   const [search, setSearch] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [openModal, setOpenModal] = useState(false);
@@ -30,8 +30,8 @@ const ListOrders = () => {
     const token = getToken();
 
     const params = new URLSearchParams({
-      start_date: format(startDate, 'yyyy-MM-dd'),
-      end_date: format(endDate, 'yyyy-MM-dd'),
+      start_date: format(startDate, "yyyy-MM-dd"),
+      end_date: format(endDate, "yyyy-MM-dd"),
       page: pagination.current_page,
       per_page: pagination.per_page,
       search: search,
@@ -107,20 +107,20 @@ const ListOrders = () => {
 
   const handleStartDateChange = (newDate) => {
     setStartDate(newDate);
-    setOrders([]);  // Clear orders when start date is changed
+    setOrders([]);
     if (newDate > endDate) {
-      setEndDate(newDate);  // If start date is after end date, update the end date as well
+      setEndDate(newDate);
     }
   };
 
   const handleEndDateChange = (newDate) => {
     setEndDate(newDate);
-    setOrders([]);  // Clear orders when end date is changed
+    setOrders([]);
   };
 
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", py: 3 }}>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h5" gutterBottom>
         Orders List
       </Typography>
 
@@ -137,15 +137,15 @@ const ListOrders = () => {
             <DateSelectorComponent
               label="Start Date"
               value={startDate}
-              onChange={handleStartDateChange}  // Use handleStartDateChange
+              onChange={handleStartDateChange}
             />
           </Grid>
           <Grid item xs={6}>
             <DateSelectorComponent
               label="End Date"
               value={endDate}
-              onChange={handleEndDateChange}  // Use handleEndDateChange
-              minDate={startDate}  // Ensure end date is not before start date
+              onChange={handleEndDateChange}
+              minDate={startDate}
             />
           </Grid>
         </Grid>
