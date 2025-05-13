@@ -1,0 +1,579 @@
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Typography,
+  CircularProgress,
+  Grid,
+  TextField,
+  Button,
+  Chip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Divider,
+  Stack,
+  Autocomplete,
+} from "@mui/material";
+import TableComponent from "../../components/TableComponent";
+import ButtonComponent from "../../components/ButtonComponent";
+import SnackbarAlert from "../../components/SnackbarAlert";
+import { getToken } from "../../utils/auth";
+import apiConfig from "../../config/apiConfig";
+import Pagination from "@mui/material/Pagination";
+import { format, startOfMonth, endOfMonth } from "date-fns";
+import DateSelectorComponent from "../../components/DateSelectorComponent";
+import ModalComponent from "../../components/ModalComponent";
+
+const ListOrders = () => {
+  const currentDate = new Date();
+
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    per_page: 10,
+    total: 0,
+  });
+  const [startDate, setStartDate] = useState(currentDate);
+  const [endDate, setEndDate] = useState(currentDate);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+  const [snack, setSnack] = useState({
+    open: false,
+    severity: "error",
+    message: "",
+  });
+  const [modalLoading, setModalLoading] = useState(false);
+  const [showEmployeeSelect, setShowEmployeeSelect] = useState(false);
+  const [employees, setEmployees] = useState([]);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [pagination.current_page, startDate, endDate, search, statusFilter]);
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    const token = getToken();
+
+    const params = new URLSearchParams({
+      start_date: format(startDate, "yyyy-MM-dd"),
+      end_date: format(endDate, "yyyy-MM-dd"),
+      page: pagination.current_page,
+      per_page: pagination.per_page,
+      search: search,
+      status: statusFilter,
+    });
+
+    try {
+      const res = await fetch(`${apiConfig.BASE_URL}/branch/orders?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setOrders(data.orders);
+        setPagination(data.pagination);
+      } else {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: data.message || "Failed to load orders",
+        });
+      }
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to load orders",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchEmployees = async () => {
+    try {
+      const token = getToken();
+      const res = await fetch(`${apiConfig.BASE_URL}/employees/minimal`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.employees)) {
+        setEmployees(data.employees);
+      } else {
+        setEmployees([]);
+      }
+    } catch {
+      setEmployees([]);
+    }
+  };
+
+  const handlePaginationChange = (event, value) => {
+    setPagination((prev) => ({ ...prev, current_page: value }));
+  };
+
+  const handleOrderClick = async (orderId) => {
+    setOpenModal(true);
+    setModalLoading(true);
+    try {
+      const token = getToken();
+      const res = await fetch(`${apiConfig.BASE_URL}/branch/order/${orderId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success && data.order) {
+        setSelectedOrder(data.order);
+      } else {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: data.message || "Order details not found",
+        });
+        setSelectedOrder(null);
+      }
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to fetch order details",
+      });
+      setSelectedOrder(null);
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const handleUpdateOrderStatus = async (status) => {
+    if (!selectedOrder) return;
+    setModalLoading(true);
+    try {
+      const token = getToken();
+      const res = await fetch(
+        `${apiConfig.BASE_URL}/order/${selectedOrder.id}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status }),
+        }
+      );
+      const data = await res.json();
+      if (data.success) {
+        setSnack({
+          open: true,
+          severity: "success",
+          message: "Order status updated successfully",
+        });
+        // Refresh order details in modal
+        const orderRes = await fetch(
+          `${apiConfig.BASE_URL}/branch/order/${selectedOrder.id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const orderData = await orderRes.json();
+        if (orderData.success && orderData.order) {
+          setSelectedOrder(orderData.order);
+        }
+        // Refresh the orders list in the table
+        fetchOrders();
+      } else {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: data.message || "Failed to update order status",
+        });
+      }
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to update order status",
+      });
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const handleShowEmployeeSelect = async () => {
+    await fetchEmployees();
+    setShowEmployeeSelect(true);
+  };
+
+  const handleMarkAsCompleted = async () => {
+    if (!selectedOrder || !selectedEmployee) return;
+    setModalLoading(true);
+    try {
+      const token = getToken();
+      const res = await fetch(
+        `${apiConfig.BASE_URL}/order/${selectedOrder.id}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            status: 1,
+            delivered_by: selectedEmployee.id,
+          }),
+        }
+      );
+      const data = await res.json();
+      if (data.success) {
+        setSnack({
+          open: true,
+          severity: "success",
+          message: "Order marked as completed",
+        });
+        const orderRes = await fetch(
+          `${apiConfig.BASE_URL}/branch/order/${selectedOrder.id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const orderData = await orderRes.json();
+        if (orderData.success && orderData.order) {
+          setSelectedOrder(orderData.order);
+        }
+        setShowEmployeeSelect(false);
+        setSelectedEmployee(null);
+        // Refresh the orders list in the table
+        fetchOrders();
+      } else {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: data.message || "Failed to update order status",
+        });
+      }
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to update order status",
+      });
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const columns = [
+    { field: "title", headerName: "Title", flex: 1 },
+    { field: "delivery_date", headerName: "Delivery Date", flex: 1 },
+    { field: "total_amount", headerName: "Total Amount", flex: 1 },
+    { field: "customer_name", headerName: "Customer Name", flex: 1 },
+    { field: "customer_mobile", headerName: "Mobile", flex: 1 },
+    { field: "status", headerName: "Status", flex: 1 },
+  ];
+
+  const tableRows = orders.map((order) => ({
+    id: order.id,
+    title: order.title,
+    delivery_date: order.delivery_date,
+    total_amount: order.total_amount,
+    customer_name: order.customer_name,
+    customer_mobile: order.customer_mobile,
+    status:
+      order.status === 0 ? (
+        <Chip label="Pending" color="error" />
+      ) : order.status === 1 ? (
+        <Chip label="Completed" color="success" />
+      ) : (
+        <Chip label="Cancelled" color="default" />
+      ),
+  }));
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+  };
+
+  const handleStartDateChange = (newDate) => {
+    setStartDate(newDate);
+    setOrders([]);
+    if (newDate > endDate) {
+      setEndDate(newDate);
+    }
+  };
+
+  const handleEndDateChange = (newDate) => {
+    setEndDate(newDate);
+    setOrders([]);
+  };
+
+  const handleStatusFilterChange = (event) => {
+    setStatusFilter(event.target.value);
+  };
+
+  return (
+    <Box sx={{ maxWidth: 1200, mx: "auto", py: 3, px: { xs: 1, sm: 2 } }}>
+      <Typography variant="h5" gutterBottom>
+        Orders List
+      </Typography>
+
+      <SnackbarAlert
+        open={snack.open}
+        onClose={() => setSnack((s) => ({ ...s, open: false }))}
+        severity={snack.severity}
+        message={snack.message}
+      />
+
+      <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
+        <Grid item xs={6} md={3} lg={3}>
+          <DateSelectorComponent
+            label="Start Date"
+            value={startDate}
+            onChange={handleStartDateChange}
+            sx={{ width: { xs: 152, md: "auto" } }}
+          />
+        </Grid>
+        <Grid item xs={6} md={3} lg={3}>
+          <DateSelectorComponent
+            label="End Date"
+            value={endDate}
+            onChange={handleEndDateChange}
+            minDate={startDate}
+            sx={{ width: { xs: 152, md: "auto" } }}
+          />
+        </Grid>
+
+        <Grid item xs={12} md={3} lg={3}>
+          <FormControl
+            sx={{
+              width: { xs: 320, md: 150 },
+            }}
+            variant="outlined"
+          >
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={statusFilter || ""}
+              onChange={handleStatusFilterChange}
+              label="Status"
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value={0}>Pending</MenuItem>
+              <MenuItem value={1}>Completed</MenuItem>
+              <MenuItem value={-1}>Cancelled</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} md={3} lg={3}>
+          <TextField
+            label="Search Orders"
+            value={search}
+            onChange={handleSearchChange}
+            variant="outlined"
+            sx={{
+              ml: { xs: 0, md: 32 },
+              width: { xs: 320, md: "auto" },
+            }}
+          />
+        </Grid>
+      </Grid>
+
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <TableComponent
+          rows={tableRows}
+          columns={columns}
+          rowIdField="id"
+          onRowClick={(row) => handleOrderClick(row.id)}
+        />
+      )}
+
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+        <Pagination
+          count={pagination.last_page}
+          page={pagination.current_page}
+          onChange={handlePaginationChange}
+          color="primary"
+        />
+      </Box>
+
+      <ModalComponent
+        open={openModal}
+        onClose={() => {
+          setOpenModal(false);
+          setSelectedOrder(null);
+          setModalLoading(false);
+          setShowEmployeeSelect(false);
+          setSelectedEmployee(null);
+        }}
+        title="Order Details"
+        content={
+          modalLoading ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: 150,
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          ) : selectedOrder ? (
+            <Box>
+              <Box mb={2}>
+                <Typography>
+                  <strong>Title:</strong> {selectedOrder.title}
+                </Typography>
+                <Typography>
+                  <strong>Delivery Date:</strong> {selectedOrder.delivery_date}
+                </Typography>
+                {selectedOrder.delivered_date && (
+                  <Typography>
+                    <strong>Delivered Date:</strong> {selectedOrder.delivered_date}
+                  </Typography>
+                )}
+              </Box>
+              <Divider sx={{ mb: 2 }} />
+              <Box mb={2}>
+                <Typography>
+                  <strong>Customer Name:</strong> {selectedOrder.customer_name}
+                </Typography>
+                <Typography>
+                  <strong>Customer Mobile:</strong>{" "}
+                  {selectedOrder.customer_mobile}
+                </Typography>
+                <Typography>
+                  <strong>Customer Email:</strong>{" "}
+                  {selectedOrder.customer_email}
+                </Typography>
+              </Box>
+              <Divider sx={{ mb: 2 }} />
+              <Box mb={2}>
+                <Typography>
+                  <strong>Status:</strong>{" "}
+                  {selectedOrder.status === 0 ? (
+                    <Chip label="Pending" color="error" size="small" />
+                  ) : selectedOrder.status === 1 ? (
+                    <Chip label="Completed" color="success" size="small" />
+                  ) : (
+                    <Chip label="Cancelled" color="default" size="small" />
+                  )}
+                </Typography>
+                <Typography>
+                  <strong>Total Amount:</strong> {selectedOrder.total_amount}
+                </Typography>
+                <Typography>
+                  <strong>Advance Amount:</strong>{" "}
+                  {selectedOrder.advance_amount}
+                </Typography>
+              </Box>
+              <Divider sx={{ mb: 2 }} />
+              <Box>
+                <Typography>
+                  <strong>Employee Name:</strong>{" "}
+                  {selectedOrder.employee ? selectedOrder.employee.name : "-"}
+                </Typography>
+                <Typography>
+                  <strong>Employee Code:</strong>{" "}
+                  {selectedOrder.employee
+                    ? selectedOrder.employee.employee_code
+                    : "-"}
+                </Typography>
+              </Box>
+              {/* Delivered Details Section */}
+              {selectedOrder.status === 1 && (
+                <>
+                  <Divider sx={{ my: 2 }} />
+                  <Box>
+                    <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                      <strong>Delivered Details</strong>
+                    </Typography>
+                    <Typography>
+                      <strong>Delivered By:</strong>{" "}
+                      {selectedOrder.delivered_by
+                        ? `${selectedOrder.delivered_by.name} (${selectedOrder.delivered_by.employee_code})`
+                        : "-"}
+                    </Typography>
+                    <Typography>
+                      <strong>Delivered At:</strong>{" "}
+                      {selectedOrder.delivered_on
+                        ? selectedOrder.delivered_on
+                        : "-"}
+                    </Typography>
+                  </Box>
+                </>
+              )}
+              {selectedOrder.status === 0 && (
+                <Box sx={{ mt: 3 }}>
+                                    <Divider sx={{ my: 2 }} />
+
+                  {showEmployeeSelect ? (
+                    <Stack spacing={2}>
+                      <Autocomplete
+                        options={employees}
+                        getOptionLabel={(option) =>
+                          `${option.employee_code} - ${option.name}`
+                        }
+                        value={selectedEmployee}
+                        onChange={(_, value) => setSelectedEmployee(value)}
+                        renderInput={(params) => (
+                          <TextField {...params} label="Select Employee" />
+                        )}
+                      />
+                      <Stack direction="row" spacing={2}>
+                        <ButtonComponent
+                          variant="contained"
+                          color="success"
+                          disabled={!selectedEmployee}
+                          onClick={handleMarkAsCompleted}
+                        >
+                          Completed
+                        </ButtonComponent>
+                        <ButtonComponent
+                          variant="outlined"
+                          color="inherit"
+                          onClick={() => {
+                            setShowEmployeeSelect(false);
+                            setSelectedEmployee(null);
+                          }}
+                        >
+                          Cancel
+                        </ButtonComponent>
+                      </Stack>
+                    </Stack>
+                  ) : (
+                    <Stack direction="row" spacing={2}>
+                      <ButtonComponent
+                        variant="contained"
+                        color="success"
+                        onClick={handleShowEmployeeSelect}
+                        sx={{ 
+                          minWidth: { xs : 20, md : 120}
+                        }}
+                      >
+                        Completed
+                      </ButtonComponent>
+                      <ButtonComponent
+                        variant="contained"
+                        color="error"
+                        onClick={() => handleUpdateOrderStatus(-1)}
+                      >
+                        Cancelled
+                      </ButtonComponent>
+                    </Stack>
+                  )}
+                </Box>
+              )}
+            </Box>
+          ) : null
+        }
+      />
+    </Box>
+  );
+};
+
+export default ListOrders;

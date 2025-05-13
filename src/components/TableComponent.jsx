@@ -10,7 +10,7 @@ import {
   TablePagination,
 } from "@mui/material";
 
-const TableComponent = ({ columns, rows }) => {
+const TableComponent = ({ columns, rows, onRowClick }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -20,7 +20,10 @@ const TableComponent = ({ columns, rows }) => {
     setPage(0);
   };
 
-  const paginatedRows = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const paginatedRows = rows.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
   return (
     <Paper>
@@ -28,13 +31,25 @@ const TableComponent = ({ columns, rows }) => {
         <Table stickyHeader>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ position: "sticky", top: 0, backgroundColor: "background.paper", zIndex: 1 }}>
+              <TableCell
+                sx={{
+                  position: "sticky",
+                  top: 0,
+                  backgroundColor: "background.paper",
+                  zIndex: 1,
+                }}
+              >
                 Sl. No.
               </TableCell>
               {columns.map((col) => (
                 <TableCell
                   key={col.field}
-                  sx={{ position: "sticky", top: 0, backgroundColor: "background.paper", zIndex: 1 }}
+                  sx={{
+                    position: "sticky",
+                    top: 0,
+                    backgroundColor: "background.paper",
+                    zIndex: 1,
+                  }}
                 >
                   {col.headerName}
                 </TableCell>
@@ -44,16 +59,25 @@ const TableComponent = ({ columns, rows }) => {
           <TableBody>
             {paginatedRows.length > 0 ? (
               paginatedRows.map((row, idx) => (
-                <TableRow key={idx}>
+                <TableRow
+                  key={idx}
+                  hover
+                  onClick={() => onRowClick(row)}
+                  sx={{ cursor: "pointer" }}
+                >
                   <TableCell>{page * rowsPerPage + idx + 1}</TableCell>
                   {columns.map((col) => (
-                    <TableCell key={col.field}>{row[col.field] ?? "-"}</TableCell>
+                    <TableCell key={col.field}>
+                      {row[col.field] ?? "-"}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length + 1}>No data found.</TableCell>
+                <TableCell colSpan={columns.length + 1}>
+                  No data found.
+                </TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -61,7 +85,7 @@ const TableComponent = ({ columns, rows }) => {
       </TableContainer>
 
       <TablePagination
-        rowsPerPageOptions={[10, 25, 50]}
+        rowsPerPageOptions={[5, 10, 25, 50]}
         component="div"
         count={rows.length}
         rowsPerPage={rowsPerPage}
