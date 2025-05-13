@@ -151,7 +151,10 @@ const ViewBranchStockSummary = () => {
           ))}
         </TextFieldComponent>
 
-        <DateSelectorComponent date={date} setDate={setDate} />
+        <DateSelectorComponent
+          date={date}
+          onChange={(newDate) => setDate(newDate)}
+        />
         <ButtonComponent
           onClick={fetchSummary}
           variant="contained"

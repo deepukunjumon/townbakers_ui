@@ -113,68 +113,66 @@ const CreateEmployee = () => {
         message={snack.message}
       />
 
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Divider sx={{ mb: 3 }} />
+      <Divider sx={{ mb: 3 }} />
 
-        <form onSubmit={handleSubmit}>
-          <TextFieldComponent
-            name="employee_code"
-            label="Employee Code"
-            value={form.employee_code}
-            onChange={handleChange}
-            fullWidth
-            required
-            margin="normal"
-          />
-          <TextFieldComponent
-            name="name"
-            label="Name"
-            value={form.name}
-            onChange={handleChange}
-            fullWidth
-            required
-            margin="normal"
-          />
-          <TextFieldComponent
-            name="mobile"
-            label="Mobile Number"
-            value={form.mobile}
-            onChange={handleChange}
-            fullWidth
-            required
-            margin="normal"
-          />
-          <TextFieldComponent
-            name="designation_id"
-            label="Designation"
-            type="select"
-            value={form.designation_id || ""}
-            onChange={handleChange}
-            required
-            fullWidth
-            margin="normal"
-          >
-            {designations.length === 0 ? (
-              <MenuItem disabled>Loading designations...</MenuItem>
-            ) : (
-              designations.map((des) => (
-                <MenuItem key={des.id} value={des.id}>
-                  {des.designation}
-                </MenuItem>
-              ))
-            )}
-          </TextFieldComponent>
+      <form onSubmit={handleSubmit}>
+        <TextFieldComponent
+          name="employee_code"
+          label="Employee Code"
+          value={form.employee_code}
+          onChange={handleChange}
+          fullWidth
+          required
+          margin="normal"
+        />
+        <TextFieldComponent
+          name="name"
+          label="Name"
+          value={form.name}
+          onChange={handleChange}
+          fullWidth
+          required
+          margin="normal"
+        />
+        <TextFieldComponent
+          name="mobile"
+          label="Mobile Number"
+          value={form.mobile}
+          onChange={handleChange}
+          fullWidth
+          required
+          margin="normal"
+        />
+        <TextFieldComponent
+          name="designation_id"
+          label="Designation"
+          type="select"
+          value={form.designation_id || ""}
+          onChange={handleChange}
+          required
+          fullWidth
+          margin="normal"
+        >
+          {designations.length === 0 ? (
+            <MenuItem disabled>Loading designations...</MenuItem>
+          ) : (
+            designations.map((des) => (
+              <MenuItem key={des.id} value={des.id}>
+                {des.designation}
+              </MenuItem>
+            ))
+          )}
+        </TextFieldComponent>
 
-          <ButtonComponent
-            type="submit"
-            variant="contained"
-            color="primary"
-            sx={{ mt: 3 }}
-          >
-            Create Employee
-          </ButtonComponent>
-        </form>
-      </Paper>
+        <ButtonComponent
+          type="submit"
+          variant="contained"
+          color="primary"
+          sx={{ mt: 3 }}
+        >
+          Create Employee
+        </ButtonComponent>
+      </form>
     </Box>
   );
 };
