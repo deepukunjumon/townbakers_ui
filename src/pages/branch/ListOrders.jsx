@@ -244,7 +244,6 @@ const ListOrders = () => {
         }
         setShowEmployeeSelect(false);
         setSelectedEmployee(null);
-        // Refresh the orders list in the table
         fetchOrders();
       } else {
         setSnack({
@@ -352,14 +351,18 @@ const ListOrders = () => {
           >
             <InputLabel>Status</InputLabel>
             <Select
-              value={statusFilter || ""}
+              value={
+                statusFilter !== undefined && statusFilter !== null
+                  ? statusFilter
+                  : ""
+              }
               onChange={handleStatusFilterChange}
               label="Status"
             >
               <MenuItem value="">All</MenuItem>
-              <MenuItem value={0}>Pending</MenuItem>
-              <MenuItem value={1}>Completed</MenuItem>
-              <MenuItem value={-1}>Cancelled</MenuItem>
+              <MenuItem value="0">Pending</MenuItem>
+              <MenuItem value="1">Completed</MenuItem>
+              <MenuItem value="-1">Cancelled</MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -432,7 +435,8 @@ const ListOrders = () => {
                 </Typography>
                 {selectedOrder.delivered_date && (
                   <Typography>
-                    <strong>Delivered Date:</strong> {selectedOrder.delivered_date}
+                    <strong>Delivered Date:</strong>{" "}
+                    {selectedOrder.delivered_date}
                   </Typography>
                 )}
               </Box>
@@ -551,7 +555,7 @@ const ListOrders = () => {
                         color="success"
                         onClick={handleShowEmployeeSelect}
                         sx={{
-                          minWidth: { xs: 20, md: 120 }
+                          minWidth: { xs: 20, md: 120 },
                         }}
                       >
                         Completed

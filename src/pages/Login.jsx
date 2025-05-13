@@ -10,6 +10,7 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
+import { STRINGS } from "../constants/strings";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 import { ROUTES } from "../constants/routes";
@@ -75,7 +76,7 @@ const Login = () => {
         setSnack({
           open: true,
           severity: "success",
-          message: data.message || "Login successful!",
+          message: data.message || STRINGS.LOGIN_SUCCESS,
         });
 
         localStorage.setItem("token", data.token);
@@ -91,14 +92,14 @@ const Login = () => {
         setSnack({
           open: true,
           severity: "error",
-          message: data.message || "Login failed.",
+          message: data.error,
         });
       }
     } catch {
       setSnack({
         open: true,
         severity: "error",
-        message: "An error occurred. Please try again.",
+        message: STRINGS.SOMETHING_WENT_WRONG,
       });
     }
     setLoading(false);
@@ -197,7 +198,7 @@ const Login = () => {
       </Grid>
 
       {/* App Version and Copyright */}
-      <Box sx={{ textAlign: "center", }}>
+      <Box sx={{ textAlign: "center" }}>
         <Typography variant="body2" color="textSecondary">
           Version: {version}
         </Typography>

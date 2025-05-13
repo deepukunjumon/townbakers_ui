@@ -13,6 +13,8 @@ export const STRINGS = {
   CONFIRM_GENERIC_CONTENT: "Do you want to proceed?",
   CONFIRM_GENERIC_DESCRIPTION: "",
 
+  SUCCESS: "Success",
+  ERROR: "Error",
   YES: "Yes",
   NO: "No",
   CANCEL: "Cancel",
@@ -27,4 +29,7 @@ export const STRINGS = {
   NOT_LIKED: "Not Liked",
   YOU_AND_OTHERS: (count) => `You and ${count} others`,
   TOTAL_LIKES: (count) => `${count} Like${count === 1 ? "" : "s"}`,
+
+  LOGIN_SUCCESS: "Login successful",
+  SOMETHING_WENT_WRONG: "Something went wrong. Please try again.",
 };
