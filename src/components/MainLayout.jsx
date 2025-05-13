@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Box, Toolbar, useMediaQuery, useTheme } from "@mui/material";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import FooterComponent from "./FooterComponent";
 
 const drawerWidth = 240;
 
@@ -16,12 +17,12 @@ const MainLayout = ({ children, menuItems = [] }) => {
     <Box
       sx={{
         display: "flex",
-        maxWidth: "100%",
+        flexDirection: "column",
         minHeight: "100vh",
         bgcolor: "background.default",
       }}
     >
-      {/* Top AppBar */}
+      {/* Navbar */}
       <Navbar toggleDrawer={toggleDrawer} />
 
       {/* Sidebar */}
@@ -32,11 +33,11 @@ const MainLayout = ({ children, menuItems = [] }) => {
         isMobile={isMobile}
       />
 
-      {/* Main content */}
+      {/* Main Content */}
       <Box
         component="main"
         sx={{
-          flexGrow: 1,
+          flex: 1,
           width: {
             xs: "100%",
             sm: open ? `calc(100% - ${drawerWidth}px)` : "100%",
@@ -53,6 +54,9 @@ const MainLayout = ({ children, menuItems = [] }) => {
         <Toolbar sx={{ display: { xs: "none", sm: "block" } }} />
         {children}
       </Box>
+
+      {/* Footer */}
+      <FooterComponent />
     </Box>
   );
 };

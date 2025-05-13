@@ -39,7 +39,7 @@ const Sidebar = ({ open, toggleDrawer, menuItems = [], isMobile }) => {
                   handleToggleSubmenu(item.label);
                 } else {
                   item.onClick();
-                  if (isMobile) toggleDrawer();
+                  toggleDrawer();
                 }
               }}
               sx={{ cursor: "pointer" }}
@@ -63,7 +63,7 @@ const Sidebar = ({ open, toggleDrawer, menuItems = [], isMobile }) => {
                       key={childIndex}
                       onClick={() => {
                         child.onClick();
-                        if (isMobile) toggleDrawer();
+                        toggleDrawer();
                       }}
                       sx={{ pl: 6, cursor: "pointer" }}
                     >

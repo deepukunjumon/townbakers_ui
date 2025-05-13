@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -17,11 +17,13 @@ import apiConfig from "../config/apiConfig";
 import TextFieldComponent from "../components/TextFieldComponent";
 import SnackbarAlert from "../components/SnackbarAlert";
 import login_page_image from "../assets/images/login_page_image.svg";
+import { AppInfoContext } from "../context/AppInfoContext";
 
 const Login = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { version, copyright } = useContext(AppInfoContext);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -193,6 +195,16 @@ const Login = () => {
           </Box>
         </Grid>
       </Grid>
+
+      {/* App Version and Copyright */}
+      <Box sx={{ textAlign: "center", }}>
+        <Typography variant="body2" color="textSecondary">
+          Version: {version}
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          {copyright}
+        </Typography>
+      </Box>
     </Box>
   );
 };
