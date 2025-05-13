@@ -21,7 +21,11 @@ const ButtonComponent = ({
             startIcon={startIcon}
             endIcon={endIcon}
             onClick={onClick}
-            sx={{ minWidth: 120, ...sx }}
+            sx={{
+                minWidth: { xs: 50, sm: 100, md: 120 },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                ...sx
+            }}
             {...props}
         >
             {loading ? <CircularProgress size={20} color="inherit" /> : children}

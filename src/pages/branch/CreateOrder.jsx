@@ -17,6 +17,7 @@ import TextFieldComponent from "../../components/TextFieldComponent";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import TimePickerComponent from "../../components/TimePickerComponent";
 import axios from "axios";
+import { format } from "date-fns";
 
 const initialFormState = {
   title: "",
@@ -115,7 +116,7 @@ const CreateOrder = () => {
       employee_id: form.employee?.id || null,
       branch_id: branchId,
       delivery_date: form.delivery_date
-        ? new Date(form.delivery_date).toISOString().split("T")[0]
+        ? format(new Date(form.delivery_date), "yyyy-MM-dd")
         : "",
       delivery_time: form.delivery_time || "",
       payment_status: parseInt(paymentStatus),

@@ -62,8 +62,8 @@ const TableComponent = ({ columns, rows, onRowClick }) => {
                 <TableRow
                   key={idx}
                   hover
-                  onClick={() => onRowClick(row)} // Handle row click
-                  sx={{ cursor: "pointer" }} // Make it look clickable
+                  onClick={() => onRowClick(row)}
+                  sx={{ cursor: "pointer" }}
                 >
                   <TableCell>{page * rowsPerPage + idx + 1}</TableCell>
                   {columns.map((col) => (
@@ -85,7 +85,7 @@ const TableComponent = ({ columns, rows, onRowClick }) => {
       </TableContainer>
 
       <TablePagination
-        rowsPerPageOptions={[10, 25, 50]}
+        rowsPerPageOptions={[5, 10, 25, 50]}
         component="div"
         count={rows.length}
         rowsPerPage={rowsPerPage}

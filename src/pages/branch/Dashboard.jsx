@@ -4,6 +4,7 @@ import { Box, Grid, Typography } from "@mui/material";
 import StatCard from "../../components/StatCard";
 import PeopleIcon from "@mui/icons-material/People";
 import BusinessIcon from "@mui/icons-material/Business";
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import axios from "axios";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
@@ -26,14 +27,14 @@ const Dashboard = () => {
       subtitle: "Count of pending orders",
       loading: true,
       color: "warning",
-      icon: <BusinessIcon />,
+      icon: <AssignmentIcon />,
     },
     {
       title: "Today's Pending Oders",
       subtitle: "Orders to be completed today",
       loading: true,
       color: "info",
-      icon: <BusinessIcon />,
+      icon: <AssignmentIcon />,
     },
   ]);
 

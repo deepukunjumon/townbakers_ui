@@ -16,6 +16,7 @@ import {
   Autocomplete,
 } from "@mui/material";
 import TableComponent from "../../components/TableComponent";
+import ButtonComponent from "../../components/ButtonComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import { getToken } from "../../utils/auth";
 import apiConfig from "../../config/apiConfig";
@@ -330,7 +331,7 @@ const ListOrders = () => {
             label="Start Date"
             value={startDate}
             onChange={handleStartDateChange}
-            sx={{ width: { xs: 320, md: "auto" } }}
+            sx={{ width: { xs: 152, md: "auto" } }}
           />
         </Grid>
         <Grid item xs={6} md={3} lg={3}>
@@ -339,7 +340,7 @@ const ListOrders = () => {
             value={endDate}
             onChange={handleEndDateChange}
             minDate={startDate}
-            sx={{ width: { xs: 320, md: "auto" } }}
+            sx={{ width: { xs: 152, md: "auto" } }}
           />
         </Grid>
 
@@ -430,10 +431,11 @@ const ListOrders = () => {
                 <Typography>
                   <strong>Delivery Date:</strong> {selectedOrder.delivery_date}
                 </Typography>
-                <Typography>
-                  <strong>Delivered Date:</strong>{" "}
-                  {selectedOrder.delivered_date}
-                </Typography>
+                {selectedOrder.delivered_date && (
+                  <Typography>
+                    <strong>Delivered Date:</strong> {selectedOrder.delivered_date}
+                  </Typography>
+                )}
               </Box>
               <Divider sx={{ mb: 2 }} />
               <Box mb={2}>
@@ -507,12 +509,14 @@ const ListOrders = () => {
               )}
               {selectedOrder.status === 0 && (
                 <Box sx={{ mt: 3 }}>
+                                    <Divider sx={{ my: 2 }} />
+
                   {showEmployeeSelect ? (
                     <Stack spacing={2}>
                       <Autocomplete
                         options={employees}
                         getOptionLabel={(option) =>
-                          `${option.name} (${option.employee_code})`
+                          `${option.employee_code} - ${option.name}`
                         }
                         value={selectedEmployee}
                         onChange={(_, value) => setSelectedEmployee(value)}
@@ -521,15 +525,15 @@ const ListOrders = () => {
                         )}
                       />
                       <Stack direction="row" spacing={2}>
-                        <Button
+                        <ButtonComponent
                           variant="contained"
                           color="success"
                           disabled={!selectedEmployee}
                           onClick={handleMarkAsCompleted}
                         >
-                          Confirm & Mark as Completed
-                        </Button>
-                        <Button
+                          Completed
+                        </ButtonComponent>
+                        <ButtonComponent
                           variant="outlined"
                           color="inherit"
                           onClick={() => {
@@ -538,25 +542,28 @@ const ListOrders = () => {
                           }}
                         >
                           Cancel
-                        </Button>
+                        </ButtonComponent>
                       </Stack>
                     </Stack>
                   ) : (
                     <Stack direction="row" spacing={2}>
-                      <Button
+                      <ButtonComponent
                         variant="contained"
                         color="success"
                         onClick={handleShowEmployeeSelect}
+                        sx={{ 
+                          minWidth: { xs : 20, md : 120}
+                        }}
                       >
-                        Mark as Completed
-                      </Button>
-                      <Button
+                        Completed
+                      </ButtonComponent>
+                      <ButtonComponent
                         variant="contained"
                         color="error"
                         onClick={() => handleUpdateOrderStatus(-1)}
                       >
-                        Mark as Cancelled
-                      </Button>
+                        Cancelled
+                      </ButtonComponent>
                     </Stack>
                   )}
                 </Box>
