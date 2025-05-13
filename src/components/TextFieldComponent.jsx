@@ -24,7 +24,10 @@ const TextFieldComponent = ({
 
   return (
     <TextField
-      sx={sx}
+      sx={{
+        ...sx,
+        mt: 0,
+      }}
       select={isSelect}
       name={name}
       label={label}
@@ -35,7 +38,7 @@ const TextFieldComponent = ({
       required={required}
       margin="normal"
       variant="outlined"
-      size="small"
+      size="medium"
       error={showError}
       helperText={showError ? "This field is required" : ""}
       InputProps={{
@@ -53,15 +56,15 @@ const TextFieldComponent = ({
       SelectProps={
         isSelect
           ? {
-            MenuProps: {
-              PaperProps: {
-                sx: {
-                  maxHeight: 200,
-                  overflowY: "auto",
+              MenuProps: {
+                PaperProps: {
+                  sx: {
+                    maxHeight: 200,
+                    overflowY: "auto",
+                  },
                 },
               },
-            },
-          }
+            }
           : undefined
       }
       {...props}

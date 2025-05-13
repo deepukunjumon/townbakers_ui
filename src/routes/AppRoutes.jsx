@@ -12,6 +12,9 @@ import AdminLayout from "../layouts/AdminLayout";
 import BranchLayout from "../layouts/BranchLayout";
 
 import AdminDashboard from "../pages/admin/Dashboard";
+
+import CreateBranch from "../pages/admin/CreateBranch";
+
 import CreateEmployeeByAdmin from "../pages/admin/CreateEmployee";
 import ViewBranchStockSummary from "../pages/admin/ViewBranchStockSummary";
 
@@ -22,6 +25,8 @@ import ViewStocks from "../pages/branch/ViewStocks";
 import BranchEmployees from "../pages/branch/BranchEmployees";
 import CreateOrder from "../pages/branch/CreateOrder";
 import ListOrders from "../pages/branch/ListOrders";
+
+import NotFound from "../pages/NotFound";
 
 const AppRoutes = () => (
   <Routes>
@@ -41,6 +46,7 @@ const AppRoutes = () => (
       }
     >
       <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
+      <Route path={ROUTES.ADMIN.CREATE_BRANCH} element={<CreateBranch />} />
       <Route
         path={ROUTES.ADMIN.CREATE_EMPLOYEE}
         element={<CreateEmployeeByAdmin />}
@@ -72,10 +78,10 @@ const AppRoutes = () => (
       <Route path={ROUTES.BRANCH.ADD_STOCK} element={<AddStock />} />
       <Route path={ROUTES.BRANCH.VIEW_STOCKS} element={<ViewStocks />} />
       <Route path={ROUTES.BRANCH.CREATE_ORDER} element={<CreateOrder />} />
-      <Route path={ROUTES.BRANCH.LIST_ORDERS} element={<ListOrders />} />  
+      <Route path={ROUTES.BRANCH.LIST_ORDERS} element={<ListOrders />} />
     </Route>
 
-    <Route path="*" element={<div>404 Not Found</div>} />
+    <Route path="*" element={<NotFound />} />
   </Routes>
 );
 

@@ -8,6 +8,10 @@ export const ROUTES = {
   ADMIN: {
     ROOT: "/admin",
     DASHBOARD: "/admin/dashboard",
+
+    CREATE_BRANCH: "/admin/create/branch",
+    BRANCH_LIST: "/admin/branches",
+
     CREATE_EMPLOYEE: "/admin/create/employee",
     STOCK_SUMMARY: "/admin/stocks/summary",
   },
@@ -22,4 +26,6 @@ export const ROUTES = {
     CREATE_ORDER: "/branch/create/order",
     LIST_ORDERS: "/branch/orders",
   },
+
+  NOT_FOUND: "/not-found",
 };
