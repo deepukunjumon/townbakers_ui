@@ -18,6 +18,9 @@ const baseTheme = createTheme({
       default: "#f8f9fa",
       paper: "#ffffff",
     },
+    avatar: {
+      main: "#1976d2",
+    },
   },
   typography: {
     fontFamily: "'Segoe UI', 'Roboto', 'Arial', sans-serif",

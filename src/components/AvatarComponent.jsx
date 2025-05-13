@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import {
   Avatar,
   Box,
@@ -6,10 +6,13 @@ import {
   Menu,
   MenuItem,
   Tooltip,
-  Typography,
+  useTheme,
+  Badge,
 } from "@mui/material";
+import VerifiedIcon from "@mui/icons-material/Verified";
 
 const AvatarComponent = ({ onLogout, onProfile }) => {
+  const theme = useTheme();
   const user = JSON.parse(localStorage.getItem("user")) || {
     name: "User",
   };
@@ -19,17 +22,6 @@ const AvatarComponent = ({ onLogout, onProfile }) => {
     .map((n) => n[0])
     .join("")
     .toUpperCase();
-
-  const getRandomColor = () => {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  };
-
-  const avatarColor = useMemo(() => getRandomColor(), []);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -41,16 +33,31 @@ const AvatarComponent = ({ onLogout, onProfile }) => {
     <Box>
       <Tooltip title="Account options">
         <IconButton onClick={handleClick} size="small">
-          <Avatar
-            sx={{
-              bgcolor: avatarColor,
-              width: { xs: 32, sm: 36, md: 40 },
-              height: { xs: 32, sm: 36, md: 40 },
-              fontSize: { xs: 14, sm: 16, md: 18 },
-            }}
+          <Badge
+            overlap="circular"
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            badgeContent={
+              <VerifiedIcon
+                sx={{
+                  color: theme.palette.success.main,
+                  fontSize: 16,
+                  backgroundColor: "white",
+                  borderRadius: "50%",
+                }}
+              />
+            }
           >
-            {initials}
-          </Avatar>
+            <Avatar
+              sx={{
+                bgcolor: theme.palette.avatar.main,
+                width: { xs: 32, sm: 36, md: 40 },
+                height: { xs: 32, sm: 36, md: 40 },
+                fontSize: { xs: 14, sm: 16, md: 18 },
+              }}
+            >
+              {initials}
+            </Avatar>
+          </Badge>
         </IconButton>
       </Tooltip>
 
