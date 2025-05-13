@@ -171,7 +171,7 @@ const ListOrders = () => {
           severity: "success",
           message: "Order status updated successfully",
         });
-        // Refresh order details in modal
+
         const orderRes = await fetch(
           `${apiConfig.BASE_URL}/branch/order/${selectedOrder.id}`,
           {
@@ -182,7 +182,6 @@ const ListOrders = () => {
         if (orderData.success && orderData.order) {
           setSelectedOrder(orderData.order);
         }
-        // Refresh the orders list in the table
         fetchOrders();
       } else {
         setSnack({
@@ -325,7 +324,7 @@ const ListOrders = () => {
         message={snack.message}
       />
 
-      <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
+      <Grid container spacing={2} alignItems="center" sx={{ mb: 3, my: 3 }}>
         <Grid item xs={6} md={3} lg={3}>
           <DateSelectorComponent
             label="Start Date"
@@ -509,7 +508,7 @@ const ListOrders = () => {
               )}
               {selectedOrder.status === 0 && (
                 <Box sx={{ mt: 3 }}>
-                                    <Divider sx={{ my: 2 }} />
+                  <Divider sx={{ my: 2 }} />
 
                   {showEmployeeSelect ? (
                     <Stack spacing={2}>
@@ -551,8 +550,8 @@ const ListOrders = () => {
                         variant="contained"
                         color="success"
                         onClick={handleShowEmployeeSelect}
-                        sx={{ 
-                          minWidth: { xs : 20, md : 120}
+                        sx={{
+                          minWidth: { xs: 20, md: 120 }
                         }}
                       >
                         Completed

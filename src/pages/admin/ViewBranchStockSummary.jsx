@@ -2,16 +2,16 @@ import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
-  TextField,
   MenuItem,
+  Grid,
+  DateSelector
 } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TableComponent from "../../components/TableComponent";
-import DateSelector from "../../components/DateSelectorComponent";
+import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ExportMenu from "../../components/ExportMenu";
 import ButtonComponent from "../../components/ButtonComponent";
 import TextFieldComponent from "../../components/TextFieldComponent";
-import DateSelectorComponent from "../../components/DateSelectorComponent";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
 import { format } from "date-fns";
@@ -19,10 +19,11 @@ import { format } from "date-fns";
 const ViewBranchStockSummary = () => {
   const [branches, setBranches] = useState([]);
   const [branchId, setBranchId] = useState("");
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState("");
   const [rows, setRows] = useState([]);
   const [snack, setSnack] = useState({ open: false, severity: "info", message: "" });
   const [anchorEl, setAnchorEl] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
   const menuOpen = Boolean(anchorEl);
 
   const handleExportClick = (eventOrType) => {
@@ -80,6 +81,7 @@ const ViewBranchStockSummary = () => {
   }, []);
 
   const fetchSummary = async () => {
+    setSubmitted(true);
     if (!branchId || !date) return;
     try {
       const res = await fetch(
@@ -142,7 +144,12 @@ const ViewBranchStockSummary = () => {
           value={branchId}
           onChange={(e) => setBranchId(e.target.value)}
           fullWidth
-          sx={{ minWidth: 250 }}
+          required
+          error={submitted && !branchId}
+          sx={{
+            maxWidth: 320,
+            flexGrow: 1,
+          }}
         >
           {branches.map((branch) => (
             <MenuItem key={branch.id} value={branch.id}>
@@ -152,18 +159,33 @@ const ViewBranchStockSummary = () => {
         </TextFieldComponent>
 
         <DateSelectorComponent
+          required
+          label="Select Date"
+          sx={{
+            maxWidth: { xs: 185, md: 320 },
+          }}
           date={date}
           onChange={(newDate) => setDate(newDate)}
+          error={submitted && !date}
+          helperText={submitted && !date ? "Date is required" : ""}
+          maxDate={new Date()}
         />
         <ButtonComponent
           onClick={fetchSummary}
           variant="contained"
           color="primary"
-        >SUBMIT
+        >
+          GENERATE
         </ButtonComponent>
       </Box>
-
-      {rows.length > 0 && <TableComponent rows={rows} columns={columns} />}
+      <Box mt={2} sx={{ maxHeight: "90vh", overflowY: "auto" }}>
+        {rows.length > 0 && <TableComponent rows={rows} columns={columns} />}
+      </Box>
+      {rows.length === 0 && (
+        <Typography variant="body2" color="text.secondary" textAlign="center" mt={2}>
+          No data available
+        </Typography>
+      )}
     </Box>
   );
 };
