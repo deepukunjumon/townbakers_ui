@@ -13,6 +13,7 @@ import DateSelectorComponent from "../../components/DateSelectorComponent";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
 import { format } from "date-fns";
+import SelectFieldComponent from "../../components/SelectFieldComponent";
 
 const ViewBranchStockSummary = () => {
   const [branches, setBranches] = useState([]);
@@ -156,20 +157,17 @@ const ViewBranchStockSummary = () => {
       </Box>
 
       <Box display="flex" gap={2} alignItems="center" my={2} flexWrap="wrap">
-        <TextFieldComponent
-          type="select"
+        <SelectFieldComponent
           label="Select Branch"
           value={branchId}
           onChange={(e) => setBranchId(e.target.value)}
+          options={branches}
+          valueKey="id"
+          displayKey={(branch) => `${branch.branche_code || branch.code} - ${branch.name}`}
+          required
           fullWidth
           sx={{ minWidth: 250 }}
-        >
-          {branches.map((branch) => (
-            <MenuItem key={branch.id} value={branch.id}>
-              {(branch.branche_code || branch.code) + " - " + branch.name}
-            </MenuItem>
-          ))}
-        </TextFieldComponent>
+        />
 
         <DateSelectorComponent
           date={date}
@@ -189,7 +187,7 @@ const ViewBranchStockSummary = () => {
           rows={rows}
           columns={columns}
           total={pagination.total}
-          page={pagination.current_page - 1} // Convert 1-based to 0-based index
+          page={pagination.current_page - 1}
           rowsPerPage={pagination.per_page}
           onPaginationChange={handlePaginationChange}
         />
