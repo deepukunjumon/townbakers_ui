@@ -2,12 +2,10 @@ import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
-  TextField,
   MenuItem,
 } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TableComponent from "../../components/TableComponent";
-import DateSelector from "../../components/DateSelectorComponent";
 import ExportMenu from "../../components/ExportMenu";
 import ButtonComponent from "../../components/ButtonComponent";
 import TextFieldComponent from "../../components/TextFieldComponent";
@@ -21,6 +19,11 @@ const ViewBranchStockSummary = () => {
   const [branchId, setBranchId] = useState("");
   const [date, setDate] = useState(new Date());
   const [rows, setRows] = useState([]);
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    per_page: 10,
+    total: 0,
+  });
   const [snack, setSnack] = useState({ open: false, severity: "info", message: "" });
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
@@ -93,6 +96,8 @@ const ViewBranchStockSummary = () => {
           body: JSON.stringify({
             branch_id: branchId,
             date: format(date, "yyyy-MM-dd"),
+            page: pagination.current_page,
+            per_page: pagination.per_page,
           }),
         }
       );
@@ -103,11 +108,26 @@ const ViewBranchStockSummary = () => {
           quantity: item.quantity,
         })) || [];
         setRows(flatData);
+        setPagination((prev) => ({
+          ...prev,
+          total: data.pagination?.total || 0,
+          current_page: data.pagination?.current_page || 1,
+          per_page: data.pagination?.per_page || 10,
+        }));
         setSnack({ open: true, severity: "success", message: data.message || "Data fetched" });
       } else throw new Error();
     } catch {
       setSnack({ open: true, severity: "error", message: "Failed to load stock summary" });
     }
+  };
+
+  const handlePaginationChange = ({ page, rowsPerPage }) => {
+    setPagination((prev) => ({
+      ...prev,
+      current_page: page,
+      per_page: rowsPerPage,
+    }));
+    fetchSummary();
   };
 
   const columns = [
@@ -159,11 +179,21 @@ const ViewBranchStockSummary = () => {
           onClick={fetchSummary}
           variant="contained"
           color="primary"
-        >SUBMIT
+        >
+          SUBMIT
         </ButtonComponent>
       </Box>
 
-      {rows.length > 0 && <TableComponent rows={rows} columns={columns} />}
+      {rows.length > 0 && (
+        <TableComponent
+          rows={rows}
+          columns={columns}
+          total={pagination.total}
+          page={pagination.current_page - 1} // Convert 1-based to 0-based index
+          rowsPerPage={pagination.per_page}
+          onPaginationChange={handlePaginationChange}
+        />
+      )}
     </Box>
   );
 };

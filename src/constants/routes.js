@@ -10,16 +10,20 @@ export const ROUTES = {
     DASHBOARD: "/admin/dashboard",
 
     CREATE_BRANCH: "/admin/create/branch",
-    BRANCH_LIST: "/admin/branches",
+    BRANCH_LIST: "/admin/view/branches",
 
     CREATE_EMPLOYEE: "/admin/create/employee",
+    EMPLOYEE_LIST: "/admin/employees",
+
     STOCK_SUMMARY: "/admin/stocks/summary",
   },
 
   BRANCH: {
     ROOT: "/branch",
     DASHBOARD: "/branch/dashboard",
+
     CREATE_EMPLOYEE: "/branch/employee/create",
+
     ADD_STOCK: "/branch/stock/add",
     VIEW_STOCKS: "/branch/stocks/view",
     LIST_EMPLOYEES: "/branch/employees",

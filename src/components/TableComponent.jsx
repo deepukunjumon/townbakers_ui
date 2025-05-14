@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Table,
   TableBody,
@@ -10,20 +10,24 @@ import {
   TablePagination,
 } from "@mui/material";
 
-const TableComponent = ({ columns, rows, onRowClick }) => {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  const handleChangePage = (event, newPage) => setPage(newPage);
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+const TableComponent = ({
+  columns,
+  rows,
+  total,
+  page, // Current page (0-based index)
+  rowsPerPage, // Rows per page
+  onPaginationChange,
+  onRowClick,
+  noDataMessage = "No data found.", // Default message for empty data
+}) => {
+  const handleChangePage = (event, newPage) => {
+    onPaginationChange({ page: newPage + 1, rowsPerPage }); // Convert to 1-based index for Laravel
   };
 
-  const paginatedRows = rows.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const handleChangeRowsPerPage = (event) => {
+    const newRowsPerPage = parseInt(event.target.value, 10);
+    onPaginationChange({ page: 1, rowsPerPage: newRowsPerPage }); // Reset to page 1 when rows per page changes
+  };
 
   return (
     <Paper>
@@ -57,13 +61,13 @@ const TableComponent = ({ columns, rows, onRowClick }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedRows.length > 0 ? (
-              paginatedRows.map((row, idx) => (
+            {rows.length > 0 ? (
+              rows.map((row, idx) => (
                 <TableRow
-                  key={idx}
+                  key={row.id || idx} // Use `row.id` if available, fallback to `idx`
                   hover
-                  onClick={() => onRowClick(row)}
-                  sx={{ cursor: "pointer" }}
+                  onClick={() => onRowClick && onRowClick(row)} // Only call `onRowClick` if provided
+                  sx={{ cursor: onRowClick ? "pointer" : "default" }}
                 >
                   <TableCell>{page * rowsPerPage + idx + 1}</TableCell>
                   {columns.map((col) => (
@@ -75,8 +79,8 @@ const TableComponent = ({ columns, rows, onRowClick }) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length + 1}>
-                  No data found.
+                <TableCell colSpan={columns.length + 1} align="center">
+                  {noDataMessage}
                 </TableCell>
               </TableRow>
             )}
@@ -87,11 +91,11 @@ const TableComponent = ({ columns, rows, onRowClick }) => {
       <TablePagination
         rowsPerPageOptions={[5, 10, 25, 50]}
         component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        count={total} // Total number of rows from the API
+        rowsPerPage={rowsPerPage} // Rows per page
+        page={page} // Current page (0-based index)
+        onPageChange={handleChangePage} // Handle page change
+        onRowsPerPageChange={handleChangeRowsPerPage} // Handle rows per page change
       />
     </Paper>
   );

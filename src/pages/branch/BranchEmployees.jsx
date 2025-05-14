@@ -9,6 +9,11 @@ const BranchEmployees = () => {
   const branchId = getBranchIdFromToken();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    per_page: 10,
+    total: 0,
+  });
   const [snack, setSnack] = useState({
     open: false,
     severity: "error",
@@ -16,27 +21,56 @@ const BranchEmployees = () => {
   });
 
   useEffect(() => {
+    fetchEmployees();
+  }, [branchId, pagination.current_page, pagination.per_page]);
+
+  const fetchEmployees = async () => {
+    setLoading(true);
     const token = localStorage.getItem("token");
 
-    fetch(`${apiConfig.BASE_URL}/branch/employees`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setEmployees(data.employees || []);
-        setLoading(false);
-      })
-      .catch(() => {
-        setSnack({
-          open: true,
-          severity: "error",
-          message: "Failed to load employee data",
-        });
-        setLoading(false);
+    try {
+      console.log("Fetching employees with payload:", {
+        page: pagination.current_page,
+        per_page: pagination.per_page,
       });
-  }, [branchId]);
+
+      const res = await fetch(
+        `${apiConfig.BASE_URL}/branch/employees?page=${pagination.current_page}&per_page=${pagination.per_page}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await res.json();
+
+      if (res.ok) {
+        setEmployees(data.employees || []);
+        setPagination((prev) => ({
+          ...prev,
+          total: data.pagination?.total || 0,
+        }));
+      } else {
+        throw new Error(data.message || "Failed to load employee data");
+      }
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: error.message || "Failed to load employee data",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePaginationChange = ({ page, rowsPerPage }) => {
+    setPagination((prev) => ({
+      ...prev,
+      current_page: page,
+      per_page: rowsPerPage,
+    }));
+  };
 
   const columns = [
     { field: "employee_code", headerName: "Employee Code", flex: 1 },
@@ -58,15 +92,22 @@ const BranchEmployees = () => {
         message={snack.message}
       />
 
-      {
-        loading ? (
-          <Box sx={{ textAlign: "center", mt: 4 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <TableComponent rows={employees} columns={columns} rowIdField="id" />
-        )
-      }
+      {loading ? (
+        <Box sx={{ textAlign: "center", mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <TableComponent
+          rows={employees}
+          columns={columns}
+          total={pagination.total}
+          page={pagination.current_page - 1}
+          rowsPerPage={pagination.per_page}
+          onPaginationChange={({ page, rowsPerPage }) =>
+            handlePaginationChange({ page, rowsPerPage })
+          }
+        />
+      )}
     </Box>
   );
 };
