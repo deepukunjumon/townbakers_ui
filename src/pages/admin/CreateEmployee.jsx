@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Box, TextField, Button, Typography, MenuItem } from "@mui/material";
+import { Box, Button, Typography, Divider } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TextFieldComponent from "../../components/TextFieldComponent";
+import SelectFieldComponent from "../../components/SelectFieldComponent";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
 
@@ -62,7 +63,11 @@ const CreateEmployeeByAdmin = () => {
   }, []);
 
   const handleChange = (e) => {
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm((prevForm) => ({
+      ...prevForm,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -115,6 +120,8 @@ const CreateEmployeeByAdmin = () => {
         Create New Employee
       </Typography>
 
+      <Divider sx={{ mb: 3 }} />
+
       <form onSubmit={handleSubmit}>
         <TextFieldComponent
           name="employee_code"
@@ -143,46 +150,28 @@ const CreateEmployeeByAdmin = () => {
           required
           margin="normal"
         />
-        <TextFieldComponent
+        <SelectFieldComponent
           label="Designation"
           name="designation_id"
-          type="select"
-          value={form.designation_id || ""}
-          onChange={handleChange}
+          value={form.designation_id}
+          onChange={(e) => setForm({ ...form, designation_id: e.target.value })}
+          options={designations}
+          valueKey="id"
+          displayKey={(des) => des.designation}
           required
-        >
-          {designations.length === 0 ? (
-            <MenuItem disabled>Loading designations...</MenuItem>
-          ) : (
-            designations.map((des) => (
-              <MenuItem key={des.id} value={des.id}>
-                {des.designation}
-              </MenuItem>
-            ))
-          )}
-        </TextFieldComponent>
-
-
-        <TextFieldComponent
+          fullWidth
+        />
+        <SelectFieldComponent
           label="Branch"
           name="branch_id"
-          type="select"
           value={form.branch_id}
-          onChange={handleChange}
+          onChange={(e) => setForm({ ...form, branch_id: e.target.value })}
+          options={branches}
+          valueKey="id"
+          displayKey={(branch) => `${branch.code} - ${branch.name}`}
           required
-        // margin="normal"
-        >
-          {branches.length === 0 ? (
-            <MenuItem disabled>Loading branches...</MenuItem>
-          ) : (
-            branches.map((branch) => (
-              <MenuItem key={branch.id} value={branch.id}>
-                {branch.name}
-              </MenuItem>
-            ))
-          )}
-        </TextFieldComponent>
-
+          fullWidth
+        />
         <Button
           type="submit"
           variant="contained"
@@ -192,7 +181,7 @@ const CreateEmployeeByAdmin = () => {
           Create Employee
         </Button>
       </form>
-    </Box >
+    </Box>
   );
 };
 

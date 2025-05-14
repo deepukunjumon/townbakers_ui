@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, CircularProgress } from "@mui/material";
+import { Box, Typography, CircularProgress, Divider } from "@mui/material";
 import format from "date-fns/format";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
@@ -13,6 +13,11 @@ const ViewStocks = () => {
   const [date, setDate] = useState(new Date());
   const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    per_page: 10,
+    total: 0,
+  });
   const [snack, setSnack] = useState({
     open: false,
     severity: "info",
@@ -37,7 +42,7 @@ const ViewStocks = () => {
 
     const form = document.createElement("form");
     form.method = "POST";
-    form.action = `${apiConfig.BASE_URL}/stocks/summary`;
+    form.action = `${apiConfig.BASE_URL}/branch/stock/summary`;
 
     const addField = (name, value) => {
       const input = document.createElement("input");
@@ -59,23 +64,32 @@ const ViewStocks = () => {
     handleExportClose();
   };
 
-  const fetchStocks = async (selectedDate) => {
+  const fetchStocks = async () => {
     setLoading(true);
-    const formattedDate = format(selectedDate, "yyyy-MM-dd");
+    const formattedDate = format(date, "yyyy-MM-dd");
 
     try {
-      const res = await fetch(`${apiConfig.BASE_URL}/stocks/summary`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: getToken(),
-        },
-        body: JSON.stringify({ date: formattedDate }),
-      });
+      const res = await fetch(
+        `${apiConfig.BASE_URL}/branch/stock/summary?page=${pagination.current_page}&per_page=${pagination.per_page}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: getToken(),
+          },
+          body: JSON.stringify({ date: formattedDate }),
+        }
+      );
 
       const data = await res.json();
       if (res.ok) {
         setStockData(data.data || []);
+        setPagination((prev) => ({
+          ...prev,
+          total: data.pagination?.total || 0,
+          current_page: data.pagination?.current_page || 1,
+          per_page: data.pagination?.per_page || 10,
+        }));
         setSnack({
           open: true,
           severity: "success",
@@ -101,16 +115,24 @@ const ViewStocks = () => {
   };
 
   useEffect(() => {
-    fetchStocks(date);
-  }, [date]);
+    fetchStocks();
+  }, [date, pagination.current_page, pagination.per_page]);
 
   const handleDateChange = (newDate) => {
     setDate(newDate);
-    fetchStocks(newDate);
+    setPagination((prev) => ({ ...prev, current_page: 1 }));
+  };
+
+  const handlePaginationChange = ({ page, rowsPerPage }) => {
+    setPagination((prev) => ({
+      ...prev,
+      current_page: page,
+      per_page: rowsPerPage,
+    }));
   };
 
   const handleRefresh = () => {
-    fetchStocks(date);
+    fetchStocks();
   };
 
   const columns = [
@@ -123,6 +145,8 @@ const ViewStocks = () => {
       <Typography variant="h5" gutterBottom>
         Stock Summary
       </Typography>
+
+      <Divider sx={{ mb: 3 }} />
 
       <SnackbarAlert
         open={snack.open}
@@ -138,9 +162,9 @@ const ViewStocks = () => {
           maxDate={new Date()}
           onChange={handleDateChange}
         />
-        <RefreshIcon 
-          sx={{ cursor: "pointer", color: "primary.main" }} 
-          onClick={handleRefresh} 
+        <RefreshIcon
+          sx={{ cursor: "pointer", color: "primary.main" }}
+          onClick={handleRefresh}
         />
         <ExportMenu
           anchorEl={anchorEl}
@@ -158,7 +182,10 @@ const ViewStocks = () => {
         <TableComponent
           rows={stockData}
           columns={columns}
-          rowIdField="item_name"
+          total={pagination.total}
+          page={pagination.current_page - 1}
+          rowsPerPage={pagination.per_page}
+          onPaginationChange={handlePaginationChange}
         />
       )}
     </Box>

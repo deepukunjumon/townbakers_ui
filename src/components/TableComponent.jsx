@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Table,
   TableBody,
@@ -6,40 +6,46 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   TablePagination,
 } from "@mui/material";
 
-const TableComponent = ({ columns, rows, onRowClick }) => {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  const handleChangePage = (event, newPage) => setPage(newPage);
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+const TableComponent = ({
+  columns,
+  rows,
+  total,
+  page,
+  rowsPerPage,
+  onPaginationChange,
+  onRowClick,
+  noDataMessage = "No data found",
+}) => {
+  const handleChangePage = (event, newPage) => {
+    onPaginationChange({ page: newPage + 1, rowsPerPage });
   };
 
-  const paginatedRows = rows.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const handleChangeRowsPerPage = (event) => {
+    const newRowsPerPage = parseInt(event.target.value, 10);
+    onPaginationChange({ page: 1, rowsPerPage: newRowsPerPage });
+  };
 
   return (
-    <Paper>
-      <TableContainer sx={{ maxHeight: 440 }}>
-        <Table stickyHeader>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <TableContainer
+        sx={{ maxHeight: { md: 400 }, flex: 1, overflow: "auto" }}
+      >
+        <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell
                 sx={{
                   position: "sticky",
                   top: 0,
-                  backgroundColor: "background.paper",
-                  zIndex: 1,
+                  bgcolor: "background.default",
+                  fontWeight: "fontWeightMedium",
+                  zIndex: 2,
                 }}
               >
-                Sl. No.
+                #
               </TableCell>
               {columns.map((col) => (
                 <TableCell
@@ -47,8 +53,9 @@ const TableComponent = ({ columns, rows, onRowClick }) => {
                   sx={{
                     position: "sticky",
                     top: 0,
-                    backgroundColor: "background.paper",
-                    zIndex: 1,
+                    bgcolor: "background.default",
+                    fontWeight: "fontWeightMedium",
+                    zIndex: 2,
                   }}
                 >
                   {col.headerName}
@@ -57,13 +64,16 @@ const TableComponent = ({ columns, rows, onRowClick }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedRows.length > 0 ? (
-              paginatedRows.map((row, idx) => (
+            {rows.length > 0 ? (
+              rows.map((row, idx) => (
                 <TableRow
-                  key={idx}
-                  hover
-                  onClick={() => onRowClick(row)}
-                  sx={{ cursor: "pointer" }}
+                  key={row.id || idx}
+                  hover={!!onRowClick}
+                  onClick={() => onRowClick?.(row)}
+                  sx={{
+                    cursor: onRowClick ? "pointer" : "default",
+                    "&:last-child td": { borderBottom: 0 },
+                  }}
                 >
                   <TableCell>{page * rowsPerPage + idx + 1}</TableCell>
                   {columns.map((col) => (
@@ -75,8 +85,15 @@ const TableComponent = ({ columns, rows, onRowClick }) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length + 1}>
-                  No data found.
+                <TableCell
+                  colSpan={columns.length + 1}
+                  sx={{
+                    textAlign: "center",
+                    color: "text.disabled",
+                    py: 2,
+                  }}
+                >
+                  {noDataMessage}
                 </TableCell>
               </TableRow>
             )}
@@ -87,13 +104,18 @@ const TableComponent = ({ columns, rows, onRowClick }) => {
       <TablePagination
         rowsPerPageOptions={[5, 10, 25, 50]}
         component="div"
-        count={rows.length}
+        count={total}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        sx={{
+          borderTop: "1px solid",
+          borderColor: "divider",
+          flexShrink: 0,
+        }}
       />
-    </Paper>
+    </div>
   );
 };
 

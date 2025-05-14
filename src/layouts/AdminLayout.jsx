@@ -3,9 +3,9 @@ import { Outlet, useNavigate } from "react-router-dom";
 import MainLayout from "../components/MainLayout";
 import { ROUTES } from "../constants/routes";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import PersonAddAltRoundedIcon from '@mui/icons-material/PersonAddAltRounded';
-import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
-import ArticleIcon from '@mui/icons-material/Article';
+import PersonAddAltRoundedIcon from "@mui/icons-material/PersonAddAltRounded";
+import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
+import ArticleIcon from "@mui/icons-material/Article";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import PeopleIcon from "@mui/icons-material/People";
 
@@ -17,6 +17,22 @@ const AdminLayout = () => {
       label: "Dashboard",
       icon: <DashboardIcon />,
       onClick: () => navigate(ROUTES.ADMIN.DASHBOARD),
+    },
+    {
+      label: "Branches",
+      icon: <PeopleIcon />,
+      children: [
+        {
+          icon: <PersonAddAltRoundedIcon />,
+          label: "Create Branch",
+          onClick: () => navigate(ROUTES.ADMIN.CREATE_BRANCH),
+        },
+        {
+          icon: <PeopleAltRoundedIcon />,
+          label: "All Branches",
+          onClick: () => navigate(ROUTES.ADMIN.BRANCH_LIST),
+        },
+      ],
     },
     {
       label: "Employees",
