@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  MenuItem,
-} from "@mui/material";
+import { Box, Typography, Divider } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TableComponent from "../../components/TableComponent";
 import ExportMenu from "../../components/ExportMenu";
@@ -25,7 +21,11 @@ const ViewBranchStockSummary = () => {
     per_page: 10,
     total: 0,
   });
-  const [snack, setSnack] = useState({ open: false, severity: "info", message: "" });
+  const [snack, setSnack] = useState({
+    open: false,
+    severity: "info",
+    message: "",
+  });
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
 
@@ -77,7 +77,11 @@ const ViewBranchStockSummary = () => {
         if (res.ok) setBranches(data.branches || data.data || []);
         else throw new Error();
       } catch {
-        setSnack({ open: true, severity: "error", message: "Failed to load branches" });
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load branches",
+        });
       }
     };
     fetchBranches();
@@ -104,10 +108,11 @@ const ViewBranchStockSummary = () => {
       );
       const data = await res.json();
       if (res.ok && Array.isArray(data.data)) {
-        const flatData = data.data[0]?.items?.map((item, idx) => ({
-          item_name: item.item_name || item.item_id,
-          quantity: item.quantity,
-        })) || [];
+        const flatData =
+          data.data[0]?.items?.map((item, idx) => ({
+            item_name: item.item_name || item.item_id,
+            quantity: item.quantity,
+          })) || [];
         setRows(flatData);
         setPagination((prev) => ({
           ...prev,
@@ -115,10 +120,18 @@ const ViewBranchStockSummary = () => {
           current_page: data.pagination?.current_page || 1,
           per_page: data.pagination?.per_page || 10,
         }));
-        setSnack({ open: true, severity: "success", message: data.message || "Data fetched" });
+        setSnack({
+          open: true,
+          severity: "success",
+          message: data.message || "Data fetched",
+        });
       } else throw new Error();
     } catch {
-      setSnack({ open: true, severity: "error", message: "Failed to load stock summary" });
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to load stock summary",
+      });
     }
   };
 
@@ -156,6 +169,8 @@ const ViewBranchStockSummary = () => {
         />
       </Box>
 
+      <Divider sx={{ mb: 3 }} />
+
       <Box display="flex" gap={2} alignItems="center" my={2} flexWrap="wrap">
         <SelectFieldComponent
           label="Select Branch"
@@ -163,7 +178,9 @@ const ViewBranchStockSummary = () => {
           onChange={(e) => setBranchId(e.target.value)}
           options={branches}
           valueKey="id"
-          displayKey={(branch) => `${branch.branche_code || branch.code} - ${branch.name}`}
+          displayKey={(branch) =>
+            `${branch.branche_code || branch.code} - ${branch.name}`
+          }
           required
           fullWidth
           sx={{ minWidth: 250 }}

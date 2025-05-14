@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Grid, Button, Typography } from "@mui/material";
+import { Box, Grid, Button, Typography, Divider } from "@mui/material";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
 import SnackbarAlert from "../../components/SnackbarAlert";
@@ -66,6 +66,9 @@ const CreateBranch = () => {
       <Typography variant="h5" gutterBottom>
         Create Branch
       </Typography>
+
+      <Divider sx={{ mb: 3 }} />
+
       <Box component="form" onSubmit={handleSubmit} noValidate>
         <Grid container spacing={2} direction="column">
           <Grid

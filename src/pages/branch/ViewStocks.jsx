@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, CircularProgress } from "@mui/material";
+import { Box, Typography, CircularProgress, Divider } from "@mui/material";
 import format from "date-fns/format";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
@@ -42,7 +42,7 @@ const ViewStocks = () => {
 
     const form = document.createElement("form");
     form.method = "POST";
-    form.action = `${apiConfig.BASE_URL}/stocks/summary`;
+    form.action = `${apiConfig.BASE_URL}/branch/stock/summary`;
 
     const addField = (name, value) => {
       const input = document.createElement("input");
@@ -145,6 +145,8 @@ const ViewStocks = () => {
       <Typography variant="h5" gutterBottom>
         Stock Summary
       </Typography>
+
+      <Divider sx={{ mb: 3 }} />
 
       <SnackbarAlert
         open={snack.open}

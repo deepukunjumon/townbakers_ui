@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, CircularProgress } from "@mui/material";
+import { Box, Typography, CircularProgress, Divider } from "@mui/material";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
 import { getBranchIdFromToken } from "../../utils/auth";
+import SearchFieldComponent from "../../components/SearchFieldComponent";
 
 const BranchEmployees = () => {
   const branchId = getBranchIdFromToken();
@@ -14,6 +15,8 @@ const BranchEmployees = () => {
     per_page: 10,
     total: 0,
   });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [controller, setController] = useState(null);
   const [snack, setSnack] = useState({
     open: false,
     severity: "error",
@@ -21,30 +24,41 @@ const BranchEmployees = () => {
   });
 
   useEffect(() => {
-    fetchEmployees();
-  }, [branchId, pagination.current_page, pagination.per_page]);
+    const delayDebounce = setTimeout(() => {
+      fetchEmployees(searchTerm);
+    }, 200);
 
-  const fetchEmployees = async () => {
-    setLoading(true);
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm, pagination.current_page, pagination.per_page]);
+
+  const fetchEmployees = async (search = "") => {
+    if (controller) controller.abort();
+
     const token = localStorage.getItem("token");
+    const newController = new AbortController();
+    setController(newController);
 
+    setLoading(true);
     try {
-      console.log("Fetching employees with payload:", {
+      const params = new URLSearchParams({
         page: pagination.current_page,
         per_page: pagination.per_page,
-      });
+        search: search.trim(),
+      }).toString();
 
       const res = await fetch(
-        `${apiConfig.BASE_URL}/branch/employees?page=${pagination.current_page}&per_page=${pagination.per_page}`,
+        `${apiConfig.BASE_URL}/branch/employees?${params}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          signal: newController.signal,
         }
       );
+
       const data = await res.json();
 
-      if (res.ok) {
+      if (res.ok && data.success) {
         setEmployees(data.employees || []);
         setPagination((prev) => ({
           ...prev,
@@ -54,11 +68,13 @@ const BranchEmployees = () => {
         throw new Error(data.message || "Failed to load employee data");
       }
     } catch (error) {
-      setSnack({
-        open: true,
-        severity: "error",
-        message: error.message || "Failed to load employee data",
-      });
+      if (error.name !== "AbortError") {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: error.message || "Failed to load employee data",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -70,6 +86,11 @@ const BranchEmployees = () => {
       current_page: page,
       per_page: rowsPerPage,
     }));
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setPagination((prev) => ({ ...prev, current_page: 1 }));
   };
 
   const columns = [
@@ -84,6 +105,26 @@ const BranchEmployees = () => {
       <Typography variant="h5" gutterBottom>
         Branch Employees
       </Typography>
+      <Divider sx={{ mb: 3 }} />
+
+      <Box
+        sx={{
+          mb: 2,
+          display: "flex",
+          justifyContent: "flex-end",
+          maxWidth: 1200,
+          width: "100%",
+        }}
+      >
+        <Box sx={{ width: { xs: "100%", sm: 350 } }}>
+          <SearchFieldComponent
+            onDebouncedChange={(value) => {
+              setSearchTerm(value);
+              setPagination((prev) => ({ ...prev, current_page: 1 }));
+            }}
+          />
+        </Box>
+      </Box>
 
       <SnackbarAlert
         open={snack.open}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography, Divider } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TextFieldComponent from "../../components/TextFieldComponent";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
@@ -119,6 +119,8 @@ const CreateEmployeeByAdmin = () => {
       <Typography variant="h5" gutterBottom>
         Create New Employee
       </Typography>
+
+      <Divider sx={{ mb: 3 }} />
 
       <form onSubmit={handleSubmit}>
         <TextFieldComponent

@@ -112,6 +112,7 @@ const Login = () => {
         alignItems="center"
         spacing={12}
         sx={{
+          mb: { xs: -10, sm: 0 },
           px: { xs: 2, sm: 8 },
           minHeight: "90vh",
           ml: { xs: -4 },
@@ -197,7 +198,7 @@ const Login = () => {
       </Grid>
 
       {/* App Version and Copyright */}
-      <Box sx={{ textAlign: "center", }}>
+      <Box sx={{ textAlign: "center" }}>
         <Typography variant="body2" color="textSecondary">
           Version: {version}
         </Typography>

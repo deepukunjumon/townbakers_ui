@@ -53,7 +53,14 @@ const ListOrders = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, [pagination.current_page, pagination.per_page, startDate, endDate, search, statusFilter]);
+  }, [
+    pagination.current_page,
+    pagination.per_page,
+    startDate,
+    endDate,
+    search,
+    statusFilter,
+  ]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -292,7 +299,7 @@ const ListOrders = () => {
     { field: "delivery_date", headerName: "Delivery Date", flex: 1 },
     { field: "total_amount", headerName: "Total Amount", flex: 1 },
     { field: "customer_name", headerName: "Customer Name", flex: 1 },
-    { field: "customer_mobile", headerName: "Mobile", flex: 1 },
+    { field: "customer_mobile", headerName: "Customer Mobile", flex: 1 },
     { field: "status", headerName: "Status", flex: 1 },
   ];
 
@@ -380,9 +387,9 @@ const ListOrders = () => {
               label="Status"
             >
               <MenuItem value="">All</MenuItem>
-              <MenuItem value={0}>Pending</MenuItem>
-              <MenuItem value={1}>Completed</MenuItem>
-              <MenuItem value={-1}>Cancelled</MenuItem>
+              <MenuItem value={"0"}>Pending</MenuItem>
+              <MenuItem value={"1"}>Completed</MenuItem>
+              <MenuItem value={"-1"}>Cancelled</MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -449,7 +456,8 @@ const ListOrders = () => {
                 </Typography>
                 {selectedOrder.delivered_date && (
                   <Typography>
-                    <strong>Delivered Date:</strong> {selectedOrder.delivered_date}
+                    <strong>Delivered Date:</strong>{" "}
+                    {selectedOrder.delivered_date}
                   </Typography>
                 )}
               </Box>
@@ -505,9 +513,6 @@ const ListOrders = () => {
                 <>
                   <Divider sx={{ my: 2 }} />
                   <Box>
-                    <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                      <strong>Delivered Details</strong>
-                    </Typography>
                     <Typography>
                       <strong>Delivered By:</strong>{" "}
                       {selectedOrder.delivered_by
@@ -568,7 +573,7 @@ const ListOrders = () => {
                         color="success"
                         onClick={handleShowEmployeeSelect}
                         sx={{
-                          minWidth: { xs: 20, md: 120 }
+                          minWidth: { xs: 20, md: 120 },
                         }}
                       >
                         Completed

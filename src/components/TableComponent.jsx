@@ -6,7 +6,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   TablePagination,
 } from "@mui/material";
 
@@ -14,36 +13,39 @@ const TableComponent = ({
   columns,
   rows,
   total,
-  page, // Current page (0-based index)
-  rowsPerPage, // Rows per page
+  page,
+  rowsPerPage,
   onPaginationChange,
   onRowClick,
-  noDataMessage = "No data found.", // Default message for empty data
+  noDataMessage = "No data found",
 }) => {
   const handleChangePage = (event, newPage) => {
-    onPaginationChange({ page: newPage + 1, rowsPerPage }); // Convert to 1-based index for Laravel
+    onPaginationChange({ page: newPage + 1, rowsPerPage });
   };
 
   const handleChangeRowsPerPage = (event) => {
     const newRowsPerPage = parseInt(event.target.value, 10);
-    onPaginationChange({ page: 1, rowsPerPage: newRowsPerPage }); // Reset to page 1 when rows per page changes
+    onPaginationChange({ page: 1, rowsPerPage: newRowsPerPage });
   };
 
   return (
-    <Paper>
-      <TableContainer sx={{ maxHeight: 440 }}>
-        <Table stickyHeader>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <TableContainer
+        sx={{ maxHeight: { md: 400 }, flex: 1, overflow: "auto" }}
+      >
+        <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell
                 sx={{
                   position: "sticky",
                   top: 0,
-                  backgroundColor: "background.paper",
-                  zIndex: 1,
+                  bgcolor: "background.default",
+                  fontWeight: "fontWeightMedium",
+                  zIndex: 2,
                 }}
               >
-                Sl. No.
+                #
               </TableCell>
               {columns.map((col) => (
                 <TableCell
@@ -51,8 +53,9 @@ const TableComponent = ({
                   sx={{
                     position: "sticky",
                     top: 0,
-                    backgroundColor: "background.paper",
-                    zIndex: 1,
+                    bgcolor: "background.default",
+                    fontWeight: "fontWeightMedium",
+                    zIndex: 2,
                   }}
                 >
                   {col.headerName}
@@ -64,10 +67,13 @@ const TableComponent = ({
             {rows.length > 0 ? (
               rows.map((row, idx) => (
                 <TableRow
-                  key={row.id || idx} // Use `row.id` if available, fallback to `idx`
-                  hover
-                  onClick={() => onRowClick && onRowClick(row)} // Only call `onRowClick` if provided
-                  sx={{ cursor: onRowClick ? "pointer" : "default" }}
+                  key={row.id || idx}
+                  hover={!!onRowClick}
+                  onClick={() => onRowClick?.(row)}
+                  sx={{
+                    cursor: onRowClick ? "pointer" : "default",
+                    "&:last-child td": { borderBottom: 0 },
+                  }}
                 >
                   <TableCell>{page * rowsPerPage + idx + 1}</TableCell>
                   {columns.map((col) => (
@@ -79,7 +85,14 @@ const TableComponent = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length + 1} align="center">
+                <TableCell
+                  colSpan={columns.length + 1}
+                  sx={{
+                    textAlign: "center",
+                    color: "text.disabled",
+                    py: 2,
+                  }}
+                >
                   {noDataMessage}
                 </TableCell>
               </TableRow>
@@ -91,13 +104,18 @@ const TableComponent = ({
       <TablePagination
         rowsPerPageOptions={[5, 10, 25, 50]}
         component="div"
-        count={total} // Total number of rows from the API
-        rowsPerPage={rowsPerPage} // Rows per page
-        page={page} // Current page (0-based index)
-        onPageChange={handleChangePage} // Handle page change
-        onRowsPerPageChange={handleChangeRowsPerPage} // Handle rows per page change
+        count={total}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        sx={{
+          borderTop: "1px solid",
+          borderColor: "divider",
+          flexShrink: 0,
+        }}
       />
-    </Paper>
+    </div>
   );
 };
 
