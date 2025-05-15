@@ -18,7 +18,7 @@ const BranchLayout = () => {
     {
       icon: <DashboardIcon />,
       label: "Dashboard",
-      onClick: () => navigate("/branch/dashboard"),
+      onClick: () => navigate(ROUTES.BRANCH.DASHBOARD),
     },
     {
       label: "Employees",

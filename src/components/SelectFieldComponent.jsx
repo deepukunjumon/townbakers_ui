@@ -42,7 +42,6 @@ const SelectFieldComponent = ({
           {...params}
           label={label}
           required={required}
-          fullWidth={fullWidth}
           error={showError}
           helperText={showError ? "This field is required" : ""}
         />

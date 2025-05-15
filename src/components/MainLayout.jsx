@@ -23,7 +23,7 @@ const MainLayout = ({ children, menuItems = [] }) => {
       }}
     >
       {/* Navbar */}
-      <Navbar toggleDrawer={toggleDrawer} />
+      <Navbar toggleDrawer={toggleDrawer} isSidebarOpen={open} />
 
       {/* Sidebar */}
       <Sidebar

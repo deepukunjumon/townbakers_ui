@@ -4,7 +4,6 @@ import SnackbarAlert from "../../components/SnackbarAlert";
 import TableComponent from "../../components/TableComponent";
 import ExportMenu from "../../components/ExportMenu";
 import ButtonComponent from "../../components/ButtonComponent";
-import TextFieldComponent from "../../components/TextFieldComponent";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
@@ -14,7 +13,7 @@ import SelectFieldComponent from "../../components/SelectFieldComponent";
 const ViewBranchStockSummary = () => {
   const [branches, setBranches] = useState([]);
   const [branchId, setBranchId] = useState("");
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState("");
   const [rows, setRows] = useState([]);
   const [pagination, setPagination] = useState({
     current_page: 1,
@@ -27,6 +26,7 @@ const ViewBranchStockSummary = () => {
     message: "",
   });
   const [anchorEl, setAnchorEl] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
   const menuOpen = Boolean(anchorEl);
 
   const handleExportClick = (eventOrType) => {
@@ -88,6 +88,7 @@ const ViewBranchStockSummary = () => {
   }, []);
 
   const fetchSummary = async () => {
+    setSubmitted(true);
     if (!branchId || !date) return;
     try {
       const res = await fetch(
@@ -187,8 +188,16 @@ const ViewBranchStockSummary = () => {
         />
 
         <DateSelectorComponent
+          required
+          label="Select Date"
+          sx={{
+            maxWidth: { xs: 185, md: 320 },
+          }}
           date={date}
           onChange={(newDate) => setDate(newDate)}
+          error={submitted && !date}
+          helperText={submitted && !date ? "Date is required" : ""}
+          maxDate={new Date()}
         />
         <ButtonComponent
           onClick={fetchSummary}

@@ -10,6 +10,8 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
+import { STRINGS } from "../constants/strings";
+import FooterComponent from "../components/FooterComponent";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 import { ROUTES } from "../constants/routes";
@@ -75,7 +77,7 @@ const Login = () => {
         setSnack({
           open: true,
           severity: "success",
-          message: data.message || "Login successful!",
+          message: data.message || STRINGS.LOGIN_SUCCESS,
         });
 
         localStorage.setItem("token", data.token);
@@ -91,14 +93,14 @@ const Login = () => {
         setSnack({
           open: true,
           severity: "error",
-          message: data.message || "Login failed.",
+          message: data.error,
         });
       }
     } catch {
       setSnack({
         open: true,
         severity: "error",
-        message: "An error occurred. Please try again.",
+        message: STRINGS.SOMETHING_WENT_WRONG,
       });
     }
     setLoading(false);
@@ -196,17 +198,10 @@ const Login = () => {
           </Box>
         </Grid>
       </Grid>
-
-      {/* App Version and Copyright */}
-      <Box sx={{ textAlign: "center" }}>
-        <Typography variant="body2" color="textSecondary">
-          Version: {version}
-        </Typography>
-        <Typography variant="body2" color="textSecondary">
-          {copyright}
-        </Typography>
-      </Box>
-    </Box>
+      <Grid sx={{ mt: { xs: 7, md: -2 } }}>
+        <FooterComponent />
+      </Grid>
+    </Box >
   );
 };
 

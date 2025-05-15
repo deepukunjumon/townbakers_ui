@@ -8,6 +8,8 @@ import Unauthorized from "../pages/Unauthorized";
 
 import ProtectedRoute from "./ProtectedRoute";
 
+import ViewProfile from "../pages/ViewProfile";
+
 import AdminLayout from "../layouts/AdminLayout";
 import BranchLayout from "../layouts/BranchLayout";
 
@@ -36,6 +38,8 @@ const AppRoutes = () => (
     <Route path={ROUTES.LOGIN} element={<Login />} />
     <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
     <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
+
+    <Route path={ROUTES.PROFILE} element={<ViewProfile />} />
 
     {/* Admin Protected */}
     <Route

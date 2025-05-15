@@ -56,7 +56,6 @@ const DateSelectorComponent = ({
           desktopModeMediaQuery="@media (pointer: fine)"
           slotProps={{
             textField: {
-              fullWidth: true,
               required,
               error: showError,
               helperText: showError ? "This field is required" : "",

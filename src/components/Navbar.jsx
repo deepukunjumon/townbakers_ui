@@ -37,9 +37,6 @@ const Navbar = ({ toggleDrawer }) => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" component="div">
-            TBMS
-          </Typography>
         </Box>
 
         {/* Right: Avatar with dropdown */}

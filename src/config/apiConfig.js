@@ -7,6 +7,8 @@ const API_BASE_URL =
 const apiConfig = {
   BASE_URL: API_BASE_URL,
 
+  PROFILE: `${API_BASE_URL}/profile`,
+
   ADMIN_DASHBOARD_STATS: `${API_BASE_URL}/admin/dashboard/stats`,
   BRANCH_DASHBOARD_STATS: `${API_BASE_URL}/branch/dashboard/stats`,
 

@@ -45,7 +45,7 @@ const TableComponent = ({
                   zIndex: 2,
                 }}
               >
-                #
+                Sl.No
               </TableCell>
               {columns.map((col) => (
                 <TableCell

@@ -6,9 +6,11 @@ import {
   ListItemText,
   ListItemIcon,
   Box,
-  Typography,
+  Divider,
   Collapse,
+  IconButton,
 } from "@mui/material";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 
@@ -26,9 +28,30 @@ const Sidebar = ({ open, toggleDrawer, menuItems = [], isMobile }) => {
 
   const drawerContent = (
     <Box sx={{ textAlign: "center" }}>
-      <Typography variant="h6" sx={{ my: 2 }}>
-        Admin Panel
-      </Typography>
+      {/* Close Arrow */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", p: 2 }}>
+        <IconButton onClick={toggleDrawer}>
+          <ChevronLeftIcon />
+        </IconButton>
+      </Box>
+      {/* Company Logo */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          mt: -6,
+          mb: 2,
+        }}
+      >
+        <img
+          src="/path/to/logo.png"
+          alt="Company Logo"
+          style={{ maxWidth: "80%", maxHeight: 80 }}
+        />
+      </Box>
+      <Divider />
+
       <List>
         {menuItems.map((item, index) => (
           <React.Fragment key={index}>
@@ -82,11 +105,14 @@ const Sidebar = ({ open, toggleDrawer, menuItems = [], isMobile }) => {
 
   return (
     <Drawer
-      variant={isMobile ? "temporary" : "persistent"}
+      variant="temporary"
       open={open}
       onClose={toggleDrawer}
+      ModalProps={{
+        keepMounted: true,
+      }}
       sx={{
-        display: { xs: "block", md: "block" },
+        zIndex: (theme) => theme.zIndex.drawer + 2,
         "& .MuiDrawer-paper": {
           width: drawerWidth,
           boxSizing: "border-box",

@@ -174,7 +174,7 @@ const ListOrders = () => {
           severity: "success",
           message: "Order status updated successfully",
         });
-        // Refresh order details in modal
+
         const orderRes = await fetch(
           `${apiConfig.BASE_URL}/branch/order/${selectedOrder.id}`,
           {
@@ -185,7 +185,6 @@ const ListOrders = () => {
         if (orderData.success && orderData.order) {
           setSelectedOrder(orderData.order);
         }
-        // Refresh the orders list in the table
         fetchOrders();
       } else {
         setSnack({
@@ -274,7 +273,6 @@ const ListOrders = () => {
         }
         setShowEmployeeSelect(false);
         setSelectedEmployee(null);
-        // Refresh the orders list in the table
         fetchOrders();
       } else {
         setSnack({
@@ -354,7 +352,7 @@ const ListOrders = () => {
         message={snack.message}
       />
 
-      <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
+      <Grid container spacing={2} alignItems="center" sx={{ mb: 3, my: 3 }}>
         <Grid item xs={6} md={3} lg={3}>
           <DateSelectorComponent
             label="Start Date"
@@ -382,7 +380,11 @@ const ListOrders = () => {
           >
             <InputLabel>Status</InputLabel>
             <Select
-              value={statusFilter || ""}
+              value={
+                statusFilter !== undefined && statusFilter !== null
+                  ? statusFilter
+                  : ""
+              }
               onChange={handleStatusFilterChange}
               label="Status"
             >
