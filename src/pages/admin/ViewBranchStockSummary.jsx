@@ -4,7 +4,7 @@ import SnackbarAlert from "../../components/SnackbarAlert";
 import TableComponent from "../../components/TableComponent";
 import ExportMenu from "../../components/ExportMenu";
 import ButtonComponent from "../../components/ButtonComponent";
-import TextFieldComponent from "../../components/TextFieldComponent";
+import DateSelectorComponent from "../../components/DateSelectorComponent";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
 import { format } from "date-fns";
