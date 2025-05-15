@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, Grid } from "@mui/material";
 import TextFieldComponent from "../components/TextFieldComponent";
+import FooterComponent from "../components/FooterComponent";
 import SnackbarAlert from "../components/SnackbarAlert";
 import apiConfig from "../config/apiConfig";
 import { ROUTES } from "../constants/routes";
@@ -33,6 +34,7 @@ const ResetPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const res = await fetch(apiConfig.RESET_PASSWORD_URL, {
@@ -89,73 +91,88 @@ const ResetPassword = () => {
         severity: "error",
         message: "Something went wrong.",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <Box
       sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         minHeight: "100vh",
-        px: { xs: 2, sm: 4 },
-        py: 4,
-        backgroundColor: "background.default",
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: "background.default",
       }}
     >
       <Box
         sx={{
-          width: "100%",
-          maxWidth: 400,
-          bgcolor: "white",
-          p: { xs: 3, sm: 4 },
-          borderRadius: 2,
-          boxShadow: 3,
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <SnackbarAlert {...snack} onClose={handleClose} />
-
-        <Typography variant="h5" mb={3} textAlign="center">
-          Reset Your Password
-        </Typography>
-
-        <form onSubmit={handleSubmit}>
-          <TextFieldComponent
-            label="Current Password"
-            name="current_password"
-            type="password"
-            value={form.current_password}
-            onChange={handleChange}
-            required
-          />
-          <TextFieldComponent
-            label="New Password"
-            name="new_password"
-            type="password"
-            value={form.new_password}
-            onChange={handleChange}
-            required
-          />
-          <TextFieldComponent
-            label="Confirm New Password"
-            name="new_password_confirmation"
-            type="password"
-            value={form.new_password_confirmation}
-            onChange={handleChange}
-            required
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            sx={{ mt: 2 }}
-            disabled={loading}
-          >
-            {loading ? "Updating..." : "Update Password"}
-          </Button>
-        </form>
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: 400,
+            px: { xs: 2, sm: 4 },
+            py: 4,
+            mx: "auto",
+            borderRadius: 2,
+            boxShadow: 0,
+            bgcolor: "background.default",
+          }}
+        >
+          <SnackbarAlert {...snack} onClose={handleClose} />
+          <Typography variant="h5" mb={3} textAlign="center">
+            Reset Your Password
+          </Typography>
+          <form onSubmit={handleSubmit}>
+            <TextFieldComponent
+              label="Current Password"
+              name="current_password"
+              type="password"
+              value={form.current_password}
+              onChange={handleChange}
+              required
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+            <TextFieldComponent
+              label="New Password"
+              name="new_password"
+              type="password"
+              value={form.new_password}
+              onChange={handleChange}
+              required
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+            <TextFieldComponent
+              label="Confirm New Password"
+              name="new_password_confirmation"
+              type="password"
+              value={form.new_password_confirmation}
+              onChange={handleChange}
+              required
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              sx={{ mt: 1 }}
+              disabled={loading}
+            >
+              {loading ? "Updating..." : "Update Password"}
+            </Button>
+          </form>
+        </Box>
       </Box>
+      <FooterComponent />
     </Box>
   );
 };

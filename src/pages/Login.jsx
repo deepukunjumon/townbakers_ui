@@ -11,6 +11,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { STRINGS } from "../constants/strings";
+import FooterComponent from "../components/FooterComponent";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 import { ROUTES } from "../constants/routes";
@@ -197,17 +198,10 @@ const Login = () => {
           </Box>
         </Grid>
       </Grid>
-
-      {/* App Version and Copyright */}
-      <Box sx={{ textAlign: "center" }}>
-        <Typography variant="body2" color="textSecondary">
-          Version: {version}
-        </Typography>
-        <Typography variant="body2" color="textSecondary">
-          {copyright}
-        </Typography>
-      </Box>
-    </Box>
+      <Grid sx={{ mt: { xs: 7, md: -2 } }}>
+        <FooterComponent />
+      </Grid>
+    </Box >
   );
 };
 
