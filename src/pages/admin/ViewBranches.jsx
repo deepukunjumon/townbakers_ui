@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { getToken } from "../../utils/auth";
 import apiConfig from "../../config/apiConfig";
 import { ROUTES } from "../../constants/routes";
+import Loader from "../../components/Loader";
 
 const ViewBranches = () => {
   const navigate = useNavigate();
@@ -117,15 +118,13 @@ const ViewBranches = () => {
       />
 
       {loading ? (
-        <Box sx={{ textAlign: "center", mt: 4 }}>
-          <CircularProgress />
-        </Box>
+        <Loader message="Loading..." />
       ) : (
         <TableComponent
           rows={branches}
           columns={columns}
           total={pagination.total}
-          page={pagination.current_page - 1} // Convert 1-based to 0-based index
+          page={pagination.current_page - 1}
           rowsPerPage={pagination.per_page}
           onPaginationChange={handlePaginationChange}
           onRowClick={(row) => handleBranchClick(row.id)}
@@ -166,9 +165,7 @@ const ViewBranches = () => {
               </Typography>
             </Box>
           ) : (
-            <Box sx={{ textAlign: "center", mt: 4 }}>
-              <CircularProgress />
-            </Box>
+            <Loader message="Loading..." />
           )
         }
       />

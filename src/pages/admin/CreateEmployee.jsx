@@ -8,6 +8,7 @@ import ImportMenuComponent from "../../components/ImportMenuComponent";
 import axios from "axios";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
+import Loader from "../../components/Loader";
 
 const CreateEmployee = () => {
   const [form, setForm] = useState({
@@ -30,6 +31,7 @@ const CreateEmployee = () => {
   const [importResult, setImportResult] = useState(null);
   const [importing, setImporting] = useState(false);
   const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false); // <-- Add loading state
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -80,14 +82,27 @@ const CreateEmployee = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // <-- Start loader
     try {
+      const payload = {
+        ...form,
+        designation_id:
+          typeof form.designation_id === "object" &&
+          form.designation_id !== null
+            ? form.designation_id.id
+            : form.designation_id,
+        branch_id:
+          typeof form.branch_id === "object" && form.branch_id !== null
+            ? form.branch_id.id
+            : form.branch_id,
+      };
       const res = await fetch(`${apiConfig.BASE_URL}/admin/create/employee`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: getToken(),
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -112,6 +127,8 @@ const CreateEmployee = () => {
         severity: "error",
         message: "Error submitting form",
       });
+    } finally {
+      setLoading(false); // <-- Stop loader
     }
   };
 
@@ -128,16 +145,12 @@ const CreateEmployee = () => {
     formData.append("file", file);
 
     try {
-      const res = await axios.post(
-        `${apiConfig.IMPORT_EMPLOYEES}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
-      );
+      const res = await axios.post(`${apiConfig.IMPORT_EMPLOYEES}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${getToken()}`,
+        },
+      });
       setImportResult(res.data);
     } catch {
       setImportResult({ success: false, message: "Import failed." });
@@ -148,6 +161,7 @@ const CreateEmployee = () => {
 
   return (
     <>
+      {loading && <Loader message="Creating employee..." />}
       <ModalComponent
         open={importModalOpen}
         onClose={() => {
@@ -184,7 +198,9 @@ const CreateEmployee = () => {
             </Box>
             {importResult && (
               <Box sx={{ mt: 2 }}>
-                <Typography color={importResult.success ? "success.main" : "error.main"}>
+                <Typography
+                  color={importResult.success ? "success.main" : "error.main"}
+                >
                   {importResult.message}
                 </Typography>
                 {importResult.errors && importResult.errors.length > 0 && (
@@ -254,7 +270,9 @@ const CreateEmployee = () => {
             label="Designation"
             name="designation_id"
             value={form.designation_id}
-            onChange={(e) => setForm({ ...form, designation_id: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, designation_id: e.target.value })
+            }
             options={designations}
             valueKey="id"
             displayKey={(des) => des.designation}
@@ -277,8 +295,9 @@ const CreateEmployee = () => {
             variant="contained"
             color="primary"
             sx={{ mt: 2 }}
+            disabled={loading}
           >
-            Create Employee
+            {loading ? "Creating..." : "Create Employee"}
           </Button>
         </form>
       </Box>

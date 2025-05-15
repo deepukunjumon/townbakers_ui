@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, CircularProgress, Divider } from "@mui/material";
 import TableComponent from "../../components/TableComponent";
+import Loader from "../../components/Loader";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
 import { getBranchIdFromToken } from "../../utils/auth";
@@ -133,11 +134,9 @@ const BranchEmployees = () => {
         message={snack.message}
       />
 
-      {loading ? (
-        <Box sx={{ textAlign: "center", mt: 4 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
+      {loading && <Loader message="Loading..." />}
+
+      {!loading && (
         <TableComponent
           rows={employees}
           columns={columns}

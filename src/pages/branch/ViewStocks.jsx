@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Typography, CircularProgress, Divider } from "@mui/material";
 import format from "date-fns/format";
 import SnackbarAlert from "../../components/SnackbarAlert";
+import Loader from "../../components/Loader";
 import apiConfig from "../../config/apiConfig";
 import TableComponent from "../../components/TableComponent";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
@@ -174,11 +175,9 @@ const ViewStocks = () => {
         />
       </Box>
 
-      {loading ? (
-        <Box sx={{ textAlign: "center", mt: 4 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
+      {loading && <Loader message="Loading..." />}
+
+      {!loading && (
         <TableComponent
           rows={stockData}
           columns={columns}

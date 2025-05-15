@@ -4,6 +4,7 @@ import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TextFieldComponent from "../../components/TextFieldComponent";
+import Loader from "../../components/Loader"; // <-- Import Loader
 
 const initialState = {
   code: "",
@@ -63,6 +64,7 @@ const CreateBranch = () => {
 
   return (
     <Box sx={{ maxWidth: { sm: 500, md: 850 }, mx: "auto", py: 4, px: 2 }}>
+      {loading && <Loader message="Creating branch..." />}
       <Typography variant="h5" gutterBottom>
         Create Branch
       </Typography>

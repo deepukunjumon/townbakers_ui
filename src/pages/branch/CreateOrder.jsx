@@ -16,6 +16,7 @@ import SelectFieldComponent from "../../components/SelectFieldComponent";
 import TextFieldComponent from "../../components/TextFieldComponent";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import TimePickerComponent from "../../components/TimePickerComponent";
+import Loader from "../../components/Loader";
 import axios from "axios";
 import { format } from "date-fns";
 
@@ -44,6 +45,7 @@ const CreateOrder = () => {
     severity: "info",
     message: "",
   });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     axios
@@ -91,6 +93,7 @@ const CreateOrder = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const delivery = new Date(form.delivery_date);
     const today = new Date();
@@ -102,6 +105,7 @@ const CreateOrder = () => {
         severity: "error",
         message: "Delivery date cannot be in the past.",
       });
+      setLoading(false);
       return;
     }
 
@@ -145,11 +149,14 @@ const CreateOrder = () => {
         severity: "error",
         message: error.response?.data?.message || "Order creation failed.",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <Box sx={{ mx: "auto", my: 4, px: { xs: -3, md: 9 } }}>
+      {loading && <Loader message="Creating order..." />}
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}

@@ -16,6 +16,7 @@ import SelectFieldComponent from "../../components/SelectFieldComponent";
 import apiConfig from "../../config/apiConfig";
 import { getToken, getBranchIdFromToken } from "../../utils/auth";
 import ButtonComponent from "../../components/ButtonComponent";
+import Loader from "../../components/Loader";
 
 const AddStock = () => {
   const [employeeId, setEmployeeId] = useState(null);
@@ -29,6 +30,7 @@ const AddStock = () => {
     severity: "info",
     message: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const branchId = getBranchIdFromToken();
 
@@ -96,6 +98,7 @@ const AddStock = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // <-- Start loader
 
     let updatedItems = [...addedItems];
 
@@ -117,6 +120,7 @@ const AddStock = () => {
         severity: "warning",
         message: "Select an employee",
       });
+      setLoading(false);
       return;
     }
 
@@ -126,6 +130,7 @@ const AddStock = () => {
         severity: "warning",
         message: "Add at least one item",
       });
+      setLoading(false);
       return;
     }
 
@@ -163,11 +168,14 @@ const AddStock = () => {
       }
     } catch {
       setSnack({ open: true, severity: "error", message: "Network error" });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", py: 2, px: 2 }}>
+      {loading && <Loader message="Submitting stock..." />}
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
