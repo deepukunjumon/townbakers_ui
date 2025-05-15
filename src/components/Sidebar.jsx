@@ -6,7 +6,7 @@ import {
   ListItemText,
   ListItemIcon,
   Box,
-  Typography,
+  Divider,
   Collapse,
   IconButton,
 } from "@mui/material";
@@ -29,7 +29,7 @@ const Sidebar = ({ open, toggleDrawer, menuItems = [], isMobile }) => {
   const drawerContent = (
     <Box sx={{ textAlign: "center" }}>
       {/* Close Arrow */}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", p: 1 }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", p: 2 }}>
         <IconButton onClick={toggleDrawer}>
           <ChevronLeftIcon />
         </IconButton>
@@ -40,7 +40,8 @@ const Sidebar = ({ open, toggleDrawer, menuItems = [], isMobile }) => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          my: 2,
+          mt: -6,
+          mb: 2,
         }}
       >
         <img
@@ -49,6 +50,8 @@ const Sidebar = ({ open, toggleDrawer, menuItems = [], isMobile }) => {
           style={{ maxWidth: "80%", maxHeight: 80 }}
         />
       </Box>
+      <Divider />
+
       <List>
         {menuItems.map((item, index) => (
           <React.Fragment key={index}>
