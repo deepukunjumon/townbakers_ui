@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography, IconButton } from "@mui/material";
 import StatCard from "../../components/StatCard";
 import PeopleIcon from "@mui/icons-material/People";
 import BusinessIcon from "@mui/icons-material/Business";
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import RefreshIcon from "@mui/icons-material/Refresh";
 import axios from "axios";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
@@ -38,7 +39,13 @@ const Dashboard = () => {
     },
   ]);
 
-  useEffect(() => {
+  const fetchStats = useCallback(() => {
+    setStats((prevStats) =>
+      prevStats.map((stat) => ({
+        ...stat,
+        loading: true,
+      }))
+    );
     axios
       .get(apiConfig.BRANCH_DASHBOARD_STATS, {
         headers: {
@@ -87,14 +94,22 @@ const Dashboard = () => {
       .catch((err) => {
         console.error("Failed to load dashboard stats:", err);
       });
-  }, []);
+  }, [navigate]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   return (
-    <Box sx={{
-      p: 3,
-      maxWidth: "100%",
-      mx: "auto",
-    }}>
+    <Box sx={{ mt: { xs: -3 }, p: 3, maxWidth: "100%", mx: "auto" }}>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+        <Typography variant="h5" sx={{ flexGrow: 1 }}>
+          Dashboard
+        </Typography>
+        <IconButton aria-label="refresh" onClick={fetchStats}>
+          <RefreshIcon />
+        </IconButton>
+      </Box>
       <Grid container spacing={2}>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={index}>

@@ -184,7 +184,7 @@ const CreateOrder = () => {
               name="title"
               value={form.title}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340, sm: 705, md: 705 } }}
+              sx={{ minWidth: { xs: 340, sm: 705 } }}
               required
             />
           </Grid>
