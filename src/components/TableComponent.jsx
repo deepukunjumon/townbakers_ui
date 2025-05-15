@@ -78,7 +78,9 @@ const TableComponent = ({
                   <TableCell>{page * rowsPerPage + idx + 1}</TableCell>
                   {columns.map((col) => (
                     <TableCell key={col.field}>
-                      {row[col.field] ?? "-"}
+                      {col.renderCell
+                        ? col.renderCell({ value: row[col.field], row })
+                        : row[col.field] ?? "-"}
                     </TableCell>
                   ))}
                 </TableRow>

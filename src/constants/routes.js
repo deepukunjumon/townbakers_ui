@@ -13,7 +13,7 @@ export const ROUTES = {
     BRANCH_LIST: "/admin/view/branches",
 
     CREATE_EMPLOYEE: "/admin/create/employee",
-    EMPLOYEE_LIST: "/admin/employees",
+    EMPLOYEES_LIST: "/admin/employees",
 
     STOCK_SUMMARY: "/admin/stocks/summary",
   },

@@ -39,11 +39,11 @@ const MainLayout = ({ children, menuItems = [] }) => {
         sx={{
           flex: 1,
           width: {
-            xs: "100%",
+            xs: "auto",
             sm: open ? `calc(100% - ${drawerWidth}px)` : "100%",
           },
           ml: {
-            xs: 0,
+            xs: 1,
             sm: open ? `${drawerWidth}px` : 0,
           },
           transition: "margin-left 0.3s ease, width 0.3s ease",

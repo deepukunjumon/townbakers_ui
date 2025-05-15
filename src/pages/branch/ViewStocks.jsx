@@ -43,7 +43,7 @@ const ViewStocks = () => {
 
     const form = document.createElement("form");
     form.method = "POST";
-    form.action = `${apiConfig.BASE_URL}/branch/stock/summary`;
+    form.action = `${apiConfig.STOCK_SUMMARY}`;
 
     const addField = (name, value) => {
       const input = document.createElement("input");
@@ -71,7 +71,7 @@ const ViewStocks = () => {
 
     try {
       const res = await fetch(
-        `${apiConfig.BASE_URL}/branch/stock/summary?page=${pagination.current_page}&per_page=${pagination.per_page}`,
+        `${apiConfig.STOCK_SUMMARY}?page=${pagination.current_page}&per_page=${pagination.per_page}`,
         {
           method: "POST",
           headers: {

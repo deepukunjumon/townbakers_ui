@@ -96,7 +96,7 @@ const CreateEmployee = () => {
             ? form.branch_id.id
             : form.branch_id,
       };
-      const res = await fetch(`${apiConfig.BASE_URL}/admin/create/employee`, {
+      const res = await fetch(`${apiConfig.CREATE_EMPLOYEE}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
