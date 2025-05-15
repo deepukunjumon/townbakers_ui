@@ -3,10 +3,13 @@ import { Box, Button, Typography, Divider } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TextFieldComponent from "../../components/TextFieldComponent";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
+import ModalComponent from "../../components/ModalComponent";
+import ImportMenuComponent from "../../components/ImportMenuComponent";
+import axios from "axios";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
 
-const CreateEmployeeByAdmin = () => {
+const CreateEmployee = () => {
   const [form, setForm] = useState({
     employee_code: "",
     name: "",
@@ -22,6 +25,11 @@ const CreateEmployeeByAdmin = () => {
     severity: "info",
     message: "",
   });
+
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [importResult, setImportResult] = useState(null);
+  const [importing, setImporting] = useState(false);
+  const [file, setFile] = useState(null);
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -107,82 +115,175 @@ const CreateEmployeeByAdmin = () => {
     }
   };
 
+  const handleImportClick = () => setImportModalOpen(true);
+
+  const handleFileChange = (e) => setFile(e.target.files[0]);
+
+  const handleImport = async () => {
+    if (!file) return;
+    setImporting(true);
+    setImportResult(null);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await axios.post(
+        `${apiConfig.IMPORT_EMPLOYEES}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+      setImportResult(res.data);
+    } catch {
+      setImportResult({ success: false, message: "Import failed." });
+    } finally {
+      setImporting(false);
+    }
+  };
+
   return (
-    <Box sx={{ maxWidth: 500, mx: "auto", p: 2 }}>
-      <SnackbarAlert
-        open={snack.open}
-        onClose={() => setSnack((s) => ({ ...s, open: false }))}
-        severity={snack.severity}
-        message={snack.message}
+    <>
+      <ModalComponent
+        open={importModalOpen}
+        onClose={() => {
+          setImportModalOpen(false);
+          setFile(null);
+          setImportResult(null);
+        }}
+        title="Import Employees"
+        content={
+          <Box>
+            <input
+              type="file"
+              accept=".xlsx,.csv"
+              onChange={handleFileChange}
+              disabled={importing}
+            />
+            <Button
+              onClick={handleImport}
+              disabled={!file || importing}
+              sx={{ mt: 2 }}
+              variant="contained"
+            >
+              {importing ? "Importing..." : "Import"}
+            </Button>
+            <Box sx={{ mb: 2 }}>
+              <a
+                href={`${apiConfig.BASE_URL}/../sample-files/employees.xlsx`}
+                download
+                style={{ textDecoration: "underline", color: "#1976d2" }}
+                rel="noopener noreferrer"
+              >
+                Sample File
+              </a>
+            </Box>
+            {importResult && (
+              <Box sx={{ mt: 2 }}>
+                <Typography color={importResult.success ? "success.main" : "error.main"}>
+                  {importResult.message}
+                </Typography>
+                {importResult.errors && importResult.errors.length > 0 && (
+                  <Box sx={{ mt: 1 }}>
+                    <Typography variant="subtitle2">Errors:</Typography>
+                    <ul>
+                      {importResult.errors.map((err, idx) => (
+                        <li key={idx}>
+                          Row {err.row}: {Object.values(err.errors).join(", ")}
+                        </li>
+                      ))}
+                    </ul>
+                  </Box>
+                )}
+              </Box>
+            )}
+          </Box>
+        }
       />
 
-      <Typography variant="h5" gutterBottom>
-        Create New Employee
-      </Typography>
+      <Box sx={{ maxWidth: 500, mx: "auto", p: 2 }}>
+        <SnackbarAlert
+          open={snack.open}
+          onClose={() => setSnack((s) => ({ ...s, open: false }))}
+          severity={snack.severity}
+          message={snack.message}
+        />
 
-      <Divider sx={{ mb: 3 }} />
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <Typography variant="h5" sx={{ flexGrow: 1 }}>
+            Create Employee
+          </Typography>
+          <ImportMenuComponent onImportClick={handleImportClick} />
+        </Box>
 
-      <form onSubmit={handleSubmit}>
-        <TextFieldComponent
-          name="employee_code"
-          label="Employee Code"
-          value={form.employee_code}
-          onChange={handleChange}
-          fullWidth
-          required
-          margin="normal"
-        />
-        <TextFieldComponent
-          name="name"
-          label="Name"
-          value={form.name}
-          onChange={handleChange}
-          fullWidth
-          required
-          margin="normal"
-        />
-        <TextFieldComponent
-          name="mobile"
-          label="Mobile Number"
-          value={form.mobile}
-          onChange={handleChange}
-          fullWidth
-          required
-          margin="normal"
-        />
-        <SelectFieldComponent
-          label="Designation"
-          name="designation_id"
-          value={form.designation_id}
-          onChange={(e) => setForm({ ...form, designation_id: e.target.value })}
-          options={designations}
-          valueKey="id"
-          displayKey={(des) => des.designation}
-          required
-          fullWidth
-        />
-        <SelectFieldComponent
-          label="Branch"
-          name="branch_id"
-          value={form.branch_id}
-          onChange={(e) => setForm({ ...form, branch_id: e.target.value })}
-          options={branches}
-          valueKey="id"
-          displayKey={(branch) => `${branch.code} - ${branch.name}`}
-          required
-          fullWidth
-        />
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          sx={{ mt: 2 }}
-        >
-          Create Employee
-        </Button>
-      </form>
-    </Box>
+        <Divider sx={{ mb: 3 }} />
+
+        <form onSubmit={handleSubmit}>
+          <TextFieldComponent
+            name="employee_code"
+            label="Employee Code"
+            value={form.employee_code}
+            onChange={handleChange}
+            fullWidth
+            required
+            margin="normal"
+          />
+          <TextFieldComponent
+            name="name"
+            label="Name"
+            value={form.name}
+            onChange={handleChange}
+            fullWidth
+            required
+            margin="normal"
+          />
+          <TextFieldComponent
+            name="mobile"
+            label="Mobile Number"
+            value={form.mobile}
+            onChange={handleChange}
+            fullWidth
+            required
+            margin="normal"
+          />
+          <SelectFieldComponent
+            label="Designation"
+            name="designation_id"
+            value={form.designation_id}
+            onChange={(e) => setForm({ ...form, designation_id: e.target.value })}
+            options={designations}
+            valueKey="id"
+            displayKey={(des) => des.designation}
+            required
+            fullWidth
+          />
+          <SelectFieldComponent
+            label="Branch"
+            name="branch_id"
+            value={form.branch_id}
+            onChange={(e) => setForm({ ...form, branch_id: e.target.value })}
+            options={branches}
+            valueKey="id"
+            displayKey={(branch) => `${branch.code} - ${branch.name}`}
+            required
+            fullWidth
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+          >
+            Create Employee
+          </Button>
+        </form>
+      </Box>
+    </>
   );
 };
 
-export default CreateEmployeeByAdmin;
+export default CreateEmployee;

@@ -10,6 +10,8 @@ const apiConfig = {
   ADMIN_DASHBOARD_STATS: `${API_BASE_URL}/admin/dashboard/stats`,
   BRANCH_DASHBOARD_STATS: `${API_BASE_URL}/branch/dashboard/stats`,
 
+  IMPORT_EMPLOYEES: `${API_BASE_URL}/admin/import/employees`,
+
   LOGIN_URL: `${API_BASE_URL}/login`,
   RESET_PASSWORD_URL: `${API_BASE_URL}/password/reset`,
   LOGOUT_URL: `${API_BASE_URL}/logout`,
