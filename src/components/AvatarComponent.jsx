@@ -74,7 +74,20 @@ const AvatarComponent = ({ onLogout, onProfile }) => {
             onProfile();
           }}
         >
-          Profile
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <Box sx={
+              {
+                fontWeight: "bold",
+                color: theme.palette.primary.main,
+              }
+            }>{user.name}</Box>
+          </Box>
         </MenuItem>
         <MenuItem
           onClick={() => {

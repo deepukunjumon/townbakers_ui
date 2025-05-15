@@ -12,27 +12,32 @@ const SearchFieldComponent = ({
   const [input, setInput] = useState("");
   const [debouncedValue, setDebouncedValue] = useState("");
 
+  // Handle debounced value change after input
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedValue(input);
+      setDebouncedValue(input); // Set the debounced value after delay
     }, delay);
-    return () => clearTimeout(handler);
-  }, [input, delay]);
 
+    return () => clearTimeout(handler); // Clear timeout if input changes before delay
+  }, [input, delay]); // Dependency on input
+
+  // Only call onDebouncedChange when debouncedValue changes
   useEffect(() => {
-    onDebouncedChange?.(debouncedValue);
-  }, [debouncedValue, onDebouncedChange]);
+    if (debouncedValue !== input) {
+      onDebouncedChange?.(debouncedValue); // Avoid calling if debouncedValue is the same as input
+    }
+  }, [debouncedValue, onDebouncedChange, input]); // Dependency on debouncedValue and input to ensure proper update flow
 
   const handleClear = () => {
-    setInput("");
-    setDebouncedValue("");
+    setInput(""); // Clear input state
+    setDebouncedValue(""); // Clear debounced value
   };
 
   return (
     <TextFieldComponent
       label={label}
       value={input}
-      onChange={(e) => setInput(e.target.value)}
+      onChange={(e) => setInput(e.target.value)} // Update input state
       size="small"
       fullWidth
       InputProps={{
