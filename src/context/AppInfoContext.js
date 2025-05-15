@@ -1,4 +1,6 @@
 import React, { createContext } from "react";
+import theme from "../theme";
+const packageJson = require('../../package.json');
 
 export const AppInfoContext = createContext();
 
@@ -8,7 +10,7 @@ export const AppInfoProvider = ({ children }) => {
     const companyUrl = "https://www.townbakers.in";
 
     const appInfo = {
-        version: "1.0.0",
+        version: packageJson.version,
         copyright: (
             <>
                 © {currentYear}{" "}
@@ -21,8 +23,8 @@ export const AppInfoProvider = ({ children }) => {
                         color: "inherit",
                         transition: "color 0.3s ease",
                     }}
-                    onMouseEnter={(e) => (e.target.style.color = "#00c3a2")} // Change color on hover
-                    onMouseLeave={(e) => (e.target.style.color = "inherit")} // Reset color on mouse leave
+                    onMouseEnter={(e) => (e.target.style.color = theme.palette.primary.main)}
+                    onMouseLeave={(e) => (e.target.style.color = "inherit")}
                 >
                     {companyName}
                 </a>
