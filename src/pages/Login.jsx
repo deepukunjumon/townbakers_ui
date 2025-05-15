@@ -113,6 +113,7 @@ const Login = () => {
         alignItems="center"
         spacing={12}
         sx={{
+          mb: { xs: -10, sm: 0 },
           px: { xs: 2, sm: 8 },
           minHeight: "90vh",
           ml: { xs: -4 },
@@ -164,7 +165,7 @@ const Login = () => {
             <Box
               component="form"
               onSubmit={handleLogin}
-              sx={{ mt: 2, width: "100%", maxWidth: 360 }}
+              sx={{ mt: 2, width: "100%", maxWidth: { xs: 290, ms: 360 } }}
             >
               <TextFieldComponent
                 label="Login ID"

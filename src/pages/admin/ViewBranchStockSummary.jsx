@@ -1,27 +1,30 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  MenuItem,
-  Grid,
-  DateSelector
-} from "@mui/material";
+import { Box, Typography, Divider } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TableComponent from "../../components/TableComponent";
-import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ExportMenu from "../../components/ExportMenu";
 import ButtonComponent from "../../components/ButtonComponent";
 import TextFieldComponent from "../../components/TextFieldComponent";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
 import { format } from "date-fns";
+import SelectFieldComponent from "../../components/SelectFieldComponent";
 
 const ViewBranchStockSummary = () => {
   const [branches, setBranches] = useState([]);
   const [branchId, setBranchId] = useState("");
   const [date, setDate] = useState("");
   const [rows, setRows] = useState([]);
-  const [snack, setSnack] = useState({ open: false, severity: "info", message: "" });
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    per_page: 10,
+    total: 0,
+  });
+  const [snack, setSnack] = useState({
+    open: false,
+    severity: "info",
+    message: "",
+  });
   const [anchorEl, setAnchorEl] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const menuOpen = Boolean(anchorEl);
@@ -74,7 +77,11 @@ const ViewBranchStockSummary = () => {
         if (res.ok) setBranches(data.branches || data.data || []);
         else throw new Error();
       } catch {
-        setSnack({ open: true, severity: "error", message: "Failed to load branches" });
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load branches",
+        });
       }
     };
     fetchBranches();
@@ -95,21 +102,47 @@ const ViewBranchStockSummary = () => {
           body: JSON.stringify({
             branch_id: branchId,
             date: format(date, "yyyy-MM-dd"),
+            page: pagination.current_page,
+            per_page: pagination.per_page,
           }),
         }
       );
       const data = await res.json();
       if (res.ok && Array.isArray(data.data)) {
-        const flatData = data.data[0]?.items?.map((item, idx) => ({
-          item_name: item.item_name || item.item_id,
-          quantity: item.quantity,
-        })) || [];
+        const flatData =
+          data.data[0]?.items?.map((item, idx) => ({
+            item_name: item.item_name || item.item_id,
+            quantity: item.quantity,
+          })) || [];
         setRows(flatData);
-        setSnack({ open: true, severity: "success", message: data.message || "Data fetched" });
+        setPagination((prev) => ({
+          ...prev,
+          total: data.pagination?.total || 0,
+          current_page: data.pagination?.current_page || 1,
+          per_page: data.pagination?.per_page || 10,
+        }));
+        setSnack({
+          open: true,
+          severity: "success",
+          message: data.message || "Data fetched",
+        });
       } else throw new Error();
     } catch {
-      setSnack({ open: true, severity: "error", message: "Failed to load stock summary" });
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to load stock summary",
+      });
     }
+  };
+
+  const handlePaginationChange = ({ page, rowsPerPage }) => {
+    setPagination((prev) => ({
+      ...prev,
+      current_page: page,
+      per_page: rowsPerPage,
+    }));
+    fetchSummary();
   };
 
   const columns = [
@@ -137,26 +170,22 @@ const ViewBranchStockSummary = () => {
         />
       </Box>
 
+      <Divider sx={{ mb: 3 }} />
+
       <Box display="flex" gap={2} alignItems="center" my={2} flexWrap="wrap">
-        <TextFieldComponent
-          type="select"
+        <SelectFieldComponent
           label="Select Branch"
           value={branchId}
           onChange={(e) => setBranchId(e.target.value)}
-          fullWidth
+          options={branches}
+          valueKey="id"
+          displayKey={(branch) =>
+            `${branch.branche_code || branch.code} - ${branch.name}`
+          }
           required
-          error={submitted && !branchId}
-          sx={{
-            maxWidth: 320,
-            flexGrow: 1,
-          }}
-        >
-          {branches.map((branch) => (
-            <MenuItem key={branch.id} value={branch.id}>
-              {(branch.branche_code || branch.code) + " - " + branch.name}
-            </MenuItem>
-          ))}
-        </TextFieldComponent>
+          fullWidth
+          sx={{ minWidth: 250 }}
+        />
 
         <DateSelectorComponent
           required
@@ -175,16 +204,19 @@ const ViewBranchStockSummary = () => {
           variant="contained"
           color="primary"
         >
-          GENERATE
+          SUBMIT
         </ButtonComponent>
       </Box>
-      <Box mt={2} sx={{ maxHeight: "90vh", overflowY: "auto" }}>
-        {rows.length > 0 && <TableComponent rows={rows} columns={columns} />}
-      </Box>
-      {rows.length === 0 && (
-        <Typography variant="body2" color="text.secondary" textAlign="center" mt={2}>
-          No data available
-        </Typography>
+
+      {rows.length > 0 && (
+        <TableComponent
+          rows={rows}
+          columns={columns}
+          total={pagination.total}
+          page={pagination.current_page - 1}
+          rowsPerPage={pagination.per_page}
+          onPaginationChange={handlePaginationChange}
+        />
       )}
     </Box>
   );

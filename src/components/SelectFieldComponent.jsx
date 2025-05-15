@@ -11,7 +11,9 @@ const SelectFieldComponent = ({
   required = false,
   fullWidth = true,
   submitted = false,
-  sx = {},
+  sx = {
+    mb: 1,
+  },
 }) => {
   const showError = submitted && required && !value;
 

@@ -1,7 +1,7 @@
 const API_BASE_URL =
   window.location.hostname === "localhost"
-    ? "http://localhost:8000/api" // For local development
-    : "http://192.168.1.37:8000/api"; // For production
+    ? "http://localhost:8000/api"
+    : "http://192.168.1.37:8000/api";
 
 // Define API URLs
 const apiConfig = {
@@ -13,6 +13,9 @@ const apiConfig = {
   LOGIN_URL: `${API_BASE_URL}/login`,
   RESET_PASSWORD_URL: `${API_BASE_URL}/password/reset`,
   LOGOUT_URL: `${API_BASE_URL}/logout`,
+
+  CREATE_BRANCH: `${API_BASE_URL}/admin/create/branch`,
+  BRANCH_LIST: `${API_BASE_URL}/admin/branches`,
 
   USERS_COUNTS: `${API_BASE_URL}/admin/users/status/counts`,
   USERS_LIST: `${API_BASE_URL}/admin/users`,

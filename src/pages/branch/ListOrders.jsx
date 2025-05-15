@@ -20,8 +20,7 @@ import ButtonComponent from "../../components/ButtonComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import { getToken } from "../../utils/auth";
 import apiConfig from "../../config/apiConfig";
-import Pagination from "@mui/material/Pagination";
-import { format, startOfMonth, endOfMonth } from "date-fns";
+import { format } from "date-fns";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ModalComponent from "../../components/ModalComponent";
 
@@ -54,7 +53,14 @@ const ListOrders = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, [pagination.current_page, startDate, endDate, search, statusFilter]);
+  }, [
+    pagination.current_page,
+    pagination.per_page,
+    startDate,
+    endDate,
+    search,
+    statusFilter,
+  ]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -76,8 +82,14 @@ const ListOrders = () => {
       const data = await res.json();
 
       if (data.success) {
-        setOrders(data.orders);
-        setPagination(data.pagination);
+        setOrders(data.orders || []);
+        setPagination((prev) => ({
+          ...prev,
+          current_page: data.pagination?.current_page || 1,
+          last_page: data.pagination?.last_page || 1,
+          per_page: data.pagination?.per_page || 10,
+          total: data.pagination?.total || 0,
+        }));
       } else {
         setSnack({
           open: true,
@@ -96,29 +108,20 @@ const ListOrders = () => {
     }
   };
 
-  const fetchEmployees = async () => {
-    try {
-      const token = getToken();
-      const res = await fetch(`${apiConfig.BASE_URL}/employees/minimal`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.success && Array.isArray(data.employees)) {
-        setEmployees(data.employees);
-      } else {
-        setEmployees([]);
-      }
-    } catch {
-      setEmployees([]);
-    }
+  const handlePaginationChange = ({ page, rowsPerPage }) => {
+    setPagination((prev) => ({
+      ...prev,
+      current_page: page,
+      per_page: rowsPerPage,
+    }));
   };
 
-  const handlePaginationChange = (event, value) => {
-    setPagination((prev) => ({ ...prev, current_page: value }));
-  };
-
-  const handleOrderClick = async (orderId) => {
+  const handleOrderClick = (orderId) => {
     setOpenModal(true);
+    fetchOrderDetails(orderId);
+  };
+
+  const fetchOrderDetails = async (orderId) => {
     setModalLoading(true);
     try {
       const token = getToken();
@@ -202,8 +205,34 @@ const ListOrders = () => {
   };
 
   const handleShowEmployeeSelect = async () => {
-    await fetchEmployees();
+    await fetchEmployees(); // Fetch employees before showing the selection
     setShowEmployeeSelect(true);
+  };
+
+  const fetchEmployees = async () => {
+    try {
+      const token = getToken();
+      const res = await fetch(`${apiConfig.BASE_URL}/employees`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setEmployees(data.employees || []);
+      } else {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: data.message || "Failed to load employees",
+        });
+      }
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to load employees",
+      });
+    }
   };
 
   const handleMarkAsCompleted = async () => {
@@ -268,7 +297,7 @@ const ListOrders = () => {
     { field: "delivery_date", headerName: "Delivery Date", flex: 1 },
     { field: "total_amount", headerName: "Total Amount", flex: 1 },
     { field: "customer_name", headerName: "Customer Name", flex: 1 },
-    { field: "customer_mobile", headerName: "Mobile", flex: 1 },
+    { field: "customer_mobile", headerName: "Customer Mobile", flex: 1 },
     { field: "status", headerName: "Status", flex: 1 },
   ];
 
@@ -336,7 +365,7 @@ const ListOrders = () => {
           <DateSelectorComponent
             label="End Date"
             value={endDate}
-            onChange={handleEndDateChange}
+            onChange={(newDate) => setEndDate(newDate)}
             minDate={startDate}
             sx={{ width: { xs: 152, md: "auto" } }}
           />
@@ -360,9 +389,9 @@ const ListOrders = () => {
               label="Status"
             >
               <MenuItem value="">All</MenuItem>
-              <MenuItem value="0">Pending</MenuItem>
-              <MenuItem value="1">Completed</MenuItem>
-              <MenuItem value="-1">Cancelled</MenuItem>
+              <MenuItem value={"0"}>Pending</MenuItem>
+              <MenuItem value={"1"}>Completed</MenuItem>
+              <MenuItem value={"-1"}>Cancelled</MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -388,19 +417,13 @@ const ListOrders = () => {
         <TableComponent
           rows={tableRows}
           columns={columns}
-          rowIdField="id"
+          total={pagination.total}
+          page={pagination.current_page - 1}
+          rowsPerPage={pagination.per_page}
+          onPaginationChange={handlePaginationChange}
           onRowClick={(row) => handleOrderClick(row.id)}
         />
       )}
-
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-        <Pagination
-          count={pagination.last_page}
-          page={pagination.current_page}
-          onChange={handlePaginationChange}
-          color="primary"
-        />
-      </Box>
 
       <ModalComponent
         open={openModal}
@@ -492,9 +515,6 @@ const ListOrders = () => {
                 <>
                   <Divider sx={{ my: 2 }} />
                   <Box>
-                    <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                      <strong>Delivered Details</strong>
-                    </Typography>
                     <Typography>
                       <strong>Delivered By:</strong>{" "}
                       {selectedOrder.delivered_by
