@@ -10,38 +10,43 @@ const SelectFieldComponent = ({
   displayKey = "name",
   required = false,
   fullWidth = true,
-  margin = "normal",
-  sx = {},
+  submitted = false,
+  sx = {
+    mb: 1,
+  },
 }) => {
-  const getOptionLabel = (option) =>
-    typeof option === "string" ? option : option[displayKey] || "";
+  const showError = submitted && required && !value;
 
-  const getOptionSelected = (option, val) => option[valueKey] === val[valueKey];
+  const getOptionLabel = (option) => {
+    if (typeof displayKey === "function") {
+      return displayKey(option);
+    }
+    return option?.[displayKey] || "";
+  };
 
   return (
     <Autocomplete
       options={options}
       getOptionLabel={getOptionLabel}
-      value={options.find((opt) => opt[valueKey] === value) || null}
-      isOptionEqualToValue={(option, val) => option[valueKey] === val[valueKey]}
-      onChange={(event, newValue) =>
-        onChange({
-          target: {
-            value: newValue ? newValue[valueKey] : "",
-            name: label,
-          },
-        })
+      isOptionEqualToValue={(option, value) =>
+        option?.[valueKey] === value?.[valueKey]
       }
-      fullWidth={fullWidth}
-      sx={sx}
+      value={value || null}
+      onChange={(event, newValue) => {
+        onChange({
+          target: { name: label, value: newValue },
+        });
+      }}
       renderInput={(params) => (
         <TextField
           {...params}
           label={label}
           required={required}
-          margin={margin}
+          error={showError}
+          helperText={showError ? "This field is required" : ""}
         />
       )}
+      sx={sx}
     />
   );
 };

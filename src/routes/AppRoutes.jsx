@@ -3,14 +3,21 @@ import { Routes, Route } from "react-router-dom";
 import { ROUTES } from "../constants/routes";
 
 import Login from "../pages/Login";
+import ResetPassword from "../pages/ResetPassword";
 import Unauthorized from "../pages/Unauthorized";
 
 import ProtectedRoute from "./ProtectedRoute";
+
+import ViewProfile from "../pages/ViewProfile";
 
 import AdminLayout from "../layouts/AdminLayout";
 import BranchLayout from "../layouts/BranchLayout";
 
 import AdminDashboard from "../pages/admin/Dashboard";
+import AllEmployees from "../pages/admin/AllEmployees";
+import CreateBranch from "../pages/admin/CreateBranch";
+import ViewBranches from "../pages/admin/ViewBranches";
+
 import CreateEmployeeByAdmin from "../pages/admin/CreateEmployee";
 import ViewBranchStockSummary from "../pages/admin/ViewBranchStockSummary";
 
@@ -19,6 +26,10 @@ import AddStock from "../pages/branch/AddStock";
 import CreateEmployee from "../pages/branch/CreateEmployee";
 import ViewStocks from "../pages/branch/ViewStocks";
 import BranchEmployees from "../pages/branch/BranchEmployees";
+import CreateOrder from "../pages/branch/CreateOrder";
+import ListOrders from "../pages/branch/ListOrders";
+
+import NotFound from "../pages/NotFound";
 
 const AppRoutes = () => (
   <Routes>
@@ -26,6 +37,9 @@ const AppRoutes = () => (
     <Route path={ROUTES.ROOT} element={<Login />} />
     <Route path={ROUTES.LOGIN} element={<Login />} />
     <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
+    <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
+
+    <Route path={ROUTES.PROFILE} element={<ViewProfile />} />
 
     {/* Admin Protected */}
     <Route
@@ -37,6 +51,9 @@ const AppRoutes = () => (
       }
     >
       <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
+      <Route path={ROUTES.ADMIN.EMPLOYEES_LIST} element={<AllEmployees />} />
+      <Route path={ROUTES.ADMIN.CREATE_BRANCH} element={<CreateBranch />} />
+      <Route path={ROUTES.ADMIN.BRANCH_LIST} element={<ViewBranches />} />
       <Route
         path={ROUTES.ADMIN.CREATE_EMPLOYEE}
         element={<CreateEmployeeByAdmin />}
@@ -67,9 +84,11 @@ const AppRoutes = () => (
       />
       <Route path={ROUTES.BRANCH.ADD_STOCK} element={<AddStock />} />
       <Route path={ROUTES.BRANCH.VIEW_STOCKS} element={<ViewStocks />} />
+      <Route path={ROUTES.BRANCH.CREATE_ORDER} element={<CreateOrder />} />
+      <Route path={ROUTES.BRANCH.LIST_ORDERS} element={<ListOrders />} />
     </Route>
 
-    <Route path="*" element={<div>404 Not Found</div>} />
+    <Route path="*" element={<NotFound />} />
   </Routes>
 );
 

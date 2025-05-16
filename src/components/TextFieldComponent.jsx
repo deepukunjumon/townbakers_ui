@@ -13,14 +13,21 @@ const TextFieldComponent = ({
   name,
   children,
   sx = {},
+  required = false,
+  submitted = false,
   ...props
 }) => {
-  const isPassword = type === "password" || (label && label.toLowerCase().includes("password"));
+  const isPassword =
+    type === "password" || (label && label.toLowerCase().includes("password"));
   const isSelect = type === "select";
+  const showError = submitted && required && !value;
 
   return (
     <TextField
-      sx={sx}
+      sx={{
+        ...sx,
+        mt: 0,
+      }}
       select={isSelect}
       name={name}
       label={label}
@@ -28,9 +35,12 @@ const TextFieldComponent = ({
       value={value}
       onChange={onChange}
       fullWidth
+      required={required}
       margin="normal"
       variant="outlined"
-      size="small"
+      size="medium"
+      error={showError}
+      helperText={showError ? "This field is required" : ""}
       InputProps={{
         endAdornment: isPassword ? (
           <InputAdornment position="end">

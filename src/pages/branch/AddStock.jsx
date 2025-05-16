@@ -1,34 +1,38 @@
 import React, { useEffect, useState } from "react";
 import {
   Box,
-  Grid,
   Typography,
-  Button,
-  IconButton,
-  MenuItem,
   Divider,
-  TextField,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Grid,
 } from "@mui/material";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import SnackbarAlert from "../../components/SnackbarAlert";
-import SelectFieldComponent from "../../components/SelectFieldComponent";
 import TextFieldComponent from "../../components/TextFieldComponent";
+import SelectFieldComponent from "../../components/SelectFieldComponent";
 import apiConfig from "../../config/apiConfig";
 import { getToken, getBranchIdFromToken } from "../../utils/auth";
 import ButtonComponent from "../../components/ButtonComponent";
+import Loader from "../../components/Loader";
 
 const AddStock = () => {
-  const branchId = getBranchIdFromToken();
-  const [employeeId, setEmployeeId] = useState("");
+  const [employeeId, setEmployeeId] = useState(null);
   const [employeeList, setEmployeeList] = useState([]);
   const [itemList, setItemList] = useState([]);
-  const [items, setItems] = useState([{ item_id: "", quantity: "" }]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [quantity, setQuantity] = useState("");
+  const [addedItems, setAddedItems] = useState([]);
   const [snack, setSnack] = useState({
     open: false,
     severity: "info",
     message: "",
   });
+  const [loading, setLoading] = useState(false);
+
+  const branchId = getBranchIdFromToken();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -60,15 +64,84 @@ const AddStock = () => {
       );
   }, []);
 
-  const handleItemChange = (index, field, value) => {
-    const updatedItems = [...items];
-    updatedItems[index][field] = value;
-    setItems(updatedItems);
+  const handleAddItem = () => {
+    if (!selectedItem || !quantity || Number(quantity) <= 0) {
+      setSnack({
+        open: true,
+        severity: "warning",
+        message: "Select item and enter valid quantity",
+      });
+      return;
+    }
+    const alreadyAdded = addedItems.find(
+      (i) => i.item_id.id === selectedItem.id
+    );
+    if (alreadyAdded) {
+      setSnack({
+        open: true,
+        severity: "warning",
+        message: "Item already added",
+      });
+      return;
+    }
+    setAddedItems([
+      ...addedItems,
+      { item_id: selectedItem, quantity: Number(quantity) },
+    ]);
+    setSelectedItem(null);
+    setQuantity("");
+  };
+
+  const handleRemoveItem = (id) => {
+    setAddedItems((prev) => prev.filter((i) => i.item_id.id !== id));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = { branch_id: branchId, employee_id: employeeId, items };
+    setLoading(true); // <-- Start loader
+
+    let updatedItems = [...addedItems];
+
+    if (selectedItem && quantity && Number(quantity) > 0) {
+      const alreadyAdded = updatedItems.find(
+        (i) => i.item_id.id === selectedItem.id
+      );
+      if (!alreadyAdded) {
+        updatedItems.push({
+          item_id: selectedItem,
+          quantity: Number(quantity),
+        });
+      }
+    }
+
+    if (!employeeId) {
+      setSnack({
+        open: true,
+        severity: "warning",
+        message: "Select an employee",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (updatedItems.length === 0) {
+      setSnack({
+        open: true,
+        severity: "warning",
+        message: "Add at least one item",
+      });
+      setLoading(false);
+      return;
+    }
+
+    const payload = {
+      branch_id: branchId,
+      employee_id: employeeId.id,
+      items: updatedItems.map(({ item_id, quantity }) => ({
+        item_id: item_id.id,
+        quantity,
+      })),
+    };
 
     try {
       const res = await fetch(`${apiConfig.BASE_URL}/stock/add`, {
@@ -79,131 +152,186 @@ const AddStock = () => {
         },
         body: JSON.stringify(payload),
       });
+
       const data = await res.json();
       setSnack({
         open: true,
         severity: res.ok ? "success" : "error",
         message: data.message || "Submission failed",
       });
+
       if (res.ok) {
-        setEmployeeId("");
-        setItems([{ item_id: "", quantity: "" }]);
+        setEmployeeId(null);
+        setAddedItems([]);
+        setSelectedItem(null);
+        setQuantity("");
       }
     } catch {
       setSnack({ open: true, severity: "error", message: "Network error" });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Box sx={{ maxWidth: 720, mx: "auto", py: 2, px: 2 }}>
+    <Box sx={{ maxWidth: 1200, mx: "auto", py: 2, px: 2 }}>
+      {loading && <Loader message="Submitting stock..." />}
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
         severity={snack.severity}
         message={snack.message}
       />
-
       <Typography variant="h5" gutterBottom>
         Add Stock Entry
       </Typography>
-
       <Divider sx={{ my: 2 }} />
-
       <form onSubmit={handleSubmit}>
-        <TextField
-          select
-          label="Select Employee"
-          value={employeeId}
-          onChange={(e) => setEmployeeId(e.target.value)}
-          fullWidth
-          required
-          size="small"
-          margin="dense"
-          sx={{ mb: 2, width: 500 }}
+        <Box
+          sx={{
+            width: "100%",
+            minHeight: "70vh",
+            display: "flex",
+            gap: 4,
+            flexDirection: { xs: "column", md: "row" },
+          }}
         >
-          {employeeList.length === 0 ? (
-            <MenuItem disabled>Loading...</MenuItem>
-          ) : (
-            employeeList.map((emp) => (
-              <MenuItem key={emp.id} value={emp.id}>
-                {emp.employee_code} - {emp.name}
-              </MenuItem>
-            ))
-          )}
-        </TextField>
-
-        <Typography variant="subtitle1" sx={{ mt: 3, mb: 1 }}>
-          Item Details
-        </Typography>
-
-        {items.map((item, index) => (
-          <Grid
-            container
-            spacing={1.5}
-            alignItems="center"
-            key={index}
-            sx={{ mb: 1 }}
+          {/* Left: Form */}
+          <Box
+            sx={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              maxWidth: 600,
+              px: { xs: 0, md: 4 },
+              py: 2,
+            }}
           >
-            <Grid item xs={12} sm={5}>
-              <SelectFieldComponent
-                label="Item"
-                value={item.item_id}
-                onChange={(e) =>
-                  handleItemChange(index, "item_id", e.target.value)
-                }
-                options={itemList}
-                valueKey="id"
-                displayKey="name"
-                required
-                fullWidth
-                sx={{ width: 300 }}
-              />
-            </Grid>
+            <SelectFieldComponent
+              label="Select Employee"
+              value={employeeId}
+              onChange={(e) => {
+                const emp = employeeList.find(
+                  (item) =>
+                    item.id === (e?.target?.value?.id ?? e?.target?.value) ||
+                    null
+                );
+                setEmployeeId(emp || null);
+              }}
+              options={employeeList}
+              valueKey="id"
+              displayKey={(emp) => `${emp.employee_code} - ${emp.name}`}
+              required
+              sx={{ mb: 2, width: { xs: "100%", sm: 260 } }}
+            />
 
-            <Grid item xs={12} sm={5}>
-              <TextFieldComponent
-                label="Quantity"
-                type="number"
-                sx={{ width: 100, height: 48 }}
-                value={item.quantity}
-                onChange={(e) =>
-                  handleItemChange(index, "quantity", e.target.value)
-                }
-                required
-              />
+            <Typography variant="subtitle1" sx={{ mt: 3, mb: 1 }}>
+              Add Item
+            </Typography>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={12} sm={7}>
+                <SelectFieldComponent
+                  label="Item"
+                  value={selectedItem}
+                  onChange={(e) => {
+                    const val = e?.target?.value;
+                    const item =
+                      itemList.find((i) => i.id === (val?.id ?? val)) || null;
+                    setSelectedItem(item);
+                  }}
+                  options={itemList}
+                  valueKey="id"
+                  displayKey="name"
+                  sx={{ width: { xs: 150, sm: 260 } }}
+                />
+              </Grid>
+              <Grid item xs={8} sm={3} sx={{ mt: 1 }}>
+                <TextFieldComponent
+                  label="Quantity"
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  inputProps={{ min: 0.1 }}
+                  sx={{ width: { xs: 85, sm: 100 } }}
+                />
+              </Grid>
+              <Grid item xs={4} sm={2}>
+                <ButtonComponent
+                  onClick={handleAddItem}
+                  sx={{ height: 50, minWidth: 0 }}
+                  size="medium"
+                  variant="contained"
+                  color="primary"
+                  type="button"
+                >
+                  Add
+                </ButtonComponent>
+              </Grid>
             </Grid>
-
-            <Grid item xs={12} sm={2}>
-              <IconButton
-                onClick={() =>
-                  setItems((prev) => prev.filter((_, i) => i !== index))
-                }
-                disabled={items.length === 1}
-                color="error"
+            <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+              <ButtonComponent
+                type="submit"
+                size="medium"
+                disabled={addedItems.length === 0}
+                variant="contained"
+                color="primary"
+                sx={{ mt: 4, height: 50, minWidth: 180 }}
               >
-                <DeleteOutlineIcon />
-              </IconButton>
-            </Grid>
-          </Grid>
-        ))}
-
-        <Button
-          startIcon={<AddCircleIcon />}
-          onClick={() => setItems([...items, { item_id: "", quantity: "" }])}
-          sx={{ mt: 1, mb: 2 }}
-          size="small"
-        >
-          Add Another Item
-        </Button>
-
-        <ButtonComponent
-          type="submit"
-          variant="contained"
-          color="primary"
-          sx={{ mt: 1, mb: 2, ml: 15 }}
-        >
-          Submit
-        </ButtonComponent>
+                Submit
+              </ButtonComponent>
+            </Box>
+          </Box>
+          {/* Right: Live Preview */}
+          <Box
+            sx={{
+              flex: 1,
+              bgcolor: "#f5f5f5",
+              borderRadius: 2,
+              border: "1px solid",
+              borderColor: "primary.main",
+              p: 3,
+              minHeight: 400,
+              maxWidth: 600,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              overflowY: "auto",
+              maxHeight: { xs: 300, md: 500 },
+            }}
+          >
+            <Typography variant="subtitle1" sx={{ mb: 2 }}>
+              Items Preview
+            </Typography>
+            {addedItems.length === 0 ? (
+              <Typography color="text.secondary" sx={{ mt: 2 }}>
+                No items added yet.
+              </Typography>
+            ) : (
+              <List dense>
+                {addedItems.map((item) => (
+                  <ListItem
+                    key={item.item_id.id}
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        color="error"
+                        onClick={() => handleRemoveItem(item.item_id.id)}
+                      >
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    }
+                  >
+                    <ListItemText
+                      primary={item.item_id.name}
+                      secondary={`Quantity: ${item.quantity}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </Box>
+        </Box>
       </form>
     </Box>
   );

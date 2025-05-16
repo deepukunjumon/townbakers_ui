@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  MenuItem,
-  Paper,
-  Divider,
-} from "@mui/material";
+import { Box, Typography, MenuItem, Paper, Divider } from "@mui/material";
 import TextFieldComponent from "../../components/TextFieldComponent";
+import SelectFieldComponent from "../../components/SelectFieldComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
+import Loader from "../../components/Loader";
 import apiConfig from "../../config/apiConfig";
 import { getToken, getBranchIdFromToken } from "../../utils/auth";
 import ButtonComponent from "../../components/ButtonComponent";
@@ -26,6 +22,7 @@ const CreateEmployee = () => {
     severity: "info",
     message: "",
   });
+  const [loading, setLoading] = useState(false); // Add loading state
 
   useEffect(() => {
     const fetchDesignations = async () => {
@@ -54,6 +51,7 @@ const CreateEmployee = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const branch_id = getBranchIdFromToken();
     if (!branch_id) {
@@ -62,10 +60,19 @@ const CreateEmployee = () => {
         severity: "error",
         message: "Branch ID missing in token.",
       });
+      setLoading(false);
       return;
     }
 
-    const payload = { ...form, branch_id };
+    // Ensure only the ID is sent
+    const payload = {
+      ...form,
+      branch_id,
+      designation_id:
+        typeof form.designation_id === "object" && form.designation_id !== null
+          ? form.designation_id.id
+          : form.designation_id,
+    };
 
     try {
       const res = await fetch(`${apiConfig.BASE_URL}/branch/create/employee`, {
@@ -98,13 +105,16 @@ const CreateEmployee = () => {
         severity: "error",
         message: "Error submitting form",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", px: 2, py: 4 }}>
+      {loading && <Loader message="Creating employee..." />}
       <Typography variant="h5" gutterBottom>
-        Branch Employees
+        Add Employee
       </Typography>
       <SnackbarAlert
         open={snack.open}
@@ -113,68 +123,57 @@ const CreateEmployee = () => {
         message={snack.message}
       />
 
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Divider sx={{ mb: 3 }} />
+      <Divider sx={{ mb: 3 }} />
 
-        <form onSubmit={handleSubmit}>
-          <TextFieldComponent
-            name="employee_code"
-            label="Employee Code"
-            value={form.employee_code}
-            onChange={handleChange}
-            fullWidth
-            required
-            margin="normal"
-          />
-          <TextFieldComponent
-            name="name"
-            label="Name"
-            value={form.name}
-            onChange={handleChange}
-            fullWidth
-            required
-            margin="normal"
-          />
-          <TextFieldComponent
-            name="mobile"
-            label="Mobile Number"
-            value={form.mobile}
-            onChange={handleChange}
-            fullWidth
-            required
-            margin="normal"
-          />
-          <TextFieldComponent
-            name="designation_id"
-            label="Designation"
-            type="select"
-            value={form.designation_id || ""}
-            onChange={handleChange}
-            required
-            fullWidth
-            margin="normal"
-          >
-            {designations.length === 0 ? (
-              <MenuItem disabled>Loading designations...</MenuItem>
-            ) : (
-              designations.map((des) => (
-                <MenuItem key={des.id} value={des.id}>
-                  {des.designation}
-                </MenuItem>
-              ))
-            )}
-          </TextFieldComponent>
+      <form onSubmit={handleSubmit}>
+        <TextFieldComponent
+          name="employee_code"
+          label="Employee Code"
+          value={form.employee_code}
+          onChange={handleChange}
+          fullWidth
+          required
+          margin="normal"
+        />
+        <TextFieldComponent
+          name="name"
+          label="Name"
+          value={form.name}
+          onChange={handleChange}
+          fullWidth
+          required
+          margin="normal"
+        />
+        <TextFieldComponent
+          name="mobile"
+          label="Mobile Number"
+          value={form.mobile}
+          onChange={handleChange}
+          fullWidth
+          required
+          margin="normal"
+        />
+        <SelectFieldComponent
+          label="Designation"
+          name="designation_id"
+          value={form.designation_id}
+          onChange={(e) => setForm({ ...form, designation_id: e.target.value })}
+          options={designations}
+          valueKey="id"
+          displayKey={(des) => des.designation}
+          required
+          fullWidth
+        />
 
-          <ButtonComponent
-            type="submit"
-            variant="contained"
-            color="primary"
-            sx={{ mt: 3 }}
-          >
-            Create Employee
-          </ButtonComponent>
-        </form>
-      </Paper>
+        <ButtonComponent
+          type="submit"
+          variant="contained"
+          color="primary"
+          sx={{ mt: 3 }}
+        >
+          Create Employee
+        </ButtonComponent>
+      </form>
     </Box>
   );
 };

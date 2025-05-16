@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -10,6 +10,8 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
+import { STRINGS } from "../constants/strings";
+import FooterComponent from "../components/FooterComponent";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 import { ROUTES } from "../constants/routes";
@@ -17,11 +19,13 @@ import apiConfig from "../config/apiConfig";
 import TextFieldComponent from "../components/TextFieldComponent";
 import SnackbarAlert from "../components/SnackbarAlert";
 import login_page_image from "../assets/images/login_page_image.svg";
+import { AppInfoContext } from "../context/AppInfoContext";
 
 const Login = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const { version, copyright } = useContext(AppInfoContext);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -48,11 +52,32 @@ const Login = () => {
       });
       const data = await res.json();
 
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
+      if (data.password_reset_required) {
+        localStorage.setItem("token", data.token);
+
+        setSnack({
+          open: true,
+          severity: "info",
+          message: "Password reset required. Redirecting...",
+        });
+
+        setTimeout(() => {
+          navigate(ROUTES.RESET_PASSWORD);
+        }, 1000);
+
+        setLoading(false);
+        return;
+      }
+
       if (res.ok && data.success) {
         setSnack({
           open: true,
           severity: "success",
-          message: data.message || "Login successful!",
+          message: data.message || STRINGS.LOGIN_SUCCESS,
         });
 
         localStorage.setItem("token", data.token);
@@ -68,14 +93,14 @@ const Login = () => {
         setSnack({
           open: true,
           severity: "error",
-          message: data.message || "Login failed.",
+          message: data.error,
         });
       }
     } catch {
       setSnack({
         open: true,
         severity: "error",
-        message: "An error occurred. Please try again.",
+        message: STRINGS.SOMETHING_WENT_WRONG,
       });
     }
     setLoading(false);
@@ -89,9 +114,10 @@ const Login = () => {
         alignItems="center"
         spacing={12}
         sx={{
-          px: { xs: 2, sm: 8, },
+          mb: { xs: -10, sm: 0 },
+          px: { xs: 2, sm: 8 },
           minHeight: "90vh",
-          ml: { xs: -4 }
+          ml: { xs: -4 },
         }}
       >
         <SnackbarAlert
@@ -140,7 +166,7 @@ const Login = () => {
             <Box
               component="form"
               onSubmit={handleLogin}
-              sx={{ mt: 2, width: "100%", maxWidth: 360 }}
+              sx={{ mt: 2, width: "100%", maxWidth: { xs: 290, ms: 360 } }}
             >
               <TextFieldComponent
                 label="Login ID"
@@ -172,7 +198,10 @@ const Login = () => {
           </Box>
         </Grid>
       </Grid>
-    </Box>
+      <Grid sx={{ mt: { xs: 7, md: -2 } }}>
+        <FooterComponent />
+      </Grid>
+    </Box >
   );
 };
 

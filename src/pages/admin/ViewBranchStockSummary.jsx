@@ -1,28 +1,35 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  TextField,
-  MenuItem,
-} from "@mui/material";
+import { Box, Typography, Divider } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TableComponent from "../../components/TableComponent";
-import DateSelector from "../../components/DateSelectorComponent";
 import ExportMenu from "../../components/ExportMenu";
 import ButtonComponent from "../../components/ButtonComponent";
-import TextFieldComponent from "../../components/TextFieldComponent";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
 import { format } from "date-fns";
+import SelectFieldComponent from "../../components/SelectFieldComponent";
+import Loader from "../../components/Loader";
+import axios from "axios";
 
 const ViewBranchStockSummary = () => {
   const [branches, setBranches] = useState([]);
   const [branchId, setBranchId] = useState("");
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState("");
   const [rows, setRows] = useState([]);
-  const [snack, setSnack] = useState({ open: false, severity: "info", message: "" });
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    per_page: 10,
+    total: 0,
+  });
+  const [snack, setSnack] = useState({
+    open: false,
+    severity: "info",
+    message: "",
+  });
   const [anchorEl, setAnchorEl] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const menuOpen = Boolean(anchorEl);
 
   const handleExportClick = (eventOrType) => {
@@ -40,7 +47,7 @@ const ViewBranchStockSummary = () => {
 
     const form = document.createElement("form");
     form.method = "POST";
-    form.action = `${apiConfig.BASE_URL}/admin/branchwise/stock/summary`;
+    form.action = `${apiConfig.BRANCHWISE_STOCK_SUMMARY}`;
 
     const addField = (name, value) => {
       const input = document.createElement("input");
@@ -52,8 +59,14 @@ const ViewBranchStockSummary = () => {
 
     const token = localStorage.getItem("token");
     if (token) addField("token", token);
+
+    // FIX: Always pass branch_id as string
+    const branchIdValue =
+      typeof branchId === "object" && branchId !== null
+        ? branchId.id
+        : branchId;
+    addField("branch_id", branchIdValue);
     addField("date", formattedDate);
-    addField("branch_id", branchId);
     addField("export", "true");
     addField("type", type);
 
@@ -66,48 +79,81 @@ const ViewBranchStockSummary = () => {
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const res = await fetch(`${apiConfig.BASE_URL}/branches/minimal`, {
+        const res = await fetch(`${apiConfig.MINIMAL_BRANCHES}`, {
           headers: { Authorization: getToken() },
         });
         const data = await res.json();
         if (res.ok) setBranches(data.branches || data.data || []);
         else throw new Error();
       } catch {
-        setSnack({ open: true, severity: "error", message: "Failed to load branches" });
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load branches",
+        });
       }
     };
     fetchBranches();
   }, []);
 
   const fetchSummary = async () => {
+    setSubmitted(true);
     if (!branchId || !date) return;
+    setLoading(true);
     try {
-      const res = await fetch(
-        `${apiConfig.BASE_URL}/admin/branchwise/stock/summary`,
+      const res = await axios.post(
+        apiConfig.BRANCHWISE_STOCK_SUMMARY,
         {
-          method: "POST",
+          branch_id: branchId,
+          date: format(date, "yyyy-MM-dd"),
+          page: pagination.current_page,
+          per_page: pagination.per_page,
+        },
+        {
           headers: {
             "Content-Type": "application/json",
             Authorization: getToken(),
           },
-          body: JSON.stringify({
-            branch_id: branchId,
-            date: format(date, "yyyy-MM-dd"),
-          }),
         }
       );
-      const data = await res.json();
-      if (res.ok && Array.isArray(data.data)) {
-        const flatData = data.data[0]?.items?.map((item, idx) => ({
-          item_name: item.item_name || item.item_id,
-          quantity: item.quantity,
-        })) || [];
+      const data = res.data;
+      if (Array.isArray(data.data)) {
+        const flatData =
+          data.data[0]?.items?.map((item) => ({
+            item_name: item.item_name || item.item_id,
+            quantity: item.quantity,
+          })) || [];
         setRows(flatData);
-        setSnack({ open: true, severity: "success", message: data.message || "Data fetched" });
+        setPagination((prev) => ({
+          ...prev,
+          total: data.pagination?.total || 0,
+          current_page: data.pagination?.current_page || 1,
+          per_page: data.pagination?.per_page || 10,
+        }));
+        setSnack({
+          open: true,
+          severity: "success",
+          message: data.message || "Data fetched",
+        });
       } else throw new Error();
     } catch {
-      setSnack({ open: true, severity: "error", message: "Failed to load stock summary" });
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to load stock summary",
+      });
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handlePaginationChange = ({ page, rowsPerPage }) => {
+    setPagination((prev) => ({
+      ...prev,
+      current_page: page,
+      per_page: rowsPerPage,
+    }));
+    fetchSummary();
   };
 
   const columns = [
@@ -117,6 +163,7 @@ const ViewBranchStockSummary = () => {
 
   return (
     <Box sx={{ p: 3 }}>
+      {loading && <Loader message="Loading..." />}
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack({ ...snack, open: false })}
@@ -135,32 +182,54 @@ const ViewBranchStockSummary = () => {
         />
       </Box>
 
+      <Divider sx={{ mb: 3 }} />
+
       <Box display="flex" gap={2} alignItems="center" my={2} flexWrap="wrap">
-        <TextFieldComponent
-          type="select"
+        <SelectFieldComponent
           label="Select Branch"
           value={branchId}
           onChange={(e) => setBranchId(e.target.value)}
+          options={branches}
+          valueKey="id"
+          displayKey={(branch) =>
+            `${branch.branche_code || branch.code} - ${branch.name}`
+          }
+          required
           fullWidth
           sx={{ minWidth: 250 }}
-        >
-          {branches.map((branch) => (
-            <MenuItem key={branch.id} value={branch.id}>
-              {(branch.branche_code || branch.code) + " - " + branch.name}
-            </MenuItem>
-          ))}
-        </TextFieldComponent>
+        />
 
-        <DateSelectorComponent date={date} setDate={setDate} />
+        <DateSelectorComponent
+          required
+          label="Select Date"
+          sx={{
+            maxWidth: { xs: 185, md: 320 },
+          }}
+          date={date}
+          onChange={(newDate) => setDate(newDate)}
+          error={submitted && !date}
+          helperText={submitted && !date ? "Date is required" : ""}
+          maxDate={new Date()}
+        />
         <ButtonComponent
           onClick={fetchSummary}
           variant="contained"
           color="primary"
-        >SUBMIT
+        >
+          SUBMIT
         </ButtonComponent>
       </Box>
 
-      {rows.length > 0 && <TableComponent rows={rows} columns={columns} />}
+      {rows.length > 0 && (
+        <TableComponent
+          rows={rows}
+          columns={columns}
+          total={pagination.total}
+          page={pagination.current_page - 1}
+          rowsPerPage={pagination.per_page}
+          onPaginationChange={handlePaginationChange}
+        />
+      )}
     </Box>
   );
 };

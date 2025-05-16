@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Box, Grid, Typography } from "@mui/material";
+import React, { useEffect, useState, useCallback } from "react";
+import { Box, Grid, Typography, IconButton } from "@mui/material";
 import StatCard from "../../components/StatCard";
 import PeopleIcon from "@mui/icons-material/People";
 import BusinessIcon from "@mui/icons-material/Business";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import axios from "axios";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
@@ -23,9 +24,22 @@ const Dashboard = () => {
       color: "info",
       icon: <BusinessIcon />,
     },
+    {
+      title: "Pending Orders",
+      subtitle: "Pending orders count",
+      loading: true,
+      color: "warning",
+      icon: <BusinessIcon />,
+    },
   ]);
 
-  useEffect(() => {
+  const fetchStats = useCallback(() => {
+    setStats((prevStats) =>
+      prevStats.map((stat) => ({
+        ...stat,
+        loading: true,
+      }))
+    );
     axios
       .get(apiConfig.ADMIN_DASHBOARD_STATS, {
         headers: {
@@ -52,6 +66,13 @@ const Dashboard = () => {
                   loading: false,
                 };
               }
+              if (stat.title === "Pending Orders") {
+                return {
+                  ...stat,
+                  value: data.pending_orders_count,
+                  loading: false,
+                };
+              }
               return stat;
             })
           );
@@ -62,13 +83,26 @@ const Dashboard = () => {
       });
   }, []);
 
-  return (
-    <Box sx={{
-      p: 3,
-      maxWidth: "100%",
-      mx: "auto"
-    }}>
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
+  return (
+    <Box
+      sx={{
+        p: 3,
+        maxWidth: "100%",
+        mx: "auto",
+      }}
+    >
+      <Box sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}>
+        <Typography variant="h5" sx={{ flexGrow: 1 }}>
+          Dashboard
+        </Typography>
+        <IconButton aria-label="refresh" onClick={fetchStats}>
+          <RefreshIcon />
+        </IconButton>
+      </Box>
       <Grid container spacing={2}>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
