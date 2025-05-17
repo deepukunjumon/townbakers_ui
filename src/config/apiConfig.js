@@ -1,7 +1,7 @@
 const API_BASE_URL =
   window.location.hostname === "localhost"
-    ? "http://localhost:8000/api"
-    : "http://54.208.126.98:8000/api";
+    ? "https://52.90.245.83/api"
+    : "https://52.90.245.83/api";
 
 // Define API URLs
 const apiConfig = {
