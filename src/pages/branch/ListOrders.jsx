@@ -23,6 +23,7 @@ import apiConfig from "../../config/apiConfig";
 import { format } from "date-fns";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ModalComponent from "../../components/ModalComponent";
+import Loader from "../../components/Loader"; // <-- Import Loader
 
 const ListOrders = () => {
   const currentDate = new Date();
@@ -205,7 +206,7 @@ const ListOrders = () => {
   };
 
   const handleShowEmployeeSelect = async () => {
-    await fetchEmployees(); // Fetch employees before showing the selection
+    await fetchEmployees();
     setShowEmployeeSelect(true);
   };
 
@@ -341,6 +342,7 @@ const ListOrders = () => {
 
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", py: 3, px: { xs: 1, sm: 2 } }}>
+      {loading && <Loader message="Loading..." />}
       <Typography variant="h5" gutterBottom>
         Orders List
       </Typography>
@@ -409,11 +411,7 @@ const ListOrders = () => {
         </Grid>
       </Grid>
 
-      {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
+      {!loading && (
         <TableComponent
           rows={tableRows}
           columns={columns}

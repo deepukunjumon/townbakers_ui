@@ -46,7 +46,7 @@ const AdminLayout = () => {
         {
           icon: <PeopleAltRoundedIcon />,
           label: "Manage Employees",
-          onClick: () => navigate(ROUTES.ADMIN.EMPLOYEE_LIST),
+          onClick: () => navigate(ROUTES.ADMIN.EMPLOYEES_LIST),
         },
       ],
     },

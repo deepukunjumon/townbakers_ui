@@ -56,15 +56,15 @@ const TextFieldComponent = ({
       SelectProps={
         isSelect
           ? {
-              MenuProps: {
-                PaperProps: {
-                  sx: {
-                    maxHeight: 200,
-                    overflowY: "auto",
-                  },
+            MenuProps: {
+              PaperProps: {
+                sx: {
+                  maxHeight: 200,
+                  overflowY: "auto",
                 },
               },
-            }
+            },
+          }
           : undefined
       }
       {...props}

@@ -14,7 +14,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import BranchLayout from "../layouts/BranchLayout";
 
 import AdminDashboard from "../pages/admin/Dashboard";
-
+import AllEmployees from "../pages/admin/AllEmployees";
 import CreateBranch from "../pages/admin/CreateBranch";
 import ViewBranches from "../pages/admin/ViewBranches";
 
@@ -51,6 +51,7 @@ const AppRoutes = () => (
       }
     >
       <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
+      <Route path={ROUTES.ADMIN.EMPLOYEES_LIST} element={<AllEmployees />} />
       <Route path={ROUTES.ADMIN.CREATE_BRANCH} element={<CreateBranch />} />
       <Route path={ROUTES.ADMIN.BRANCH_LIST} element={<ViewBranches />} />
       <Route

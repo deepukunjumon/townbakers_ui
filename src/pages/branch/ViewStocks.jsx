@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Typography, CircularProgress, Divider } from "@mui/material";
 import format from "date-fns/format";
 import SnackbarAlert from "../../components/SnackbarAlert";
+import Loader from "../../components/Loader";
 import apiConfig from "../../config/apiConfig";
 import TableComponent from "../../components/TableComponent";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
@@ -42,7 +43,7 @@ const ViewStocks = () => {
 
     const form = document.createElement("form");
     form.method = "POST";
-    form.action = `${apiConfig.BASE_URL}/branch/stock/summary`;
+    form.action = `${apiConfig.STOCK_SUMMARY}`;
 
     const addField = (name, value) => {
       const input = document.createElement("input");
@@ -70,7 +71,7 @@ const ViewStocks = () => {
 
     try {
       const res = await fetch(
-        `${apiConfig.BASE_URL}/branch/stock/summary?page=${pagination.current_page}&per_page=${pagination.per_page}`,
+        `${apiConfig.STOCK_SUMMARY}?page=${pagination.current_page}&per_page=${pagination.per_page}`,
         {
           method: "POST",
           headers: {
@@ -174,11 +175,9 @@ const ViewStocks = () => {
         />
       </Box>
 
-      {loading ? (
-        <Box sx={{ textAlign: "center", mt: 4 }}>
-          <CircularProgress />
-        </Box>
-      ) : (
+      {loading && <Loader message="Loading..." />}
+
+      {!loading && (
         <TableComponent
           rows={stockData}
           columns={columns}

@@ -9,6 +9,8 @@ import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
 import { format } from "date-fns";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
+import Loader from "../../components/Loader";
+import axios from "axios";
 
 const ViewBranchStockSummary = () => {
   const [branches, setBranches] = useState([]);
@@ -27,6 +29,7 @@ const ViewBranchStockSummary = () => {
   });
   const [anchorEl, setAnchorEl] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const menuOpen = Boolean(anchorEl);
 
   const handleExportClick = (eventOrType) => {
@@ -44,7 +47,7 @@ const ViewBranchStockSummary = () => {
 
     const form = document.createElement("form");
     form.method = "POST";
-    form.action = `${apiConfig.BASE_URL}/admin/branchwise/stock/summary`;
+    form.action = `${apiConfig.BRANCHWISE_STOCK_SUMMARY}`;
 
     const addField = (name, value) => {
       const input = document.createElement("input");
@@ -56,8 +59,14 @@ const ViewBranchStockSummary = () => {
 
     const token = localStorage.getItem("token");
     if (token) addField("token", token);
+
+    // FIX: Always pass branch_id as string
+    const branchIdValue =
+      typeof branchId === "object" && branchId !== null
+        ? branchId.id
+        : branchId;
+    addField("branch_id", branchIdValue);
     addField("date", formattedDate);
-    addField("branch_id", branchId);
     addField("export", "true");
     addField("type", type);
 
@@ -70,7 +79,7 @@ const ViewBranchStockSummary = () => {
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const res = await fetch(`${apiConfig.BASE_URL}/branches/minimal`, {
+        const res = await fetch(`${apiConfig.MINIMAL_BRANCHES}`, {
           headers: { Authorization: getToken() },
         });
         const data = await res.json();
@@ -90,27 +99,27 @@ const ViewBranchStockSummary = () => {
   const fetchSummary = async () => {
     setSubmitted(true);
     if (!branchId || !date) return;
+    setLoading(true);
     try {
-      const res = await fetch(
-        `${apiConfig.BASE_URL}/admin/branchwise/stock/summary`,
+      const res = await axios.post(
+        apiConfig.BRANCHWISE_STOCK_SUMMARY,
         {
-          method: "POST",
+          branch_id: branchId,
+          date: format(date, "yyyy-MM-dd"),
+          page: pagination.current_page,
+          per_page: pagination.per_page,
+        },
+        {
           headers: {
             "Content-Type": "application/json",
             Authorization: getToken(),
           },
-          body: JSON.stringify({
-            branch_id: branchId,
-            date: format(date, "yyyy-MM-dd"),
-            page: pagination.current_page,
-            per_page: pagination.per_page,
-          }),
         }
       );
-      const data = await res.json();
-      if (res.ok && Array.isArray(data.data)) {
+      const data = res.data;
+      if (Array.isArray(data.data)) {
         const flatData =
-          data.data[0]?.items?.map((item, idx) => ({
+          data.data[0]?.items?.map((item) => ({
             item_name: item.item_name || item.item_id,
             quantity: item.quantity,
           })) || [];
@@ -133,6 +142,8 @@ const ViewBranchStockSummary = () => {
         severity: "error",
         message: "Failed to load stock summary",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -152,6 +163,7 @@ const ViewBranchStockSummary = () => {
 
   return (
     <Box sx={{ p: 3 }}>
+      {loading && <Loader message="Loading..." />}
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack({ ...snack, open: false })}
