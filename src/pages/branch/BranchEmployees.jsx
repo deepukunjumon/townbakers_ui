@@ -1,5 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Box, Typography, CircularProgress, Divider } from "@mui/material";
+import React, { useEffect, useState, useRef } from "react";
+import {
+  Box,
+  Typography,
+  CircularProgress,
+  Divider,
+  TextField,
+} from "@mui/material";
 import TableComponent from "../../components/TableComponent";
 import Loader from "../../components/Loader";
 import SnackbarAlert from "../../components/SnackbarAlert";
@@ -17,6 +23,7 @@ const BranchEmployees = () => {
     total: 0,
   });
   const [searchTerm, setSearchTerm] = useState("");
+  const searchTimeout = useRef(null);
   const [controller, setController] = useState(null);
   const [snack, setSnack] = useState({
     open: false,
@@ -101,6 +108,15 @@ const BranchEmployees = () => {
     { field: "mobile", headerName: "Mobile", flex: 1 },
   ];
 
+  const handleSearchChange = (event) => {
+    const value = event.target.value;
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {
+      setSearchTerm(value);
+      setPagination((prev) => ({ ...prev, current_page: 1 }));
+    }, 300);
+  };
+
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", p: 3 }}>
       <Typography variant="h5" gutterBottom>
@@ -117,12 +133,13 @@ const BranchEmployees = () => {
           width: "100%",
         }}
       >
-        <Box sx={{ width: { xs: "100%", sm: 350 } }}>
-          <SearchFieldComponent
-            onDebouncedChange={(value) => {
-              setSearchTerm(value);
-              setPagination((prev) => ({ ...prev, current_page: 1 }));
-            }}
+        <Box sx={{ width: 300 }}>
+          <TextField
+            label="Search"
+            variant="outlined"
+            fullWidth
+            onChange={handleSearchChange}
+            placeholder="Search employees..."
           />
         </Box>
       </Box>
