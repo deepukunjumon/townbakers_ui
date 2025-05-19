@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { Email as EmailIcon, Phone as PhoneIcon } from "@mui/icons-material";
 import axios from "axios";
+import Loader from "../components/Loader";
 import SnackbarAlert from "../components/SnackbarAlert";
 import apiConfig from "../config/apiConfig";
 import { getToken } from "../utils/auth";
@@ -75,7 +76,7 @@ const ViewProfile = () => {
     if (loading) {
         return (
             <Box display="flex" justifyContent="center" my={6}>
-                <Typography variant="h6">Loading...</Typography>
+                <Loader />
             </Box>
         );
     }
