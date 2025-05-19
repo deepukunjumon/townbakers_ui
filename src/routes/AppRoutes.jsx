@@ -28,6 +28,7 @@ import ViewStocks from "../pages/branch/ViewStocks";
 import BranchEmployees from "../pages/branch/BranchEmployees";
 import CreateOrder from "../pages/branch/CreateOrder";
 import ListOrders from "../pages/branch/ListOrders";
+import RoleBasedLayout from "../layouts/RoleBasedLayout";
 
 import NotFound from "../pages/NotFound";
 
@@ -37,9 +38,16 @@ const AppRoutes = () => (
     <Route path={ROUTES.ROOT} element={<Login />} />
     <Route path={ROUTES.LOGIN} element={<Login />} />
     <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
-    <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
 
-    <Route path={ROUTES.PROFILE} element={<ViewProfile />} />
+    <Route element={<ProtectedRoute allowedRoles={["admin", "branch"]} />}>
+      <Route path={ROUTES.PROFILE} element={<RoleBasedLayout />}>
+        <Route index element={<ViewProfile />} />
+      </Route>
+      <Route path={ROUTES.RESET_PASSWORD} element={<RoleBasedLayout />}>
+        <Route index element={<ResetPassword />} />
+      </Route>
+    </Route>
+
 
     {/* Admin Protected */}
     <Route

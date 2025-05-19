@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Button, Grid } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import TextFieldComponent from "../components/TextFieldComponent";
-import FooterComponent from "../components/FooterComponent";
 import SnackbarAlert from "../components/SnackbarAlert";
 import apiConfig from "../config/apiConfig";
 import { ROUTES } from "../constants/routes";
@@ -25,11 +24,25 @@ const ResetPassword = () => {
 
   const [loading, setLoading] = useState(false);
 
+  // Separate showPassword states for each field
+  const [showPasswords, setShowPasswords] = useState({
+    current_password: false,
+    new_password: false,
+    new_password_confirmation: false,
+  });
+
   const handleClose = () => setSnack({ ...snack, open: false });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const toggleShowPassword = (fieldName) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [fieldName]: !prev[fieldName]
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -99,7 +112,6 @@ const ResetPassword = () => {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
         bgcolor: "background.default",
@@ -133,31 +145,34 @@ const ResetPassword = () => {
             <TextFieldComponent
               label="Current Password"
               name="current_password"
-              type="password"
+              type={showPasswords.current_password ? "text" : "password"}
               value={form.current_password}
               onChange={handleChange}
               required
-              fullWidth
+              showPassword={showPasswords.current_password}
+              setShowPassword={() => toggleShowPassword("current_password")}
               sx={{ mb: 2 }}
             />
             <TextFieldComponent
               label="New Password"
               name="new_password"
-              type="password"
+              type={showPasswords.new_password ? "text" : "password"}
               value={form.new_password}
               onChange={handleChange}
               required
-              fullWidth
+              showPassword={showPasswords.new_password}
+              setShowPassword={() => toggleShowPassword("new_password")}
               sx={{ mb: 2 }}
             />
             <TextFieldComponent
               label="Confirm New Password"
               name="new_password_confirmation"
-              type="password"
+              type={showPasswords.new_password_confirmation ? "text" : "password"}
               value={form.new_password_confirmation}
               onChange={handleChange}
               required
-              fullWidth
+              showPassword={showPasswords.new_password_confirmation}
+              setShowPassword={() => toggleShowPassword("new_password_confirmation")}
               sx={{ mb: 2 }}
             />
             <Button
@@ -172,7 +187,6 @@ const ResetPassword = () => {
           </form>
         </Box>
       </Box>
-      <FooterComponent />
     </Box>
   );
 };
