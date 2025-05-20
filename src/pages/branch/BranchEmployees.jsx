@@ -1,16 +1,15 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import {
-  Box,
-  Typography,
-  Divider,
-  TextField,
-} from "@mui/material";
+import { Box, Typography, Divider, TextField, Fab } from "@mui/material";
 import TableComponent from "../../components/TableComponent";
 import Loader from "../../components/Loader";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
+import AddIcon from "@mui/icons-material/Add";
+import { ROUTES } from "../../constants/routes";
+import { useNavigate } from "react-router-dom";
 
 const BranchEmployees = () => {
+  const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
@@ -20,63 +19,67 @@ const BranchEmployees = () => {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimeout = useRef(null);
-  const controllerRef = useRef(null);  // Use ref instead of state for AbortController
+  const controllerRef = useRef(null);
   const [snack, setSnack] = useState({
     open: false,
     severity: "error",
     message: "",
   });
+  
+  const fetchEmployees = useCallback(
+    async (search = "") => {
+      if (controllerRef.current) {
+        controllerRef.current.abort();
+      }
 
-  const fetchEmployees = useCallback(async (search = "") => {
-    if (controllerRef.current) {
-      controllerRef.current.abort();
-    }
+      const token = localStorage.getItem("token");
+      const newController = new AbortController();
+      controllerRef.current = newController;
 
-    const token = localStorage.getItem("token");
-    const newController = new AbortController();
-    controllerRef.current = newController;
+      setLoading(true);
 
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: pagination.current_page,
-        per_page: pagination.per_page,
-        search: search.trim(),
-      }).toString();
+      try {
+        const params = new URLSearchParams({
+          page: pagination.current_page,
+          per_page: pagination.per_page,
+          search: search.trim(),
+        }).toString();
 
-      const res = await fetch(
-        `${apiConfig.BASE_URL}/branch/employees?${params}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          signal: newController.signal,
+        const res = await fetch(
+          `${apiConfig.BASE_URL}/branch/employees?${params}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            signal: newController.signal,
+          }
+        );
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          setEmployees(data.employees || []);
+          setPagination((prev) => ({
+            ...prev,
+            total: data.pagination?.total || 0,
+          }));
+        } else {
+          throw new Error(data.message || "Failed to load employee data");
         }
-      );
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        setEmployees(data.employees || []);
-        setPagination((prev) => ({
-          ...prev,
-          total: data.pagination?.total || 0,
-        }));
-      } else {
-        throw new Error(data.message || "Failed to load employee data");
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          setSnack({
+            open: true,
+            severity: "error",
+            message: error.message || "Failed to load employee data",
+          });
+        }
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      if (error.name !== "AbortError") {
-        setSnack({
-          open: true,
-          severity: "error",
-          message: error.message || "Failed to load employee data",
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [pagination.current_page, pagination.per_page]);
+    },
+    [pagination.current_page, pagination.per_page]
+  );
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -158,6 +161,21 @@ const BranchEmployees = () => {
           }
         />
       )}
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={() => {
+          navigate(ROUTES.BRANCH.CREATE_EMPLOYEE);
+        }}
+        sx={{
+          position: "fixed",
+          bottom: 32,
+          right: 32,
+          zIndex: 1300,
+        }}
+      >
+        <AddIcon />
+      </Fab>
     </Box>
   );
 };

@@ -16,6 +16,11 @@ const apiConfig = {
   MINIMAL_ITEMS: `${API_BASE_URL}/items/minimal`,
   UPDATE_ITEM_STATUS: `${API_BASE_URL}/item/update-status`,
 
+  CREATE_ITEM: `${API_BASE_URL}/create/item`,
+  ITEMS_LIST: `${API_BASE_URL}/items`,
+  MINIMAL_ITEMS: `${API_BASE_URL}/items/minimal`,
+  UPDATE_ITEM_STATUS: `${API_BASE_URL}/item/update-status`,
+
   // Admin APIs
   ADMIN_DASHBOARD_STATS: `${API_BASE_URL}/admin/dashboard/stats`,
   CREATE_BRANCH: `${API_BASE_URL}/admin/create/branch`,
