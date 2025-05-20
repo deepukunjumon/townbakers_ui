@@ -25,7 +25,7 @@ const BranchEmployees = () => {
     severity: "error",
     message: "",
   });
-
+  
   const fetchEmployees = useCallback(
     async (search = "") => {
       if (controllerRef.current) {
