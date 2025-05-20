@@ -8,6 +8,8 @@ import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 import ArticleIcon from "@mui/icons-material/Article";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import PeopleIcon from "@mui/icons-material/People";
+import TokenIcon from '@mui/icons-material/Token';
+import CategoryIcon from '@mui/icons-material/Category';
 
 const AdminLayout = () => {
   const navigate = useNavigate();
@@ -17,6 +19,17 @@ const AdminLayout = () => {
       label: "Dashboard",
       icon: <DashboardIcon />,
       onClick: () => navigate(ROUTES.ADMIN.DASHBOARD),
+    },
+    {
+      label: "Masters",
+      icon: <TokenIcon />,
+      children: [
+        {
+          icon: <CategoryIcon />,
+          label: "Items",
+          onClick: () => navigate(ROUTES.ITEMS_LIST),
+        },
+      ],
     },
     {
       label: "Branches",

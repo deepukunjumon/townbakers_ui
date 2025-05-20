@@ -30,9 +30,7 @@ const TableComponent = ({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <TableContainer
-        sx={{ maxHeight: { md: 400 }, flex: 1, overflow: "auto" }}
-      >
+      <TableContainer sx={{ maxHeight: { md: 400 }, flex: 1, overflow: "auto" }}>
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
@@ -43,6 +41,10 @@ const TableComponent = ({
                   bgcolor: "background.default",
                   fontWeight: "fontWeightMedium",
                   zIndex: 2,
+                  width: 80,
+                  minWidth: 80,
+                  textAlign: "center",
+                  verticalAlign: "middle",
                 }}
               >
                 Sl.No
@@ -50,12 +52,17 @@ const TableComponent = ({
               {columns.map((col) => (
                 <TableCell
                   key={col.field}
+                  align={col.headerAlign || "left"}
                   sx={{
                     position: "sticky",
                     top: 0,
                     bgcolor: "background.default",
                     fontWeight: "fontWeightMedium",
                     zIndex: 2,
+                    width: col.width || "auto",
+                    minWidth: col.minWidth || "auto",
+                    maxWidth: col.maxWidth || "auto",
+                    ...col.sx,
                   }}
                 >
                   {col.headerName}
@@ -75,9 +82,30 @@ const TableComponent = ({
                     "&:last-child td": { borderBottom: 0 },
                   }}
                 >
-                  <TableCell>{page * rowsPerPage + idx + 1}</TableCell>
+                  <TableCell
+                    sx={{
+                      width: 80,
+                      minWidth: 80,
+                      textAlign: "center",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    {page * rowsPerPage + idx + 1}
+                  </TableCell>
                   {columns.map((col) => (
-                    <TableCell key={col.field}>
+                    <TableCell
+                      key={col.field}
+                      align={col.align || "left"}
+                      sx={{
+                        width: col.width || "auto",
+                        minWidth: col.minWidth || "auto",
+                        maxWidth: col.maxWidth || "auto",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        ...col.cellSx,
+                      }}
+                    >
                       {col.renderCell
                         ? col.renderCell({ value: row[col.field], row })
                         : row[col.field] ?? "-"}

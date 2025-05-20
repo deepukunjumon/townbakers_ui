@@ -9,6 +9,8 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssignmentAddIcon from '@mui/icons-material/AssignmentAdd';
 import FormatListBulletedAddIcon from "@mui/icons-material/FormatListBulletedAdd";
 import WysiwygIcon from "@mui/icons-material/Wysiwyg";
+import TokenIcon from '@mui/icons-material/Token';
+import CategoryIcon from '@mui/icons-material/Category';
 import { Outlet, useNavigate } from "react-router-dom";
 import { ROUTES } from "../constants/routes";
 
@@ -19,6 +21,17 @@ const BranchLayout = () => {
       icon: <DashboardIcon />,
       label: "Dashboard",
       onClick: () => navigate(ROUTES.BRANCH.DASHBOARD),
+    },
+    {
+      label: "Masters",
+      icon: <TokenIcon />,
+      children: [
+        {
+          icon: <CategoryIcon />,
+          label: "Items",
+          onClick: () => navigate(ROUTES.ITEMS_LIST),
+        },
+      ],
     },
     {
       label: "Employees",
