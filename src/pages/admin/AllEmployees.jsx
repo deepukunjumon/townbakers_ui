@@ -1,9 +1,19 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Box, Typography, Chip, Divider, TextField } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Chip,
+  Divider,
+  TextField,
+  Switch,
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import Loader from "../../components/Loader";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
+import ModalComponent from "../../components/ModalComponent";
 import apiConfig from "../../config/apiConfig";
 import { getBranchIdFromToken } from "../../utils/auth";
 import { userStatusMap } from "../../constants/status";
@@ -12,7 +22,7 @@ import ExportMenu from "../../components/ExportMenu";
 const statusOptions = [
   { name: "All", id: "" },
   { name: "Active", id: "1" },
-  { name: "Inactive", id: "0" },
+  { name: "Disabled", id: "0" },
   { name: "Deleted", id: "-1" },
 ];
 
@@ -38,6 +48,13 @@ const AllEmployees = () => {
   const [branchFilter, setBranchFilter] = useState({ name: "All", id: "" });
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimeout = useRef(null);
+
+  const [loadingSwitches, setLoadingSwitches] = useState({});
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmPayload, setConfirmPayload] = useState({
+    id: null,
+    currentStatus: null,
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -80,10 +97,10 @@ const AllEmployees = () => {
 
     let url = `${apiConfig.ALL_EMPLOYEES_LIST}?page=${pagination.current_page}&per_page=${pagination.per_page}`;
 
-    if (statusFilter && statusFilter.id !== "") {
+    if (statusFilter.id !== "") {
       url += `&status=${statusFilter.id}`;
     }
-    if (branchFilter && branchFilter.id !== "") {
+    if (branchFilter.id !== "") {
       url += `&branch_code=${branchFilter.id}`;
     }
     if (searchTerm.trim() !== "") {
@@ -123,6 +140,82 @@ const AllEmployees = () => {
     searchTerm,
   ]);
 
+  const handleToggleStatus = async (id, currentStatus) => {
+    setConfirmModalOpen(true);
+    setConfirmPayload({ id, currentStatus });
+  };
+
+  const handleConfirmToggle = async () => {
+    const { id, currentStatus } = confirmPayload;
+    if (!id) {
+      setConfirmModalOpen(false);
+      return;
+    }
+
+    setConfirmModalOpen(false);
+    const newStatus = currentStatus === 1 ? 0 : 1;
+    setLoadingSwitches((prev) => ({ ...prev, [id]: true }));
+
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(apiConfig.UPDATE_EMPLOYEE_STATUS, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to update status");
+      }
+
+      setEmployees((prevEmployees) =>
+        prevEmployees.map((emp) =>
+          emp.id === id ? { ...emp, status: newStatus } : emp
+        )
+      );
+
+      setSnack({
+        open: true,
+        severity: "success",
+        message: "Status updated successfully",
+      });
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: error.message || "Failed to update status",
+      });
+    } finally {
+      setLoadingSwitches((prev) => {
+        const copy = { ...prev };
+        delete copy[id];
+        return copy;
+      });
+    }
+  };
+
+  const confirmationModalContent = (
+    <Box sx={{ p: 2 }}>
+      <Typography variant="h6" gutterBottom>
+        {confirmPayload.currentStatus === 1
+          ? "Are you sure you want to disable this employee?"
+          : "Are you sure you want to enable this employee?"}
+      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
+        <Button variant="text" onClick={() => setConfirmModalOpen(false)}>
+          Cancel
+        </Button>
+        <Button variant="text" onClick={handleConfirmToggle} autoFocus>
+          Confirm
+        </Button>
+      </Box>
+    </Box>
+  );
+
   const columns = [
     { field: "employee_code", headerName: "Employee Code", flex: 1 },
     { field: "name", headerName: "Name", flex: 1 },
@@ -146,7 +239,48 @@ const AllEmployees = () => {
             color={status.color}
             size="small"
             variant="filled"
+            sx={{ fontSize: 13, color: "white" }}
           />
+        );
+      },
+    },
+    {
+      field: "toggle",
+      headerName: "Enable/Disable",
+      flex: 1,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => {
+        const statusNum = Number(params.row.status);
+        const isLoading = !!loadingSwitches[params.row.id];
+        if (statusNum !== 0 && statusNum !== 1) return null;
+        return (
+          <Box sx={{ position: "relative", display: "inline-flex" }}>
+            <Switch
+              checked={statusNum === 1}
+              onChange={() => {
+                if (!isLoading) {
+                  handleToggleStatus(params.row.id, statusNum);
+                }
+              }}
+              size="medium"
+              color="primary"
+              disabled={isLoading}
+            />
+            {isLoading && (
+              <CircularProgress
+                size={24}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  marginTop: "-12px",
+                  marginLeft: "-12px",
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+          </Box>
         );
       },
     },
@@ -231,7 +365,6 @@ const AllEmployees = () => {
       </Typography>
       <Divider sx={{ mb: 2 }} />
 
-      {/* Filters in a single row, aligned right */}
       <Box
         sx={{
           display: "flex",
@@ -307,6 +440,14 @@ const AllEmployees = () => {
           onPaginationChange={handlePaginationChange}
         />
       )}
+
+      <ModalComponent
+        open={confirmModalOpen}
+        onClose={() => {}}
+        hideCloseIcon={true}
+        title="Confirm Action"
+        content={confirmationModalContent}
+      />
     </Box>
   );
 };
