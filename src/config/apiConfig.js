@@ -13,6 +13,8 @@ const apiConfig = {
   LOGOUT_URL: `${API_BASE_URL}/logout`,
   MINIMAL_BRANCHES: `${API_BASE_URL}/branches/minimal`,
 
+  UPDATE_EMPLOYEE_STATUS: `${API_BASE_URL}/employee/update-status`,
+
   CREATE_ITEM: `${API_BASE_URL}/create/item`,
   ITEMS_LIST: `${API_BASE_URL}/items`,
   MINIMAL_ITEMS: `${API_BASE_URL}/items/minimal`,

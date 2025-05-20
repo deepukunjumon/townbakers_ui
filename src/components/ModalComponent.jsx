@@ -2,9 +2,15 @@ import React from "react";
 import { Modal, Box, Typography, Divider, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-const ModalComponent = ({ open, onClose, title, content }) => {
+const ModalComponent = ({
+  open,
+  onClose,
+  title,
+  content,
+  hideCloseIcon = false,
+}) => {
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={hideCloseIcon ? () => {} : onClose}>
       <Box
         sx={{
           position: "absolute",
@@ -21,19 +27,21 @@ const ModalComponent = ({ open, onClose, title, content }) => {
           overflowY: "auto",
         }}
       >
-        <IconButton
-          aria-label="close"
-          onClick={onClose}
-          sx={{
-            position: "absolute",
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
-          }}
-          size="large"
-        >
-          <CloseIcon />
-        </IconButton>
+        {!hideCloseIcon && (
+          <IconButton
+            aria-label="close"
+            onClick={onClose}
+            sx={{
+              position: "absolute",
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+            size="medium"
+          >
+            <CloseIcon />
+          </IconButton>
+        )}
         <Typography variant="h6" gutterBottom sx={{ pr: 4 }}>
           {title}
         </Typography>
