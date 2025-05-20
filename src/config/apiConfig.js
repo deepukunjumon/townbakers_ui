@@ -1,7 +1,7 @@
 const API_BASE_URL =
   window.location.hostname === "localhost"
-    ? "https://52.204.98.211/api"
-    : "https://town_bakers.railway.internal";
+    ? "http://localhost:8000/api"
+    : "https://52.204.98.211/api";
 
 const apiConfig = {
   BASE_URL: API_BASE_URL,
@@ -20,6 +20,7 @@ const apiConfig = {
 
   ALL_EMPLOYEES_LIST: `${API_BASE_URL}/admin/all-employees`,
   CREATE_EMPLOYEE: `${API_BASE_URL}/admin/create/employee`,
+  EXPORT_ALL_EMPLOYEES: `${API_BASE_URL}/admin/employees/export`,
   IMPORT_EMPLOYEES: `${API_BASE_URL}/admin/import/employees`,
 
   BRANCHWISE_STOCK_SUMMARY: `${API_BASE_URL}/admin/branchwise/stock/summary`,
