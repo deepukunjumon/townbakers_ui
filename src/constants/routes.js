@@ -5,6 +5,8 @@ export const ROUTES = {
   UNAUTHORIZED: "/unauthorized",
   PROFILE: "/profile",
 
+  ITEMS_LIST: "/items",
+
   ADMIN: {
     ROOT: "/admin",
     DASHBOARD: "/admin/dashboard",

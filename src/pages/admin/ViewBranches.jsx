@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
-  CircularProgress,
   Button,
   Divider,
 } from "@mui/material";
@@ -33,11 +32,7 @@ const ViewBranches = () => {
     message: "",
   });
 
-  useEffect(() => {
-    fetchBranches();
-  }, [pagination.current_page, pagination.per_page]);
-
-  const fetchBranches = async () => {
+  const fetchBranches = useCallback(async () => {
     setLoading(true);
     const token = getToken();
 
@@ -79,7 +74,11 @@ const ViewBranches = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.current_page, pagination.per_page]);
+
+  useEffect(() => {
+    fetchBranches();
+  }, [fetchBranches]);
 
   const handlePaginationChange = ({ page, rowsPerPage }) => {
     setPagination((prev) => ({
@@ -141,28 +140,13 @@ const ViewBranches = () => {
         content={
           selectedBranch ? (
             <Box>
-              <Typography>
-                <strong>Code:</strong> {selectedBranch.code}
-              </Typography>
-              <Typography>
-                <strong>Name:</strong> {selectedBranch.name}
-              </Typography>
-              <Typography>
-                <strong>Address:</strong> {selectedBranch.address}
-              </Typography>
-              <Typography>
-                <strong>Mobile:</strong> {selectedBranch.mobile}
-              </Typography>
-              <Typography>
-                <strong>Email:</strong> {selectedBranch.email || "N/A"}
-              </Typography>
-              <Typography>
-                <strong>Phone:</strong> {selectedBranch.phone || "N/A"}
-              </Typography>
-              <Typography>
-                <strong>Status:</strong>{" "}
-                {selectedBranch.status === 1 ? "Active" : "Inactive"}
-              </Typography>
+              <Typography><strong>Code:</strong> {selectedBranch.code}</Typography>
+              <Typography><strong>Name:</strong> {selectedBranch.name}</Typography>
+              <Typography><strong>Address:</strong> {selectedBranch.address}</Typography>
+              <Typography><strong>Mobile:</strong> {selectedBranch.mobile}</Typography>
+              <Typography><strong>Email:</strong> {selectedBranch.email || "N/A"}</Typography>
+              <Typography><strong>Phone:</strong> {selectedBranch.phone || "N/A"}</Typography>
+              <Typography><strong>Status:</strong> {selectedBranch.status === 1 ? "Active" : "Inactive"}</Typography>
             </Box>
           ) : (
             <Loader message="Loading..." />

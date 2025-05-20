@@ -1,8 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   Box,
   Typography,
-  CircularProgress,
   Divider,
   TextField,
 } from "@mui/material";
@@ -10,11 +9,8 @@ import TableComponent from "../../components/TableComponent";
 import Loader from "../../components/Loader";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
-import { getBranchIdFromToken } from "../../utils/auth";
-import SearchFieldComponent from "../../components/SearchFieldComponent";
 
 const BranchEmployees = () => {
-  const branchId = getBranchIdFromToken();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
@@ -24,27 +20,21 @@ const BranchEmployees = () => {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimeout = useRef(null);
-  const [controller, setController] = useState(null);
+  const controllerRef = useRef(null);  // Use ref instead of state for AbortController
   const [snack, setSnack] = useState({
     open: false,
     severity: "error",
     message: "",
   });
 
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      fetchEmployees(searchTerm);
-    }, 200);
-
-    return () => clearTimeout(delayDebounce);
-  }, [searchTerm, pagination.current_page, pagination.per_page]);
-
-  const fetchEmployees = async (search = "") => {
-    if (controller) controller.abort();
+  const fetchEmployees = useCallback(async (search = "") => {
+    if (controllerRef.current) {
+      controllerRef.current.abort();
+    }
 
     const token = localStorage.getItem("token");
     const newController = new AbortController();
-    setController(newController);
+    controllerRef.current = newController;
 
     setLoading(true);
     try {
@@ -86,7 +76,15 @@ const BranchEmployees = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.current_page, pagination.per_page]);
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      fetchEmployees(searchTerm);
+    }, 200);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm, fetchEmployees]);
 
   const handlePaginationChange = ({ page, rowsPerPage }) => {
     setPagination((prev) => ({
@@ -94,11 +92,6 @@ const BranchEmployees = () => {
       current_page: page,
       per_page: rowsPerPage,
     }));
-  };
-
-  const handleClearSearch = () => {
-    setSearchTerm("");
-    setPagination((prev) => ({ ...prev, current_page: 1 }));
   };
 
   const columns = [

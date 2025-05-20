@@ -31,6 +31,7 @@ import ListOrders from "../pages/branch/ListOrders";
 import RoleBasedLayout from "../layouts/RoleBasedLayout";
 
 import NotFound from "../pages/NotFound";
+import ItemsList from "../pages/common/masters/ItemsList";
 
 const AppRoutes = () => (
   <Routes>
@@ -45,6 +46,9 @@ const AppRoutes = () => (
       </Route>
       <Route path={ROUTES.RESET_PASSWORD} element={<RoleBasedLayout />}>
         <Route index element={<ResetPassword />} />
+      </Route>
+      <Route path={ROUTES.ITEMS_LIST} element={<RoleBasedLayout />}>
+        <Route index element={<ItemsList />} />
       </Route>
     </Route>
 

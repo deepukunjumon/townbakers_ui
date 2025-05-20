@@ -1,7 +1,7 @@
 const API_BASE_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:8000/api"
-    : "https://52.204.98.211/api";
+  process.env.NODE_ENV === 'production'
+    ? "https://api-tbms.up.railway.app/api" //Production URL
+    : "http://localhost:8000/api"; //Development URL
 
 const apiConfig = {
   BASE_URL: API_BASE_URL,
@@ -12,6 +12,9 @@ const apiConfig = {
   PROFILE: `${API_BASE_URL}/profile`,
   LOGOUT_URL: `${API_BASE_URL}/logout`,
   MINIMAL_BRANCHES: `${API_BASE_URL}/branches/minimal`,
+  ITEMS_LIST: `${API_BASE_URL}/items`,
+  MINIMAL_ITEMS: `${API_BASE_URL}/items/minimal`,
+  UPDATE_ITEM_STATUS: `${API_BASE_URL}/item/update-status`,
 
   // Admin APIs
   ADMIN_DASHBOARD_STATS: `${API_BASE_URL}/admin/dashboard/stats`,

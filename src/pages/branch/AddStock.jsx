@@ -50,7 +50,7 @@ const AddStock = () => {
         })
       );
 
-    fetch(`${apiConfig.BASE_URL}/items/list`, {
+    fetch(`${apiConfig.BASE_URL}/items/minimal`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
