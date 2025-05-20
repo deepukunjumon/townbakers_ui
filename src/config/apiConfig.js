@@ -12,6 +12,8 @@ const apiConfig = {
   PROFILE: `${API_BASE_URL}/profile`,
   LOGOUT_URL: `${API_BASE_URL}/logout`,
   MINIMAL_BRANCHES: `${API_BASE_URL}/branches/minimal`,
+
+  CREATE_ITEM: `${API_BASE_URL}/create/item`,
   ITEMS_LIST: `${API_BASE_URL}/items`,
   MINIMAL_ITEMS: `${API_BASE_URL}/items/minimal`,
   UPDATE_ITEM_STATUS: `${API_BASE_URL}/item/update-status`,
