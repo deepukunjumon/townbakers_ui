@@ -1,7 +1,7 @@
 const API_BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:8000/api"
-    : "https://api-tbms.up.railway.app/api";
+    : "http://172.25.9.134:8000/api";
 
 const apiConfig = {
   BASE_URL: API_BASE_URL,
