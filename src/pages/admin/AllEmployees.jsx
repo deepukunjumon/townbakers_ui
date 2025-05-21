@@ -443,7 +443,7 @@ const AllEmployees = () => {
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => { }}
+        onClose={() => {}}
         hideCloseIcon={true}
         title="Confirm Action"
         content={confirmationModalContent}
