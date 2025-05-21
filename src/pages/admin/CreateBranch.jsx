@@ -62,6 +62,15 @@ const CreateBranch = () => {
     }
   };
 
+  const isFormValid = () => {
+    return (
+      form.code &&
+      form.name &&
+      form.address &&
+      form.mobile
+    );
+  };
+
   return (
     <Box sx={{ maxWidth: { sm: 500, md: 850 }, mx: "auto", py: 4, px: 2 }}>
       {loading && <Loader message="Creating branch..." />}
@@ -151,7 +160,7 @@ const CreateBranch = () => {
               type="submit"
               variant="contained"
               color="primary"
-              disabled={loading}
+              disabled={loading || !isFormValid()} // Disable if form is invalid
             >
               {loading ? "Creating..." : "Create Branch"}
             </Button>

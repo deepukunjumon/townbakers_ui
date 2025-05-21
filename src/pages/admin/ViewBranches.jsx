@@ -4,6 +4,7 @@ import {
   Typography,
   Button,
   Divider,
+  Chip,
 } from "@mui/material";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
@@ -43,7 +44,7 @@ const ViewBranches = () => {
 
     try {
       const res = await fetch(
-        `${apiConfig.BASE_URL}/branches/minimal?${params}`,
+        `${apiConfig.MINIMAL_BRANCHES}?${params}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -88,17 +89,41 @@ const ViewBranches = () => {
     }));
   };
 
-  const handleBranchClick = (branchId) => {
-    const branch = branches.find((b) => b.id === branchId);
-    setSelectedBranch(branch);
-    setOpenModal(true);
+  const handleBranchClick = async (branchId) => {
+    const token = getToken();
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${apiConfig.BRANCH_DETAILS.replace('{id}', branchId)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setSelectedBranch(data.branch_details);
+        setOpenModal(true);
+      } else {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: data.message || "Failed to load branch details",
+        });
+      }
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to load branch details",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const columns = [
     { field: "code", headerName: "Code", flex: 1 },
     { field: "name", headerName: "Branch Name", flex: 1 },
-    { field: "address", headerName: "Address", flex: 2 },
-    { field: "mobile", headerName: "Mobile", flex: 1 },
   ];
 
   return (
@@ -143,10 +168,22 @@ const ViewBranches = () => {
               <Typography><strong>Code:</strong> {selectedBranch.code}</Typography>
               <Typography><strong>Name:</strong> {selectedBranch.name}</Typography>
               <Typography><strong>Address:</strong> {selectedBranch.address}</Typography>
+              <Divider sx={{ my: 2 }} />
+
               <Typography><strong>Mobile:</strong> {selectedBranch.mobile}</Typography>
-              <Typography><strong>Email:</strong> {selectedBranch.email || "N/A"}</Typography>
-              <Typography><strong>Phone:</strong> {selectedBranch.phone || "N/A"}</Typography>
-              <Typography><strong>Status:</strong> {selectedBranch.status === 1 ? "Active" : "Inactive"}</Typography>
+              <Typography><strong>Email:</strong> {selectedBranch.email || "-"}</Typography>
+              <Typography><strong>Phone:</strong> {selectedBranch.phone || "-"}</Typography>
+              <Divider sx={{ my: 2 }} />
+
+              <Typography>
+                <strong>Status:</strong>{" "}
+                <Chip
+                  size="small"
+                  label={selectedBranch.status === 1 ? "Active" : "Inactive"}
+                  color={selectedBranch.status === 1 ? "success" : "default"}
+                />
+              </Typography>
+              <Typography><strong>Active Employees:</strong> {selectedBranch.active_employees_count}</Typography>
             </Box>
           ) : (
             <Loader message="Loading..." />

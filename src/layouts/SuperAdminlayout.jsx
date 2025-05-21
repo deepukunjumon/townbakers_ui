@@ -13,7 +13,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import TokenIcon from '@mui/icons-material/Token';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 
-const AdminLayout = () => {
+const SuperAdminLayout = () => {
   const navigate = useNavigate();
 
   const menuItems = [
@@ -84,11 +84,11 @@ const AdminLayout = () => {
       drawerWidth={280}
       collapsedWidth={60}
       showIconsWhenCollapsed={true}
-      title="Admin Dashboard"
+      title="Super-Admin Dashboard"
     >
       <Outlet />
     </MainLayout>
   );
 };
 
-export default AdminLayout;
+export default SuperAdminLayout;

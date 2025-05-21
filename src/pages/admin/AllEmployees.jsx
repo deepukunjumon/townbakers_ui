@@ -246,7 +246,7 @@ const AllEmployees = () => {
     },
     {
       field: "toggle",
-      headerName: "Enable/Disable",
+      headerName: "",
       flex: 1,
       sortable: false,
       filterable: false,
@@ -443,7 +443,7 @@ const AllEmployees = () => {
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => {}}
+        onClose={() => { }}
         hideCloseIcon={true}
         title="Confirm Action"
         content={confirmationModalContent}

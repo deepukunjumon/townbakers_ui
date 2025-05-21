@@ -3,6 +3,7 @@ import { Box, Grid, Typography, IconButton } from "@mui/material";
 import StatCard from "../../components/StatCard";
 import PeopleIcon from "@mui/icons-material/People";
 import BusinessIcon from "@mui/icons-material/Business";
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import RefreshIcon from "@mui/icons-material/Refresh";
 import axios from "axios";
 import apiConfig from "../../config/apiConfig";
@@ -11,13 +12,6 @@ import { getToken } from "../../utils/auth";
 const Dashboard = () => {
   const [stats, setStats] = useState([
     {
-      title: "Total Employees",
-      subtitle: "Active employees count",
-      loading: true,
-      color: "primary",
-      icon: <PeopleIcon />,
-    },
-    {
       title: "Total Branches",
       subtitle: "Active branches count",
       loading: true,
@@ -25,11 +19,18 @@ const Dashboard = () => {
       icon: <BusinessIcon />,
     },
     {
+      title: "Total Employees",
+      subtitle: "Active employees count",
+      loading: true,
+      color: "primary",
+      icon: <PeopleIcon />,
+    },
+    {
       title: "Pending Orders",
       subtitle: "Pending orders count",
       loading: true,
       color: "warning",
-      icon: <BusinessIcon />,
+      icon: <AssignmentIcon />,
     },
   ]);
 
