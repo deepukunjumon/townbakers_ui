@@ -10,7 +10,7 @@ const ModalComponent = ({
   hideCloseIcon = false,
 }) => {
   return (
-    <Modal open={open} onClose={hideCloseIcon ? () => {} : onClose}>
+    <Modal open={open} onClose={hideCloseIcon ? () => { } : onClose}>
       <Box
         sx={{
           position: "absolute",

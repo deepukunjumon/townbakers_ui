@@ -10,7 +10,7 @@ import AssignmentAddIcon from '@mui/icons-material/AssignmentAdd';
 import FormatListBulletedAddIcon from "@mui/icons-material/FormatListBulletedAdd";
 import WysiwygIcon from "@mui/icons-material/Wysiwyg";
 import TokenIcon from '@mui/icons-material/Token';
-import CategoryIcon from '@mui/icons-material/Category';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { Outlet, useNavigate } from "react-router-dom";
 import { ROUTES } from "../constants/routes";
 
@@ -27,7 +27,7 @@ const BranchLayout = () => {
       icon: <TokenIcon />,
       children: [
         {
-          icon: <CategoryIcon />,
+          icon: <MenuBookIcon />,
           label: "Items",
           onClick: () => navigate(ROUTES.ITEMS_LIST),
         },

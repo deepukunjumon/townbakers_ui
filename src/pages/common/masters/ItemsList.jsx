@@ -271,7 +271,7 @@ const ItemsList = () => {
         <Button onClick={() => setModalOpen(false)} sx={{ mr: 1 }}>
           Cancel
         </Button>
-        <Button variant="contained" onClick={handleCreateItem}>
+        <Button variant="text" onClick={handleCreateItem}>
           Create
         </Button>
       </Box>
