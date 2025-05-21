@@ -7,6 +7,20 @@ export const ROUTES = {
 
   ITEMS_LIST: "/items",
 
+  SUPER_ADMIN: {
+    ROOT: "/super-admin",
+    DASHBOARD: "/super-admin/dashboard",
+
+    CREATE_USER: "/super-admin/create/user",
+    CREATE_BRANCH: "/super-admin/create/branch",
+    BRANCH_LIST: "/super-admin/view/branches",
+
+    CREATE_EMPLOYEE: "/super-admin/create/employee",
+    EMPLOYEES_LIST: "/super-admin/employees",
+
+    STOCK_SUMMARY: "/super-admin/stocks/summary",
+  },
+
   ADMIN: {
     ROOT: "/admin",
     DASHBOARD: "/admin/dashboard",

@@ -31,7 +31,7 @@ const CreateEmployee = () => {
   const [importResult, setImportResult] = useState(null);
   const [importing, setImporting] = useState(false);
   const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false); // <-- Add loading state
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchBranches = async () => {
@@ -57,7 +57,7 @@ const CreateEmployee = () => {
           headers: { Authorization: getToken() },
         });
         const data = await res.json();
-        if (res.ok) setDesignations(data.data || []);
+        if (res.ok) setDesignations(data.designations || []);
         else throw new Error();
       } catch {
         setSnack({
@@ -82,7 +82,7 @@ const CreateEmployee = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // <-- Start loader
+    setLoading(true);
     try {
       const payload = {
         ...form,
@@ -128,7 +128,7 @@ const CreateEmployee = () => {
         message: "Error submitting form",
       });
     } finally {
-      setLoading(false); // <-- Stop loader
+      setLoading(false);
     }
   };
 
