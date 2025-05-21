@@ -22,7 +22,7 @@ const CreateEmployee = () => {
     severity: "info",
     message: "",
   });
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchDesignations = async () => {
@@ -31,7 +31,7 @@ const CreateEmployee = () => {
           headers: { Authorization: getToken() },
         });
         const data = await res.json();
-        if (res.ok) setDesignations(data.data || []);
+        if (res.ok) setDesignations(data.designations || []);
         else throw new Error();
       } catch {
         setSnack({
@@ -157,12 +157,11 @@ const CreateEmployee = () => {
           label="Designation"
           name="designation_id"
           value={form.designation_id}
-          onChange={(e) => setForm({ ...form, designation_id: e.target.value })}
+          onChange={(e) => setForm({ ...form, designation_id: e.target.value.id })}
           options={designations}
           valueKey="id"
           displayKey={(des) => des.designation}
           required
-          fullWidth
         />
 
         <ButtonComponent
