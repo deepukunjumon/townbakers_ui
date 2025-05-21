@@ -32,6 +32,7 @@ import RoleBasedLayout from "../layouts/RoleBasedLayout";
 
 import NotFound from "../pages/NotFound";
 import ItemsList from "../pages/common/masters/ItemsList";
+import SuperAdminLayout from "../layouts/SuperAdminlayout";
 
 const AppRoutes = () => (
   <Routes>
@@ -40,7 +41,7 @@ const AppRoutes = () => (
     <Route path={ROUTES.LOGIN} element={<Login />} />
     <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
 
-    <Route element={<ProtectedRoute allowedRoles={["admin", "branch"]} />}>
+    <Route element={<ProtectedRoute allowedRoles={["admin", "branch", "super_admin"]} />}>
       <Route path={ROUTES.PROFILE} element={<RoleBasedLayout />}>
         <Route index element={<ViewProfile />} />
       </Route>
@@ -53,11 +54,22 @@ const AppRoutes = () => (
     </Route>
 
 
+    {/* Super Admin Protected */}
+    <Route
+      path={ROUTES.ADMIN.ROOT}
+      element={
+        <ProtectedRoute allowedRoles={["super_admin"]}>
+          <SuperAdminLayout />
+        </ProtectedRoute>
+      }
+    >
+    </Route>
+
     {/* Admin Protected */}
     <Route
       path={ROUTES.ADMIN.ROOT}
       element={
-        <ProtectedRoute allowedRoles={["admin"]}>
+        <ProtectedRoute allowedRoles={["admin", "super_admin"]}>
           <AdminLayout />
         </ProtectedRoute>
       }

@@ -86,9 +86,18 @@ const Login = () => {
 
         setTimeout(() => {
           setSnack((prev) => ({ ...prev, open: false }));
-          if (role === "admin") navigate(ROUTES.ADMIN.DASHBOARD);
-          else if (role === "branch") navigate(ROUTES.BRANCH.DASHBOARD);
-        }, 1000);
+
+          if (role === "super_admin") {
+            navigate(ROUTES.ADMIN.DASHBOARD);
+          }
+          if (role === "admin") {
+            navigate(ROUTES.ADMIN.DASHBOARD);
+          }
+          if (role === "branch") {
+            navigate(ROUTES.BRANCH.DASHBOARD);
+          }
+        }, 300);
+
       } else {
         setSnack({
           open: true,
