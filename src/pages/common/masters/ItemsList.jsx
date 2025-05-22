@@ -313,7 +313,7 @@ const ItemsList = () => {
       />
 
       <Box sx={{ position: "relative" }}>
-        {loading || initialLoad || (items.length === 0 && !loading) ? (
+        {loading || initialLoad ? (
           <Loader message="Loading..." />
         ) : (
           <TableComponent

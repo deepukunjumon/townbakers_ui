@@ -13,6 +13,7 @@ const apiConfig = {
   LOGOUT_URL: `${API_BASE_URL}/logout`,
   MINIMAL_BRANCHES: `${API_BASE_URL}/branches/minimal`,
   DESIGNATIONS: `${API_BASE_URL}/designations`,
+  ACTIVE_DESIGNATIONS: `${API_BASE_URL}/designations/active`,
 
   UPDATE_EMPLOYEE_STATUS: `${API_BASE_URL}/employee/update-status`,
 
@@ -20,6 +21,9 @@ const apiConfig = {
   ITEMS_LIST: `${API_BASE_URL}/items`,
   MINIMAL_ITEMS: `${API_BASE_URL}/items/minimal`,
   UPDATE_ITEM_STATUS: `${API_BASE_URL}/item/update-status`,
+
+  CREATE_DESIGNATION: `${API_BASE_URL}/create/designation`,
+  UPDATE_DESIGNATION_STATUS: `${API_BASE_URL}/designation/update-status`,
 
   //Super Admin APIs
   CREATE_USER: `${API_BASE_URL}/super-admin/create/user`,

@@ -34,6 +34,7 @@ import RoleBasedLayout from "../layouts/RoleBasedLayout";
 
 import NotFound from "../pages/NotFound";
 import ItemsList from "../pages/common/masters/ItemsList";
+import Designations from "../pages/common/masters/Designations";
 import SuperAdminLayout from "../layouts/SuperAdminlayout";
 import CreateUser from "../pages/super-admin/CreateUser";
 
@@ -76,6 +77,7 @@ const AppRoutes = () => (
       <Route path={ROUTES.SUPER_ADMIN.CREATE_EMPLOYEE} element={<CreateEmployeeByAdmin />} />
       <Route path={ROUTES.SUPER_ADMIN.EMPLOYEES_LIST} element={<AllEmployees />} />
       <Route path={ROUTES.SUPER_ADMIN.STOCK_SUMMARY} element={<ViewBranchStockSummary />} />
+      <Route path={ROUTES.SUPER_ADMIN.DESIGNATIONS} element={<Designations />} />
     </Route>
 
     {/* Admin Protected */}
@@ -93,6 +95,7 @@ const AppRoutes = () => (
       <Route path={ROUTES.ADMIN.BRANCH_LIST} element={<ViewBranches />} />
       <Route path={ROUTES.ADMIN.CREATE_EMPLOYEE} element={<CreateEmployeeByAdmin />} />
       <Route path={ROUTES.ADMIN.STOCK_SUMMARY} element={<ViewBranchStockSummary />} />
+      <Route path={ROUTES.ADMIN.DESIGNATIONS} element={<Designations />} />
     </Route>
 
     {/* Branch Protected */}

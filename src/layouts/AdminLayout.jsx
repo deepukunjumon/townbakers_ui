@@ -2,16 +2,19 @@ import React from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import MainLayout from "../components/MainLayout";
 import { ROUTES } from "../constants/routes";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import DomainIcon from '@mui/icons-material/Domain';
-import DomainAddIcon from '@mui/icons-material/DomainAdd';
-import PersonAddAltRoundedIcon from "@mui/icons-material/PersonAddAltRounded";
-import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
-import ArticleIcon from "@mui/icons-material/Article";
-import InventoryIcon from "@mui/icons-material/Inventory";
-import PeopleIcon from "@mui/icons-material/People";
-import TokenIcon from '@mui/icons-material/Token';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
+import {
+  Dashboard,
+  Domain,
+  DomainAdd,
+  People,
+  PersonAddAltRounded,
+  PeopleAltRounded,
+  Badge,
+  MenuBook,
+  Token,
+  Inventory,
+  Article
+} from "@mui/icons-material";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
@@ -19,31 +22,36 @@ const AdminLayout = () => {
   const menuItems = [
     {
       label: "Dashboard",
-      icon: <DashboardIcon />,
+      icon: <Dashboard />,
       onClick: () => navigate(ROUTES.ADMIN.DASHBOARD),
     },
     {
       label: "Masters",
-      icon: <TokenIcon />,
+      icon: <Token />,
       children: [
         {
-          icon: <MenuBookIcon />,
+          icon: <MenuBook />,
           label: "Items",
           onClick: () => navigate(ROUTES.ITEMS_LIST),
+        },
+        {
+          icon: <Badge />,
+          label: "Designations",
+          onClick: () => navigate(ROUTES.ADMIN.DESIGNATIONS),
         },
       ],
     },
     {
       label: "Branches",
-      icon: <DomainIcon />,
+      icon: <Domain />,
       children: [
         {
-          icon: <DomainAddIcon />,
+          icon: <DomainAdd />,
           label: "Create Branch",
           onClick: () => navigate(ROUTES.ADMIN.CREATE_BRANCH),
         },
         {
-          icon: <DomainIcon />,
+          icon: <Domain />,
           label: "All Branches",
           onClick: () => navigate(ROUTES.ADMIN.BRANCH_LIST),
         },
@@ -51,15 +59,15 @@ const AdminLayout = () => {
     },
     {
       label: "Employees",
-      icon: <PeopleIcon />,
+      icon: <People />,
       children: [
         {
-          icon: <PersonAddAltRoundedIcon />,
+          icon: <PersonAddAltRounded />,
           label: "Add Employee",
           onClick: () => navigate(ROUTES.ADMIN.CREATE_EMPLOYEE),
         },
         {
-          icon: <PeopleAltRoundedIcon />,
+          icon: <PeopleAltRounded />,
           label: "Manage Employees",
           onClick: () => navigate(ROUTES.ADMIN.EMPLOYEES_LIST),
         },
@@ -67,10 +75,10 @@ const AdminLayout = () => {
     },
     {
       label: "Stocks",
-      icon: <InventoryIcon />,
+      icon: <Inventory />,
       children: [
         {
-          icon: <ArticleIcon />,
+          icon: <Article />,
           label: "Stocks Summary",
           onClick: () => navigate(ROUTES.ADMIN.STOCK_SUMMARY),
         },
