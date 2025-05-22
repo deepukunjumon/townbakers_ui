@@ -10,13 +10,14 @@ import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import ModalComponent from "../../components/ModalComponent";
 import { useNavigate } from "react-router-dom";
-import { getToken } from "../../utils/auth";
+import { getToken, getRoleFromToken } from "../../utils/auth";
 import apiConfig from "../../config/apiConfig";
 import { ROUTES } from "../../constants/routes";
 import Loader from "../../components/Loader";
 
 const ViewBranches = () => {
   const navigate = useNavigate();
+  const role = getRoleFromToken();
 
   const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -205,7 +206,12 @@ const ViewBranches = () => {
           boxShadow: 3,
         }}
         onClick={() => {
-          navigate(ROUTES.ADMIN.CREATE_BRANCH);
+          if (role === "admin") {
+            navigate(ROUTES.ADMIN.CREATE_BRANCH);
+          }
+          if (role === "super_admin") {
+            navigate(ROUTES.SUPER_ADMIN.CREATE_BRANCH);
+          }
         }}
       >
         +
