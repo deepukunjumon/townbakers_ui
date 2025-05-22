@@ -7,15 +7,19 @@ import {
   TextField,
   Switch,
   Button,
+  Fab,
   CircularProgress,
 } from "@mui/material";
+import { getRoleFromToken } from "../../utils/auth";
+import AddIcon from "@mui/icons-material/Add";
+import { ROUTES } from "../../constants/routes";
+import { useNavigate } from "react-router-dom";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import Loader from "../../components/Loader";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
 import ModalComponent from "../../components/ModalComponent";
 import apiConfig from "../../config/apiConfig";
-import { getBranchIdFromToken } from "../../utils/auth";
 import { userStatusMap } from "../../constants/status";
 import ExportMenu from "../../components/ExportMenu";
 
@@ -27,7 +31,8 @@ const statusOptions = [
 ];
 
 const AllEmployees = () => {
-  const branchId = getBranchIdFromToken();
+  const navigate = useNavigate();
+  const role = getRoleFromToken();
   const [employees, setEmployees] = useState([]);
   const [branches, setBranches] = useState([{ name: "All", id: "" }]);
   const [loading, setLoading] = useState(true);
@@ -97,15 +102,13 @@ const AllEmployees = () => {
 
     let url = `${apiConfig.ALL_EMPLOYEES_LIST}?page=${pagination.current_page}&per_page=${pagination.per_page}`;
 
-    if (statusFilter.id !== "") {
-      url += `&status=${statusFilter.id}`;
-    }
-    if (branchFilter.id !== "") {
-      url += `&branch_code=${branchFilter.id}`;
-    }
-    if (searchTerm.trim() !== "") {
-      url += `&q=${encodeURIComponent(searchTerm.trim())}`;
-    }
+    const params = new URLSearchParams();
+
+    if (statusFilter.id) params.append("status", statusFilter.id);
+    if (branchFilter.id) params.append("branch_code", branchFilter.id);
+    if (searchTerm.trim()) params.append("q", searchTerm.trim());
+
+    url += `&${params.toString()}`;
 
     fetch(url, {
       headers: {
@@ -132,7 +135,6 @@ const AllEmployees = () => {
         setLoading(false);
       });
   }, [
-    branchId,
     pagination.current_page,
     pagination.per_page,
     statusFilter,
@@ -440,6 +442,26 @@ const AllEmployees = () => {
           onPaginationChange={handlePaginationChange}
         />
       )}
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={() => {
+          if (role === "admin") {
+            navigate(ROUTES.ADMIN.CREATE_EMPLOYEE);
+          }
+          if (role === "super_admin") {
+            navigate(ROUTES.SUPER_ADMIN.CREATE_EMPLOYEE);
+          }
+        }}
+        sx={{
+          position: "fixed",
+          bottom: 32,
+          right: 32,
+          zIndex: 1300,
+        }}
+      >
+        <AddIcon />
+      </Fab>
 
       <ModalComponent
         open={confirmModalOpen}
