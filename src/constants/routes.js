@@ -10,6 +10,7 @@ export const ROUTES = {
   SUPER_ADMIN: {
     ROOT: "/super-admin",
     DASHBOARD: "/super-admin/dashboard",
+    DESIGNATIONS: "/super-admin/designations",
 
     CREATE_USER: "/super-admin/create/user",
     CREATE_BRANCH: "/super-admin/create/branch",
@@ -24,6 +25,7 @@ export const ROUTES = {
   ADMIN: {
     ROOT: "/admin",
     DASHBOARD: "/admin/dashboard",
+    DESIGNATIONS: "/admin/designations",
 
     CREATE_BRANCH: "/admin/create/branch",
     BRANCH_LIST: "/admin/view/branches",

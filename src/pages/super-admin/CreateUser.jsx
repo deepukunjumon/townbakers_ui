@@ -55,7 +55,7 @@ const CreateUser = () => {
 
   const fetchDesignations = async () => {
     try {
-      const res = await fetch(apiConfig.DESIGNATIONS, {
+      const res = await fetch(apiConfig.ACTIVE_DESIGNATIONS, {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       const data = await res.json();
@@ -310,14 +310,13 @@ const CreateUser = () => {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <SelectFieldComponent
-                  name="designation_id"
                   label="Designation"
-                  value={form.designation_id}
-                  onChange={handleChange}
+                  name="designation_id"
+                  value={designations.find(d => d.id === form.designation_id) || null}
+                  onChange={(e) => setForm({ ...form, designation_id: e.target.value.id })}
                   options={designations}
                   valueKey="id"
-                  displayKey={(d) => d.designation}
-                  fullWidth
+                  displayKey="designation"
                   required
                 />
               </Grid>
@@ -325,8 +324,8 @@ const CreateUser = () => {
                 <SelectFieldComponent
                   name="branch_id"
                   label="Branch"
-                  value={form.branch_id}
-                  onChange={handleChange}
+                  value={branches.find(b => b.id === form.branch_id) || null}
+                  onChange={(e) => setForm({ ...form, branch_id: e.target.value.id })}
                   options={branches}
                   valueKey="id"
                   displayKey={(b) => `${b.code} - ${b.name}`}

@@ -27,7 +27,7 @@ const CreateEmployee = () => {
   useEffect(() => {
     const fetchDesignations = async () => {
       try {
-        const res = await fetch(`${apiConfig.BASE_URL}/designations`, {
+        const res = await fetch(`${apiConfig.ACTIVE_DESIGNATIONS}`, {
           headers: { Authorization: getToken() },
         });
         const data = await res.json();
