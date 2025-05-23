@@ -154,7 +154,7 @@ const CreateUser = () => {
   };
 
   return (
-    <Box sx={{ mx: "auto", my: 4, px: { xs: 2, md: 6 }, maxWidth: 600 }}>
+    <Box sx={{ mx: "auto", my: 3, px: { xs: 2, md: 6 }, maxWidth: 600 }}>
       {submitLoading && <Loader message="Loading..." />}
       <SnackbarAlert
         open={snack.open}
@@ -172,7 +172,17 @@ const CreateUser = () => {
           <FormLabel component="legend" sx={{ mb: 1 }}>
             Role
           </FormLabel>
-          <RadioGroup row name="role" value={form.role} onChange={handleChange}>
+          <RadioGroup
+            name="role"
+            value={form.role}
+            onChange={handleChange}
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              flexWrap: "nowrap",
+              gap: 2,
+            }}
+          >
             <FormControlLabel value="admin" control={<Radio />} label="Admin" />
             <FormControlLabel
               value="branch"
@@ -357,13 +367,13 @@ const CreateUser = () => {
           </>
         )}
 
-        <Box sx={{ mt: 4 }}>
+        <Box sx={{ mt: 4, display: "flex", justifyContent: "left" }}>
           <Button
             type="submit"
             variant="contained"
             color="primary"
             disabled={submitLoading}
-            fullWidth
+            sx={{ width: "auto" }}
           >
             {submitLoading ? "Submitting..." : "Submit"}
           </Button>
