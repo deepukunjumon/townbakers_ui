@@ -20,7 +20,15 @@ const TextFieldComponent = ({
   const isPassword =
     type === "password" || (label && label.toLowerCase().includes("password"));
   const isSelect = type === "select";
+  const isMobile = type === "mobile";
+  const isPhone = type === "phone";
   const showError = submitted && required && !value;
+
+  const handleChange = (e) => {
+    const value =
+      isMobile || isPhone ? e.target.value.replace(/\D/g, "") : e.target.value;
+    onChange({ target: { name, value } });
+  };
 
   return (
     <TextField
@@ -31,9 +39,15 @@ const TextFieldComponent = ({
       select={isSelect}
       name={name}
       label={label}
-      type={isPassword && !showPassword ? "password" : type}
+      type={
+        isPassword && !showPassword
+          ? "password"
+          : isMobile || isPhone
+          ? "text"
+          : type
+      }
       value={value}
-      onChange={onChange}
+      onChange={handleChange}
       fullWidth
       required={required}
       margin="normal"
@@ -41,6 +55,19 @@ const TextFieldComponent = ({
       size="medium"
       error={showError}
       helperText={showError ? "This field is required" : ""}
+      inputProps={{
+        ...(props.inputProps || {}),
+        ...(isMobile && {
+          inputMode: "numeric",
+          maxLength: 10,
+          pattern: "[0-9]*",
+        }),
+        ...(isPhone && {
+          inputMode: "numeric",
+          maxLength: 15,
+          pattern: "[0-9]*",
+        }),
+      }}
       InputProps={{
         endAdornment: isPassword ? (
           <InputAdornment position="end">
@@ -56,15 +83,15 @@ const TextFieldComponent = ({
       SelectProps={
         isSelect
           ? {
-            MenuProps: {
-              PaperProps: {
-                sx: {
-                  maxHeight: 200,
-                  overflowY: "auto",
+              MenuProps: {
+                PaperProps: {
+                  sx: {
+                    maxHeight: 200,
+                    overflowY: "auto",
+                  },
                 },
               },
-            },
-          }
+            }
           : undefined
       }
       {...props}

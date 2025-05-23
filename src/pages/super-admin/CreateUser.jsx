@@ -22,7 +22,7 @@ const CreateUser = () => {
     username: "",
     mobile: "",
     email: "",
-    role: "branch",
+    role: "admin",
     code: "",
     name: "",
     address: "",
@@ -132,6 +132,7 @@ const CreateUser = () => {
           username: "",
           name: "",
           mobile: "",
+          phone: "",
           email: "",
           role: "admin",
           code: "",
@@ -154,7 +155,7 @@ const CreateUser = () => {
 
   return (
     <Box sx={{ mx: "auto", my: 4, px: { xs: 2, md: 6 }, maxWidth: 600 }}>
-      {submitLoading && <Loader message="Creating user..." />}
+      {submitLoading && <Loader message="Loading..." />}
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
@@ -173,8 +174,16 @@ const CreateUser = () => {
           </FormLabel>
           <RadioGroup row name="role" value={form.role} onChange={handleChange}>
             <FormControlLabel value="admin" control={<Radio />} label="Admin" />
-            <FormControlLabel value="branch" control={<Radio />} label="Branch" />
-            <FormControlLabel value="employee" control={<Radio />} label="Employee" />
+            <FormControlLabel
+              value="branch"
+              control={<Radio />}
+              label="Branch"
+            />
+            <FormControlLabel
+              value="employee"
+              control={<Radio />}
+              label="Employee"
+            />
           </RadioGroup>
         </FormControl>
 
@@ -229,11 +238,22 @@ const CreateUser = () => {
             </Box>
             <Box sx={{ mb: 3 }}>
               <TextFieldComponent
+                type="mobile"
                 name="mobile"
                 label="Mobile"
                 value={form.mobile}
                 onChange={handleChange}
                 required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                type="phone"
+                label="Phone"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
                 fullWidth
               />
             </Box>
@@ -245,6 +265,7 @@ const CreateUser = () => {
                 onChange={handleChange}
                 fullWidth
                 type="email"
+                required
               />
             </Box>
           </>
@@ -256,7 +277,7 @@ const CreateUser = () => {
             <Box sx={{ mb: 3 }}>
               <TextFieldComponent
                 name="name"
-                label={form.role === "employee" ? "Employee Name" : "Name"}
+                label="Name"
                 value={form.name}
                 onChange={handleChange}
                 required
@@ -265,10 +286,12 @@ const CreateUser = () => {
             </Box>
             <Box sx={{ mb: 3 }}>
               <TextFieldComponent
+                type="mobile"
                 name="mobile"
                 label="Mobile"
                 value={form.mobile}
                 onChange={handleChange}
+                inputProps={{ maxLength: 10 }}
                 required
                 fullWidth
               />
@@ -321,7 +344,9 @@ const CreateUser = () => {
                 name="branch_id"
                 label="Branch"
                 value={branches.find((b) => b.id === form.branch_id) || null}
-                onChange={(e) => setForm({ ...form, branch_id: e.target.value.id })}
+                onChange={(e) =>
+                  setForm({ ...form, branch_id: e.target.value.id })
+                }
                 options={branches}
                 valueKey="id"
                 displayKey={(b) => `${b.code} - ${b.name}`}
@@ -340,7 +365,7 @@ const CreateUser = () => {
             disabled={submitLoading}
             fullWidth
           >
-            {submitLoading ? "Creating..." : "Create User"}
+            {submitLoading ? "Submitting..." : "Submit"}
           </Button>
         </Box>
       </form>
@@ -350,7 +375,9 @@ const CreateUser = () => {
         onClose={() => setInfoModalOpen(false)}
         title="User Credentials"
         content={
-          <Box sx={{ whiteSpace: "pre-wrap", fontSize: 15 }}>{additionalInfo}</Box>
+          <Box sx={{ whiteSpace: "pre-wrap", fontSize: 15 }}>
+            {additionalInfo}
+          </Box>
         }
         hideClose
       />
