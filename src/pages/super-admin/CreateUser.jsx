@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import {
   Box,
   Typography,
-  Divider,
-  Grid,
   FormControl,
   FormLabel,
   RadioGroup,
@@ -24,7 +22,7 @@ const CreateUser = () => {
     username: "",
     mobile: "",
     email: "",
-    role: "branch",
+    role: "admin",
     code: "",
     name: "",
     address: "",
@@ -91,18 +89,18 @@ const CreateUser = () => {
 
     try {
       const payload = {
-        username: form.username,
+        name: form.name,
         mobile: form.mobile,
         email: form.email,
         role: form.role,
+        ...(form.role === "admin" && { username: form.username }),
         ...(form.role === "branch" && {
           code: form.code,
-          name: form.name,
           address: form.address,
+          username: form.code,
         }),
         ...(form.role === "employee" && {
           employee_code: form.employee_code,
-          name: form.name,
           designation_id: form.designation_id,
           branch_id: form.branch_id,
         }),
@@ -132,11 +130,12 @@ const CreateUser = () => {
         }
         setForm({
           username: "",
-          mobile: "",
-          email: "",
-          role: "branch",
-          code: "",
           name: "",
+          mobile: "",
+          phone: "",
+          email: "",
+          role: "admin",
+          code: "",
           address: "",
           employee_code: "",
           designation_id: "",
@@ -155,8 +154,8 @@ const CreateUser = () => {
   };
 
   return (
-    <Box sx={{ mx: "auto", my: 4, px: { xs: 2, md: 6 } }}>
-      {submitLoading && <Loader message="Creating user..." />}
+    <Box sx={{ mx: "auto", my: 4, px: { xs: 2, md: 6 }, maxWidth: 600 }}>
+      {submitLoading && <Loader message="Loading..." />}
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
@@ -164,19 +163,15 @@ const CreateUser = () => {
         message={snack.message}
       />
 
-      <Typography variant="h5" fontWeight={600} sx={{ mb: 2 }}>
+      <Typography variant="h5" fontWeight={600} sx={{ mb: 3 }}>
         Create New User
       </Typography>
 
       <form onSubmit={handleSubmit}>
-        <Typography
-          variant="subtitle1"
-          sx={{ mb: 2, fontWeight: 500, color: "text.secondary" }}
-        >
-          User Role
-        </Typography>
-        <FormControl component="fieldset">
-          <FormLabel component="legend">Role</FormLabel>
+        <FormControl component="fieldset" sx={{ mb: 3, display: "block" }}>
+          <FormLabel component="legend" sx={{ mb: 1 }}>
+            Role
+          </FormLabel>
           <RadioGroup row name="role" value={form.role} onChange={handleChange}>
             <FormControlLabel value="admin" control={<Radio />} label="Admin" />
             <FormControlLabel
@@ -192,16 +187,9 @@ const CreateUser = () => {
           </RadioGroup>
         </FormControl>
 
-        <Divider sx={{ my: 3 }} />
-
-        <Typography
-          variant="subtitle1"
-          sx={{ mb: 2, fontWeight: 500, color: "text.secondary" }}
-        >
-          Basic Information
-        </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6}>
+        {/* Username only for admin */}
+        {form.role === "admin" && (
+          <Box sx={{ mb: 3 }}>
             <TextFieldComponent
               name="username"
               label="Username"
@@ -210,142 +198,174 @@ const CreateUser = () => {
               required
               fullWidth
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextFieldComponent
-              name="mobile"
-              label="Mobile"
-              value={form.mobile}
-              onChange={handleChange}
-              required
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextFieldComponent
-              name="email"
-              label="Email"
-              value={form.email}
-              onChange={handleChange}
-              required
-              fullWidth
-              type="email"
-            />
-          </Grid>
-        </Grid>
+          </Box>
+        )}
 
+        {/* Branch role fields */}
         {form.role === "branch" && (
           <>
-            <Divider sx={{ my: 3 }} />
-            <Typography
-              variant="subtitle1"
-              sx={{ mb: 2, fontWeight: 500, color: "text.secondary" }}
-            >
-              Branch Details
-            </Typography>
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <TextFieldComponent
-                  name="code"
-                  label="Branch Code"
-                  value={form.code}
-                  onChange={handleChange}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextFieldComponent
-                  name="name"
-                  label="Branch Name"
-                  value={form.name}
-                  onChange={handleChange}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextFieldComponent
-                  name="address"
-                  label="Address"
-                  value={form.address}
-                  onChange={handleChange}
-                  required
-                  fullWidth
-                />
-              </Grid>
-            </Grid>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                name="code"
+                label="Branch Code"
+                value={form.code}
+                onChange={handleChange}
+                required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                name="name"
+                label="Branch Name"
+                value={form.name}
+                onChange={handleChange}
+                required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                name="address"
+                label="Branch Address"
+                value={form.address}
+                onChange={handleChange}
+                required
+                fullWidth
+                multiline
+                rows={4}
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                type="mobile"
+                name="mobile"
+                label="Mobile"
+                value={form.mobile}
+                onChange={handleChange}
+                required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                type="phone"
+                label="Phone"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                name="email"
+                label="Email"
+                value={form.email}
+                onChange={handleChange}
+                fullWidth
+                type="email"
+                required
+              />
+            </Box>
           </>
         )}
 
+        {/* Admin or Employee role */}
+        {(form.role === "admin" || form.role === "employee") && (
+          <>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                name="name"
+                label="Name"
+                value={form.name}
+                onChange={handleChange}
+                required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                type="mobile"
+                name="mobile"
+                label="Mobile"
+                value={form.mobile}
+                onChange={handleChange}
+                inputProps={{ maxLength: 10 }}
+                required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                name="email"
+                label="Email"
+                value={form.email}
+                onChange={handleChange}
+                fullWidth
+                type="email"
+              />
+            </Box>
+          </>
+        )}
+
+        {/* Employee-specific fields */}
         {form.role === "employee" && (
           <>
-            <Divider sx={{ my: 3 }} />
-            <Typography
-              variant="subtitle1"
-              sx={{ mb: 2, fontWeight: 500, color: "text.secondary" }}
-            >
-              Employee Details
-            </Typography>
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <TextFieldComponent
-                  name="employee_code"
-                  label="Employee Code"
-                  value={form.employee_code}
-                  onChange={handleChange}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextFieldComponent
-                  name="name"
-                  label="Employee Name"
-                  value={form.name}
-                  onChange={handleChange}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <SelectFieldComponent
-                  label="Designation"
-                  name="designation_id"
-                  value={designations.find(d => d.id === form.designation_id) || null}
-                  onChange={(e) => setForm({ ...form, designation_id: e.target.value.id })}
-                  options={designations}
-                  valueKey="id"
-                  displayKey="designation"
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <SelectFieldComponent
-                  name="branch_id"
-                  label="Branch"
-                  value={branches.find(b => b.id === form.branch_id) || null}
-                  onChange={(e) => setForm({ ...form, branch_id: e.target.value.id })}
-                  options={branches}
-                  valueKey="id"
-                  displayKey={(b) => `${b.code} - ${b.name}`}
-                  fullWidth
-                  required
-                />
-              </Grid>
-            </Grid>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                name="employee_code"
+                label="Employee Code"
+                value={form.employee_code}
+                onChange={handleChange}
+                required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <SelectFieldComponent
+                label="Designation"
+                name="designation_id"
+                value={
+                  designations.find((d) => d.id === form.designation_id) || null
+                }
+                onChange={(e) =>
+                  setForm({ ...form, designation_id: e.target.value.id })
+                }
+                options={designations}
+                valueKey="id"
+                displayKey="designation"
+                required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <SelectFieldComponent
+                name="branch_id"
+                label="Branch"
+                value={branches.find((b) => b.id === form.branch_id) || null}
+                onChange={(e) =>
+                  setForm({ ...form, branch_id: e.target.value.id })
+                }
+                options={branches}
+                valueKey="id"
+                displayKey={(b) => `${b.code} - ${b.name}`}
+                required
+                fullWidth
+              />
+            </Box>
           </>
         )}
 
-        <Divider sx={{ my: 3 }} />
-        <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+        <Box sx={{ mt: 4 }}>
           <Button
             type="submit"
             variant="contained"
             color="primary"
             disabled={submitLoading}
+            fullWidth
           >
-            {submitLoading ? "Creating..." : "Create User"}
+            {submitLoading ? "Submitting..." : "Submit"}
           </Button>
         </Box>
       </form>
