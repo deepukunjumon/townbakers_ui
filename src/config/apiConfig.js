@@ -1,7 +1,7 @@
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
     ? "https://api-tbms.up.railway.app/api" //Production URL
-    : "http://localhost:8000/api"; //Development URL
+    : "http://172.20.10.3:8000/api"; //Development URL
 
 const apiConfig = {
   BASE_URL: API_BASE_URL,
@@ -27,6 +27,7 @@ const apiConfig = {
 
   //Super Admin APIs
   CREATE_USER: `${API_BASE_URL}/super-admin/create/user`,
+  MAIL_TEST: `${API_BASE_URL}/super-admin/test-mail`,
 
   // Admin APIs
   ADMIN_DASHBOARD_STATS: `${API_BASE_URL}/admin/dashboard/stats`,

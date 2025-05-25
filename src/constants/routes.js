@@ -20,6 +20,8 @@ export const ROUTES = {
     EMPLOYEES_LIST: "/super-admin/employees",
 
     STOCK_SUMMARY: "/super-admin/stocks/summary",
+
+    DEVELOPER_TOOLS: "/super-admin/tools",
   },
 
   ADMIN: {

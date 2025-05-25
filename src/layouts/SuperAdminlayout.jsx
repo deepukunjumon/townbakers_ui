@@ -12,7 +12,9 @@ import {
   MenuBook,
   Token,
   Inventory,
-  Article
+  Article,
+  Construction,
+  Mail,
 } from "@mui/icons-material";
 
 const SuperAdminLayout = () => {
@@ -77,6 +79,11 @@ const SuperAdminLayout = () => {
           onClick: () => navigate(ROUTES.SUPER_ADMIN.STOCK_SUMMARY),
         },
       ],
+    },
+    {
+      label: "Developer Tools",
+      icon: <Construction />,
+      onClick: () => navigate(ROUTES.SUPER_ADMIN.DEVELOPER_TOOLS),
     },
   ];
 

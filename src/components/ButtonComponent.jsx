@@ -23,7 +23,8 @@ const ButtonComponent = ({
             onClick={onClick}
             sx={{
                 minWidth: { xs: 50, sm: 100, md: 120 },
-                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" },
+                fontSize: { xs: "0.875rem", md: "1rem" },
+                color: 'white',
                 ...sx
             }}
             {...props}
