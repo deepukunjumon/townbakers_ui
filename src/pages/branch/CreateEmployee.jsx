@@ -156,11 +156,11 @@ const CreateEmployee = () => {
         <SelectFieldComponent
           label="Designation"
           name="designation_id"
-          value={form.designation_id}
-          onChange={(e) => setForm({ ...form, designation_id: e.target.value.id })}
+          value={designations.find(d => d.id === form.designation_id) || null}
+          onChange={(e) => setForm({ ...form, designation_id: e.target.value?.id || "" })}
           options={designations}
           valueKey="id"
-          displayKey={(des) => des.designation}
+          displayKey="designation"
           required
         />
 

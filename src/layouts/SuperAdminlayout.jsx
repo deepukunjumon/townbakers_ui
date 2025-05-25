@@ -14,7 +14,7 @@ import {
   Inventory,
   Article,
   Construction,
-  Mail,
+  Assignment
 } from "@mui/icons-material";
 
 const SuperAdminLayout = () => {
@@ -77,6 +77,17 @@ const SuperAdminLayout = () => {
           icon: <Article />,
           label: "Stocks Summary",
           onClick: () => navigate(ROUTES.SUPER_ADMIN.STOCK_SUMMARY),
+        },
+      ],
+    },
+    {
+      label: "Orders",
+      icon: <Assignment />,
+      children: [
+        {
+          icon: <Assignment />,
+          label: "All Orders",
+          onClick: () => navigate(ROUTES.SUPER_ADMIN.ALL_ORDERS),
         },
       ],
     },

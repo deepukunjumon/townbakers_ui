@@ -1,4 +1,5 @@
 import React from "react";
+import dayjs from "dayjs";
 import {
   Table,
   TableBody,
@@ -66,7 +67,6 @@ const TableComponent = ({
     setSelectedItem(null);
   };
 
-  // Add actions column if any CRUD actions are provided
   const tableColumns = [...columns];
   if (showActions && (onEdit || onView || onDelete)) {
     tableColumns.push({
@@ -203,6 +203,8 @@ const TableComponent = ({
                     >
                       {col.renderCell
                         ? col.renderCell({ value: row[col.field], row })
+                        : col.type === "date" && row[col.field]
+                        ? dayjs(row[col.field]).format("DD-MM-YYYY")
                         : row[col.field] ?? "-"}
                     </TableCell>
                   ))}
@@ -241,7 +243,6 @@ const TableComponent = ({
         }}
       />
 
-      {/* Delete confirmation dialog */}
       <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
