@@ -23,6 +23,7 @@ const CreateUser = () => {
     mobile: "",
     email: "",
     role: "admin",
+    role: "admin",
     code: "",
     name: "",
     address: "",
@@ -90,13 +91,16 @@ const CreateUser = () => {
     try {
       const payload = {
         name: form.name,
+        name: form.name,
         mobile: form.mobile,
         email: form.email,
         role: form.role,
         ...(form.role === "admin" && { username: form.username }),
+        ...(form.role === "admin" && { username: form.username }),
         ...(form.role === "branch" && {
           code: form.code,
           address: form.address,
+          username: form.code,
           username: form.code,
         }),
         ...(form.role === "employee" && {
@@ -131,9 +135,12 @@ const CreateUser = () => {
         setForm({
           username: "",
           name: "",
+          name: "",
           mobile: "",
           phone: "",
+          phone: "",
           email: "",
+          role: "admin",
           role: "admin",
           code: "",
           address: "",
@@ -154,7 +161,7 @@ const CreateUser = () => {
   };
 
   return (
-    <Box sx={{ mx: "auto", my: 4, px: { xs: 2, md: 6 }, maxWidth: 600 }}>
+    <Box sx={{ mx: "auto", my: 3, px: { xs: 2, md: 6 }, maxWidth: 600 }}>
       {submitLoading && <Loader message="Loading..." />}
       <SnackbarAlert
         open={snack.open}
@@ -164,6 +171,7 @@ const CreateUser = () => {
       />
 
       <Typography variant="h5" fontWeight={600} sx={{ mb: 3 }}>
+      <Typography variant="h5" fontWeight={600} sx={{ mb: 3 }}>
         Create New User
       </Typography>
 
@@ -172,7 +180,17 @@ const CreateUser = () => {
           <FormLabel component="legend" sx={{ mb: 1 }}>
             Role
           </FormLabel>
-          <RadioGroup row name="role" value={form.role} onChange={handleChange}>
+          <RadioGroup
+            name="role"
+            value={form.role}
+            onChange={handleChange}
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              flexWrap: "nowrap",
+              gap: 2,
+            }}
+          >
             <FormControlLabel value="admin" control={<Radio />} label="Admin" />
             <FormControlLabel
               value="branch"
@@ -190,6 +208,9 @@ const CreateUser = () => {
         {/* Username only for admin */}
         {form.role === "admin" && (
           <Box sx={{ mb: 3 }}>
+        {/* Username only for admin */}
+        {form.role === "admin" && (
+          <Box sx={{ mb: 3 }}>
             <TextFieldComponent
               name="username"
               label="Username"
@@ -198,6 +219,10 @@ const CreateUser = () => {
               required
               fullWidth
             />
+          </Box>
+        )}
+
+        {/* Branch role fields */}
           </Box>
         )}
 
@@ -306,9 +331,112 @@ const CreateUser = () => {
                 type="email"
               />
             </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                name="code"
+                label="Branch Code"
+                value={form.code}
+                onChange={handleChange}
+                required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                name="name"
+                label="Branch Name"
+                value={form.name}
+                onChange={handleChange}
+                required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                name="address"
+                label="Branch Address"
+                value={form.address}
+                onChange={handleChange}
+                required
+                fullWidth
+                multiline
+                rows={4}
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                type="mobile"
+                name="mobile"
+                label="Mobile"
+                value={form.mobile}
+                onChange={handleChange}
+                required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                type="phone"
+                label="Phone"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                name="email"
+                label="Email"
+                value={form.email}
+                onChange={handleChange}
+                fullWidth
+                type="email"
+                required
+              />
+            </Box>
           </>
         )}
 
+        {/* Admin or Employee role */}
+        {(form.role === "admin" || form.role === "employee") && (
+          <>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                name="name"
+                label="Name"
+                value={form.name}
+                onChange={handleChange}
+                required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                type="mobile"
+                name="mobile"
+                label="Mobile"
+                value={form.mobile}
+                onChange={handleChange}
+                inputProps={{ maxLength: 10 }}
+                required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                name="email"
+                label="Email"
+                value={form.email}
+                onChange={handleChange}
+                fullWidth
+                type="email"
+              />
+            </Box>
+          </>
+        )}
+
+        {/* Employee-specific fields */}
         {/* Employee-specific fields */}
         {form.role === "employee" && (
           <>
@@ -354,17 +482,60 @@ const CreateUser = () => {
                 fullWidth
               />
             </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                name="employee_code"
+                label="Employee Code"
+                value={form.employee_code}
+                onChange={handleChange}
+                required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <SelectFieldComponent
+                label="Designation"
+                name="designation_id"
+                value={
+                  designations.find((d) => d.id === form.designation_id) || null
+                }
+                onChange={(e) =>
+                  setForm({ ...form, designation_id: e.target.value.id })
+                }
+                options={designations}
+                valueKey="id"
+                displayKey="designation"
+                required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <SelectFieldComponent
+                name="branch_id"
+                label="Branch"
+                value={branches.find((b) => b.id === form.branch_id) || null}
+                onChange={(e) =>
+                  setForm({ ...form, branch_id: e.target.value.id })
+                }
+                options={branches}
+                valueKey="id"
+                displayKey={(b) => `${b.code} - ${b.name}`}
+                required
+                fullWidth
+              />
+            </Box>
           </>
         )}
 
-        <Box sx={{ mt: 4 }}>
+        <Box sx={{ mt: 4, display: "flex", justifyContent: "left" }}>
           <Button
             type="submit"
             variant="contained"
             color="primary"
             disabled={submitLoading}
-            fullWidth
+            sx={{ width: "auto" }}
           >
+            {submitLoading ? "Submitting..." : "Submit"}
             {submitLoading ? "Submitting..." : "Submit"}
           </Button>
         </Box>

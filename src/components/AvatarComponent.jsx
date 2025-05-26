@@ -81,12 +81,14 @@ const AvatarComponent = ({ onLogout, onProfile }) => {
               gap: 1,
             }}
           >
-            <Box sx={
-              {
+            <Box
+              sx={{
                 fontWeight: "bold",
                 color: theme.palette.primary.main,
-              }
-            }>{user.name}</Box>
+              }}
+            >
+              {user.name}
+            </Box>
           </Box>
         </MenuItem>
         <MenuItem

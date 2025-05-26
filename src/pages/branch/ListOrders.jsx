@@ -118,7 +118,7 @@ const ListOrders = () => {
     setModalLoading(true);
     try {
       const token = getToken();
-      const res = await fetch(`${apiConfig.BASE_URL}/branch/order/${orderId}`, {
+      const res = await fetch(`${apiConfig.BASE_URL}/order/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -169,7 +169,7 @@ const ListOrders = () => {
         });
 
         const orderRes = await fetch(
-          `${apiConfig.BASE_URL}/branch/order/${selectedOrder.id}`,
+          `${apiConfig.BASE_URL}/order/${selectedOrder.id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
