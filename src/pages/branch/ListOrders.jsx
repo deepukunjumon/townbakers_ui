@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ModalComponent from "../../components/ModalComponent";
 import Loader from "../../components/Loader";
+import TextFieldComponent from "../../components/TextFieldComponent";
 
 const ListOrders = () => {
   const currentDate = new Date();
@@ -335,11 +336,13 @@ const ListOrders = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", py: 3, px: { xs: 1, sm: 2 } }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", py: 3, px: { xs: 1, sm: 2 } }}>
       {loading && <Loader message="Loading..." />}
       <Typography variant="h5" gutterBottom>
         Orders List
       </Typography>
+
+      <Divider sx={{ mb: 2 }} />
 
       <SnackbarAlert
         open={snack.open}
@@ -367,7 +370,7 @@ const ListOrders = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={3} lg={3}>
+        <Grid item xs={12} md={2.5} lg={2.5}>
           <FormControl sx={{ width: { xs: 320, md: 150 } }} variant="outlined">
             <InputLabel>Status</InputLabel>
             <Select
@@ -386,13 +389,14 @@ const ListOrders = () => {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={3} lg={3}>
-          <TextField
+
+        <Grid item xs={12} md={2} lg={2} sx={{ ml: "auto" }}>
+          <TextFieldComponent
             label="Search Orders"
             value={search}
             onChange={handleSearchChange}
             variant="outlined"
-            sx={{ ml: { xs: 0, md: 32 }, width: { xs: 320, md: "auto" } }}
+            sx={{ width: { xs: 320, md: 200 } }}
           />
         </Grid>
       </Grid>

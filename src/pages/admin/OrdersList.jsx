@@ -57,7 +57,10 @@ const OrdersList = () => {
       const data = await res.json();
 
       if (data.success) {
-        setBranches([{ id: '', code: 'All', name: 'Branches' }, ...(data.branches || [])]);
+        setBranches([
+          { id: "", code: "All", name: "Branches" },
+          ...(data.branches || []),
+        ]);
       } else {
         setSnack({
           open: true,
@@ -123,7 +126,15 @@ const OrdersList = () => {
     } finally {
       setLoading(false);
     }
-  }, [pagination.current_page, pagination.per_page, startDate, endDate, search, statusFilter, branchFilter]);
+  }, [
+    pagination.current_page,
+    pagination.per_page,
+    startDate,
+    endDate,
+    search,
+    statusFilter,
+    branchFilter,
+  ]);
 
   useEffect(() => {
     fetchOrders();
@@ -174,7 +185,12 @@ const OrdersList = () => {
 
   const columns = [
     { field: "title", headerName: "Title", flex: 1 },
-    { field: "delivery_date", headerName: "Delivery Date", type: "date", flex: 1 },
+    {
+      field: "delivery_date",
+      headerName: "Delivery Date",
+      type: "date",
+      flex: 1,
+    },
     { field: "total_amount", headerName: "Total Amount", flex: 1 },
     { field: "customer_name", headerName: "Customer Name", flex: 1 },
     { field: "customer_mobile", headerName: "Customer Mobile", flex: 1 },
@@ -248,7 +264,7 @@ const OrdersList = () => {
             onChange={(newDate) => setEndDate(newDate)}
             minDate={startDate}
             sx={{ width: { xs: 152, md: 180 } }}
-            />
+          />
         </Grid>
 
         <Grid item xs={12} md={2.5} lg={2.5}>
@@ -266,7 +282,7 @@ const OrdersList = () => {
                   { value: "0", label: "Pending" },
                   { value: "1", label: "Completed" },
                   { value: "-1", label: "Cancelled" },
-                ].find(opt => opt.value === selected);
+                ].find((opt) => opt.value === selected);
                 return selectedOption?.label || selected;
               }}
             >
@@ -287,21 +303,22 @@ const OrdersList = () => {
             sx={{ width: { xs: 152, md: 200 } }}
             renderInput={(params) => (
               <TextField
-              {...params}
-              label="Branch"
-              variant="outlined"
-              fullWidth
-              placeholder="All"
-              InputProps={{
-                ...params.InputProps,
-                placeholder: branchFilter === '' ? 'All' : params.InputProps.placeholder,
-              }}
+                {...params}
+                label="Branch"
+                variant="outlined"
+                fullWidth
+                placeholder="All"
+                InputProps={{
+                  ...params.InputProps,
+                  placeholder:
+                    branchFilter === "" ? "All" : params.InputProps.placeholder,
+                }}
               />
-            )}            
-            />
+            )}
+          />
         </Grid>
 
-        <Grid item xs={12} md={2} lg={2} sx={{ ml: "auto" }}>
+        <Grid item xs={12} md={2} lg={2} sx={{ ml: { md: "auto" } }}>
           <TextField
             label="Search Orders"
             value={search}
@@ -332,45 +349,87 @@ const OrdersList = () => {
           setModalLoading(false);
         }}
         title="Order Details"
-        content={modalLoading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 150 }}>
-            <CircularProgress />
-          </Box>
-        ) : selectedOrder ? (
-          <Box>
-            <Typography><strong>Title:</strong> {selectedOrder.title}</Typography>
-            <Typography><strong>Delivery Date:</strong> {selectedOrder.delivery_date}</Typography>
-            {selectedOrder.delivered_date && (
-              <Typography><strong>Delivered Date:</strong> {selectedOrder.delivered_date}</Typography>
-            )}
-            <Divider sx={{ my: 2 }} />
-            <Typography><strong>Customer Name:</strong> {selectedOrder.customer_name}</Typography>
-            <Typography><strong>Customer Mobile:</strong> {selectedOrder.customer_mobile}</Typography>
-            <Typography><strong>Customer Email:</strong> {selectedOrder.customer_email}</Typography>
-            <Divider sx={{ my: 2 }} />
-            <Typography><strong>Status:</strong> {
-              selectedOrder.status === 0 ? (
-                <Chip label="Pending" color="error" size="small" />
-              ) : selectedOrder.status === 1 ? (
-                <Chip label="Completed" color="success" size="small" />
-              ) : (
-                <Chip label="Cancelled" color="default" size="small" />
-              )
-            }</Typography>
-            <Typography><strong>Total Amount:</strong> {selectedOrder.total_amount}</Typography>
-            <Typography><strong>Advance Amount:</strong> {selectedOrder.advance_amount}</Typography>
-            <Divider sx={{ my: 2 }} />
-            <Typography><strong>Employee Name:</strong> {selectedOrder.employee?.name || "-"}</Typography>
-            <Typography><strong>Employee Code:</strong> {selectedOrder.employee?.employee_code || "-"}</Typography>
-            {selectedOrder.status === 1 && (
-              <>
-                <Divider sx={{ my: 2 }} />
-                <Typography><strong>Delivered By:</strong> {selectedOrder.delivered_by ? `${selectedOrder.delivered_by.name} (${selectedOrder.delivered_by.employee_code})` : "-"}</Typography>
-                <Typography><strong>Delivered At:</strong> {selectedOrder.delivered_on || "-"}</Typography>
-              </>
-            )}
-          </Box>
-        ) : null}
+        content={
+          modalLoading ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: 150,
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          ) : selectedOrder ? (
+            <Box>
+              <Typography>
+                <strong>Title:</strong> {selectedOrder.title}
+              </Typography>
+              <Typography>
+                <strong>Delivery Date:</strong> {selectedOrder.delivery_date}
+              </Typography>
+              {selectedOrder.delivered_date && (
+                <Typography>
+                  <strong>Delivered Date:</strong>{" "}
+                  {selectedOrder.delivered_date}
+                </Typography>
+              )}
+              <Divider sx={{ my: 2 }} />
+              <Typography>
+                <strong>Customer Name:</strong> {selectedOrder.customer_name}
+              </Typography>
+              <Typography>
+                <strong>Customer Mobile:</strong>{" "}
+                {selectedOrder.customer_mobile}
+              </Typography>
+              <Typography>
+                <strong>Customer Email:</strong> {selectedOrder.customer_email}
+              </Typography>
+              <Divider sx={{ my: 2 }} />
+              <Typography>
+                <strong>Status:</strong>{" "}
+                {selectedOrder.status === 0 ? (
+                  <Chip label="Pending" color="error" size="small" />
+                ) : selectedOrder.status === 1 ? (
+                  <Chip label="Completed" color="success" size="small" />
+                ) : (
+                  <Chip label="Cancelled" color="default" size="small" />
+                )}
+              </Typography>
+              <Typography>
+                <strong>Total Amount:</strong> {selectedOrder.total_amount}
+              </Typography>
+              <Typography>
+                <strong>Advance Amount:</strong> {selectedOrder.advance_amount}
+              </Typography>
+              <Divider sx={{ my: 2 }} />
+              <Typography>
+                <strong>Employee Name:</strong>{" "}
+                {selectedOrder.employee?.name || "-"}
+              </Typography>
+              <Typography>
+                <strong>Employee Code:</strong>{" "}
+                {selectedOrder.employee?.employee_code || "-"}
+              </Typography>
+              {selectedOrder.status === 1 && (
+                <>
+                  <Divider sx={{ my: 2 }} />
+                  <Typography>
+                    <strong>Delivered By:</strong>{" "}
+                    {selectedOrder.delivered_by
+                      ? `${selectedOrder.delivered_by.name} (${selectedOrder.delivered_by.employee_code})`
+                      : "-"}
+                  </Typography>
+                  <Typography>
+                    <strong>Delivered At:</strong>{" "}
+                    {selectedOrder.delivered_on || "-"}
+                  </Typography>
+                </>
+              )}
+            </Box>
+          ) : null
+        }
       />
     </Box>
   );

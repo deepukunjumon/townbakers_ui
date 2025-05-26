@@ -47,7 +47,7 @@ const Sidebar = ({ open, toggleDrawer, menuItems = [], isMobile }) => {
         <img
           src="/path/to/logo.png"
           alt="Company Logo"
-          style={{ maxWidth: "80%", maxHeight: 80 }}
+          style={{ maxWidth: "100%", maxHeight: 25 }}
         />
       </Box>
       <Divider />

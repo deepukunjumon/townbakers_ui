@@ -114,7 +114,7 @@ const BranchEmployees = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 3 }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
       <Typography variant="h5" gutterBottom>
         Branch Employees
       </Typography>
@@ -125,7 +125,7 @@ const BranchEmployees = () => {
           mb: 2,
           display: "flex",
           justifyContent: "flex-end",
-          maxWidth: 1200,
+          alignItems: "center",
           width: "100%",
         }}
       >

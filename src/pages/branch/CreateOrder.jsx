@@ -149,43 +149,39 @@ const CreateOrder = () => {
   };
 
   return (
-    <Box sx={{ mx: "auto", my: 4, px: { xs: -3, md: 9 } }}>
-      {loading && <Loader message="Creating order..." />}
+    <Box sx={{ maxWidth: "auto", mx: "auto", py: 2, px: 2 }}>
+      {loading && <Loader message="Submitting stock..." />}
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
         severity={snack.severity}
         message={snack.message}
       />
-
-      {/* Header */}
-      <Grid
-        container
-        justifyContent="space-between"
-        alignItems="center"
-        sx={{ mb: 2 }}
-      >
-        <Grid item>
-          <Typography variant="h5" fontWeight={600}>
-            Create New Order
-          </Typography>
-        </Grid>
-        <Grid item sx={{ width: 250, mt: 1 }}>
-          <Typography variant="body1" sx={{ fontWeight: 500 }}>
-            Date: {new Date(form.order_date).toLocaleDateString("en-GB")}
-          </Typography>
-        </Grid>
+      <Typography variant="h5" gutterBottom>
+        Create Order
+      </Typography>
+      <Grid item sx={{ width: 250, mt: 1 }}>
+        <Typography variant="body1" sx={{ fontWeight: 500 }}>
+          Date: {new Date(form.order_date).toLocaleDateString("en-GB")}
+        </Typography>
       </Grid>
+      <Divider sx={{ my: 2 }} />
       <form onSubmit={handleSubmit}>
         {/* Order Details */}
-        <Grid container spacing={3} gap={{ xs: 0, sm: 3, md: 3 }}>
-          <Grid item xs={12} sm={8}>
+        <Typography
+          variant="subtitle1"
+          sx={{ mb: 2, fontWeight: 500, color: "text.secondary" }}
+        >
+          Order Details
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6}>
             <TextFieldComponent
               label="Order Title"
               name="title"
               value={form.title}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340, sm: 705 } }}
+              sx={{ minWidth: { xs: 340, sm: "auto" } }}
               required
             />
           </Grid>
@@ -195,9 +191,9 @@ const CreateOrder = () => {
               name="description"
               value={form.description}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340, md: 360 } }}
               multiline
               rows={3}
+              sx={{ minWidth: { xs: 340 } }}
             />
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -206,9 +202,9 @@ const CreateOrder = () => {
               name="remarks"
               value={form.remarks}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340, md: 320 } }}
               multiline
               rows={3}
+              sx={{ minWidth: { xs: 340 } }}
             />
           </Grid>
         </Grid>

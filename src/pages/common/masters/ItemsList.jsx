@@ -17,13 +17,13 @@ const categoryOptions = [
 
 const ItemsList = () => {
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [initialLoad, setInitialLoad] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     current_page: 1,
     per_page: 10,
     total: 0,
   });
+  const paginationRef = useRef(pagination);
   const [searchTerm, setSearchTerm] = useState("");
   const [snack, setSnack] = useState({
     open: false,
@@ -37,11 +37,16 @@ const ItemsList = () => {
   const [newItemCategory, setNewItemCategory] = useState(null);
   const [newItemDescription, setNewItemDescription] = useState("");
 
+  // Update ref when pagination changes
+  useEffect(() => {
+    paginationRef.current = pagination;
+  }, [pagination]);
+
   const fetchItems = useCallback(
     async (
       q = "",
-      page = pagination.current_page,
-      perPage = pagination.per_page
+      page = paginationRef.current.current_page,
+      perPage = paginationRef.current.per_page
     ) => {
       if (controllerRef.current) {
         controllerRef.current.abort();
@@ -51,7 +56,6 @@ const ItemsList = () => {
       controllerRef.current = newController;
 
       setLoading(true);
-      setInitialLoad(true);
 
       try {
         const params = new URLSearchParams({
@@ -90,14 +94,22 @@ const ItemsList = () => {
         }
       } finally {
         setLoading(false);
-        setInitialLoad(false);
       }
     },
-    [pagination.current_page, pagination.per_page]
+    []
   );
 
   useEffect(() => {
-    fetchItems(searchTerm, pagination.current_page, pagination.per_page);
+    const timeoutId = setTimeout(() => {
+      fetchItems(searchTerm, pagination.current_page, pagination.per_page);
+    }, 0);
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (controllerRef.current) {
+        controllerRef.current.abort();
+      }
+    };
   }, [searchTerm, pagination.current_page, pagination.per_page, fetchItems]);
 
   const handleSearch = (value) => {
@@ -279,7 +291,7 @@ const ItemsList = () => {
   );
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 3, position: "relative" }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 3, position: "relative" }}>
       <Typography variant="h5" gutterBottom>
         Items List
       </Typography>
@@ -313,7 +325,7 @@ const ItemsList = () => {
       />
 
       <Box sx={{ position: "relative" }}>
-        {loading || initialLoad ? (
+        {loading ? (
           <Loader message="Loading..." />
         ) : (
           <TableComponent

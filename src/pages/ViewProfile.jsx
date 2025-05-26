@@ -198,11 +198,11 @@ const ViewProfile = () => {
                     sx={{ width: 80, height: 80, bgcolor: "primary.main", fontSize: 36, fontWeight: "bold" }}
                     aria-label="profile-avatar"
                 >
-                    {profile.username ? profile.username.charAt(0).toUpperCase() : "U"}
+                    {profile.name ? profile.name.charAt(0).toUpperCase() : "U"}
                 </Avatar>
                 <Box sx={{ flexGrow: 1 }}>
                     <Typography variant="h5" fontWeight="bold" noWrap>
-                        {profile.role === "Admin" ? profile.username : profile.branch?.name}
+                        {profile.name}
                     </Typography>
                     <Chip label={roleChipLabel} color="primary" size="small" sx={{ py: 1, mt: 1, pointerEvents: "none" }} />
                 </Box>
@@ -251,7 +251,7 @@ const ViewProfile = () => {
                             label="Username"
                             name="username"
                             disabled
-                            value={formData.username}
+                            value={profile.username}
                             onChange={handleChange}
                             fullWidth
                             error={Boolean(errors.username)}
