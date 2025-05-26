@@ -23,7 +23,6 @@ const CreateUser = () => {
     mobile: "",
     email: "",
     role: "admin",
-    role: "admin",
     code: "",
     name: "",
     address: "",
@@ -91,7 +90,6 @@ const CreateUser = () => {
     try {
       const payload = {
         name: form.name,
-        name: form.name,
         mobile: form.mobile,
         email: form.email,
         role: form.role,
@@ -100,7 +98,6 @@ const CreateUser = () => {
         ...(form.role === "branch" && {
           code: form.code,
           address: form.address,
-          username: form.code,
           username: form.code,
         }),
         ...(form.role === "employee" && {
@@ -135,12 +132,9 @@ const CreateUser = () => {
         setForm({
           username: "",
           name: "",
-          name: "",
           mobile: "",
           phone: "",
-          phone: "",
           email: "",
-          role: "admin",
           role: "admin",
           code: "",
           address: "",
@@ -170,7 +164,6 @@ const CreateUser = () => {
         message={snack.message}
       />
 
-      <Typography variant="h5" fontWeight={600} sx={{ mb: 3 }}>
       <Typography variant="h5" fontWeight={600} sx={{ mb: 3 }}>
         Create New User
       </Typography>
@@ -535,7 +528,6 @@ const CreateUser = () => {
             disabled={submitLoading}
             sx={{ width: "auto" }}
           >
-            {submitLoading ? "Submitting..." : "Submit"}
             {submitLoading ? "Submitting..." : "Submit"}
           </Button>
         </Box>

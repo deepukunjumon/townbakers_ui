@@ -37,7 +37,7 @@ const OrdersList = () => {
   const [endDate, setEndDate] = useState(currentDate);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [branchFilter, setBranchFilter] = useState(""); // Default to All
+  const [branchFilter, setBranchFilter] = useState("");
   const [branches, setBranches] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [openModal, setOpenModal] = useState(false);
@@ -219,7 +219,7 @@ const OrdersList = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", py: 3, px: { xs: 1, sm: 2 } }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", py: 3, px: { xs: 1, sm: 2 } }}>
       {loading && <Loader message="Loading..." />}
       <Typography variant="h5" gutterBottom>
         Orders List
@@ -238,7 +238,7 @@ const OrdersList = () => {
             label="Start Date"
             value={startDate}
             onChange={handleStartDateChange}
-            sx={{ width: { xs: 152, md: "auto" } }}
+            sx={{ width: { xs: 152, md: 180 } }}
           />
         </Grid>
         <Grid item xs={6} md={3} lg={3}>
@@ -247,8 +247,8 @@ const OrdersList = () => {
             value={endDate}
             onChange={(newDate) => setEndDate(newDate)}
             minDate={startDate}
-            sx={{ width: { xs: 152, md: "auto" } }}
-          />
+            sx={{ width: { xs: 152, md: 180 } }}
+            />
         </Grid>
 
         <Grid item xs={12} md={2.5} lg={2.5}>
@@ -259,6 +259,7 @@ const OrdersList = () => {
               onChange={handleStatusFilterChange}
               label="Status"
               displayEmpty
+              sx={{ width: { xs: 152, md: 160 } }}
               renderValue={(selected) => {
                 if (selected === "") return "All";
                 const selectedOption = [
@@ -283,20 +284,21 @@ const OrdersList = () => {
             getOptionLabel={(option) => `${option.code} - ${option.name}`}
             value={branches.find((b) => b.id === branchFilter) || null}
             onChange={handleBranchFilterChange}
+            sx={{ width: { xs: 152, md: 200 } }}
             renderInput={(params) => (
               <TextField
-                {...params}
-                label="Branch"
-                variant="outlined"
-                fullWidth
-                placeholder="All"
-                InputProps={{
-                  ...params.InputProps,
-                  placeholder: branchFilter === '' ? 'All' : params.InputProps.placeholder,
-                }}
+              {...params}
+              label="Branch"
+              variant="outlined"
+              fullWidth
+              placeholder="All"
+              InputProps={{
+                ...params.InputProps,
+                placeholder: branchFilter === '' ? 'All' : params.InputProps.placeholder,
+              }}
               />
             )}            
-          />
+            />
         </Grid>
 
         <Grid item xs={12} md={2} lg={2} sx={{ ml: "auto" }}>
@@ -305,7 +307,7 @@ const OrdersList = () => {
             value={search}
             onChange={handleSearchChange}
             variant="outlined"
-            fullWidth
+            sx={{ width: 320 }}
           />
         </Grid>
       </Grid>
