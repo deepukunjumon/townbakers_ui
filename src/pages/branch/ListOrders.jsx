@@ -95,7 +95,14 @@ const ListOrders = () => {
     } finally {
       setLoading(false);
     }
-  }, [pagination.current_page, pagination.per_page, startDate, endDate, search, statusFilter]);
+  }, [
+    pagination.current_page,
+    pagination.per_page,
+    startDate,
+    endDate,
+    search,
+    statusFilter,
+  ]);
 
   useEffect(() => {
     fetchOrders();
@@ -364,7 +371,11 @@ const ListOrders = () => {
           <FormControl sx={{ width: { xs: 320, md: 150 } }} variant="outlined">
             <InputLabel>Status</InputLabel>
             <Select
-              value={statusFilter !== undefined && statusFilter !== null ? statusFilter : ""}
+              value={
+                statusFilter !== undefined && statusFilter !== null
+                  ? statusFilter
+                  : ""
+              }
               onChange={handleStatusFilterChange}
               label="Status"
             >
@@ -410,27 +421,50 @@ const ListOrders = () => {
         title="Order Details"
         content={
           modalLoading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 150 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: 150,
+              }}
+            >
               <CircularProgress />
             </Box>
           ) : selectedOrder ? (
             <>
               <Box mb={2}>
-                <Typography><strong>Title:</strong> {selectedOrder.title}</Typography>
-                <Typography><strong>Delivery Date:</strong> {selectedOrder.delivery_date}</Typography>
+                <Typography>
+                  <strong>Title:</strong> {selectedOrder.title}
+                </Typography>
+                <Typography>
+                  <strong>Delivery Date:</strong> {selectedOrder.delivery_date}
+                </Typography>
                 {selectedOrder.delivered_date && (
-                  <Typography><strong>Delivered Date:</strong> {selectedOrder.delivered_date}</Typography>
+                  <Typography>
+                    <strong>Delivered Date:</strong>{" "}
+                    {selectedOrder.delivered_date}
+                  </Typography>
                 )}
               </Box>
               <Divider sx={{ mb: 2 }} />
               <Box mb={2}>
-                <Typography><strong>Customer Name:</strong> {selectedOrder.customer_name}</Typography>
-                <Typography><strong>Customer Mobile:</strong> {selectedOrder.customer_mobile}</Typography>
-                <Typography><strong>Customer Email:</strong> {selectedOrder.customer_email}</Typography>
+                <Typography>
+                  <strong>Customer Name:</strong> {selectedOrder.customer_name}
+                </Typography>
+                <Typography>
+                  <strong>Customer Mobile:</strong>{" "}
+                  {selectedOrder.customer_mobile}
+                </Typography>
+                <Typography>
+                  <strong>Customer Email:</strong>{" "}
+                  {selectedOrder.customer_email}
+                </Typography>
               </Box>
               <Divider sx={{ mb: 2 }} />
               <Box mb={2}>
-                <Typography><strong>Status:</strong>{" "}
+                <Typography>
+                  <strong>Status:</strong>{" "}
                   {selectedOrder.status === 0 ? (
                     <Chip label="Pending" color="error" size="small" />
                   ) : selectedOrder.status === 1 ? (
@@ -439,20 +473,43 @@ const ListOrders = () => {
                     <Chip label="Cancelled" color="default" size="small" />
                   )}
                 </Typography>
-                <Typography><strong>Total Amount:</strong> {selectedOrder.total_amount}</Typography>
-                <Typography><strong>Advance Amount:</strong> {selectedOrder.advance_amount}</Typography>
+                <Typography>
+                  <strong>Total Amount:</strong> {selectedOrder.total_amount}
+                </Typography>
+                <Typography>
+                  <strong>Advance Amount:</strong>{" "}
+                  {selectedOrder.advance_amount}
+                </Typography>
               </Box>
               <Divider sx={{ mb: 2 }} />
               <Box>
-                <Typography><strong>Employee Name:</strong> {selectedOrder.employee ? selectedOrder.employee.name : "-"}</Typography>
-                <Typography><strong>Employee Code:</strong> {selectedOrder.employee ? selectedOrder.employee.employee_code : "-"}</Typography>
+                <Typography>
+                  <strong>Employee Name:</strong>{" "}
+                  {selectedOrder.employee ? selectedOrder.employee.name : "-"}
+                </Typography>
+                <Typography>
+                  <strong>Employee Code:</strong>{" "}
+                  {selectedOrder.employee
+                    ? selectedOrder.employee.employee_code
+                    : "-"}
+                </Typography>
               </Box>
               {selectedOrder.status === 1 && (
                 <>
                   <Divider sx={{ my: 2 }} />
                   <Box>
-                    <Typography><strong>Delivered By:</strong> {selectedOrder.delivered_by ? `${selectedOrder.delivered_by.name} (${selectedOrder.delivered_by.employee_code})` : "-"}</Typography>
-                    <Typography><strong>Delivered At:</strong> {selectedOrder.delivered_on ? selectedOrder.delivered_on : "-"}</Typography>
+                    <Typography>
+                      <strong>Delivered By:</strong>{" "}
+                      {selectedOrder.delivered_by
+                        ? `${selectedOrder.delivered_by.name} (${selectedOrder.delivered_by.employee_code})`
+                        : "-"}
+                    </Typography>
+                    <Typography>
+                      <strong>Delivered At:</strong>{" "}
+                      {selectedOrder.delivered_on
+                        ? selectedOrder.delivered_on
+                        : "-"}
+                    </Typography>
                   </Box>
                 </>
               )}
@@ -463,26 +520,51 @@ const ListOrders = () => {
                     <Stack spacing={2}>
                       <Autocomplete
                         options={employees}
-                        getOptionLabel={(option) => `${option.employee_code} - ${option.name}`}
+                        getOptionLabel={(option) =>
+                          `${option.employee_code} - ${option.name}`
+                        }
                         value={selectedEmployee}
                         onChange={(_, value) => setSelectedEmployee(value)}
-                        renderInput={(params) => <TextField {...params} label="Select Employee" />}
+                        renderInput={(params) => (
+                          <TextField {...params} label="Select Employee" />
+                        )}
                       />
                       <Stack direction="row" spacing={2}>
-                        <ButtonComponent variant="contained" color="success" disabled={!selectedEmployee} onClick={handleMarkAsCompleted}>
+                        <ButtonComponent
+                          variant="contained"
+                          color="success"
+                          disabled={!selectedEmployee}
+                          onClick={handleMarkAsCompleted}
+                        >
                           Completed
                         </ButtonComponent>
-                        <ButtonComponent variant="outlined" color="inherit" onClick={() => { setShowEmployeeSelect(false); setSelectedEmployee(null); }}>
+                        <ButtonComponent
+                          variant="outlined"
+                          color="inherit"
+                          onClick={() => {
+                            setShowEmployeeSelect(false);
+                            setSelectedEmployee(null);
+                          }}
+                        >
                           Cancel
                         </ButtonComponent>
                       </Stack>
                     </Stack>
                   ) : (
                     <Stack direction="row" spacing={2}>
-                      <ButtonComponent variant="contained" color="success" onClick={handleShowEmployeeSelect} sx={{ minWidth: { xs: 20, md: 120 } }}>
+                      <ButtonComponent
+                        variant="contained"
+                        color="success"
+                        onClick={handleShowEmployeeSelect}
+                        sx={{ minWidth: { xs: 20, md: 120 } }}
+                      >
                         Completed
                       </ButtonComponent>
-                      <ButtonComponent variant="contained" color="error" onClick={() => handleUpdateOrderStatus(-1)}>
+                      <ButtonComponent
+                        variant="contained"
+                        color="error"
+                        onClick={() => handleUpdateOrderStatus(-1)}
+                      >
                         Cancelled
                       </ButtonComponent>
                     </Stack>

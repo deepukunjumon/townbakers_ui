@@ -1,11 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  Divider,
-  Chip,
-} from "@mui/material";
+import { Box, Typography, Button, Divider, Chip } from "@mui/material";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import ModalComponent from "../../components/ModalComponent";
@@ -44,12 +38,9 @@ const ViewBranches = () => {
     });
 
     try {
-      const res = await fetch(
-        `${apiConfig.MINIMAL_BRANCHES}?${params}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await fetch(`${apiConfig.MINIMAL_BRANCHES}?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await res.json();
 
       if (data.success) {
@@ -95,9 +86,12 @@ const ViewBranches = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${apiConfig.BRANCH_DETAILS.replace('{id}', branchId)}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${apiConfig.BRANCH_DETAILS.replace("{id}", branchId)}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       const data = await res.json();
 
@@ -166,14 +160,26 @@ const ViewBranches = () => {
         content={
           selectedBranch ? (
             <Box>
-              <Typography><strong>Code:</strong> {selectedBranch.code}</Typography>
-              <Typography><strong>Name:</strong> {selectedBranch.name}</Typography>
-              <Typography><strong>Address:</strong> {selectedBranch.address}</Typography>
+              <Typography>
+                <strong>Code:</strong> {selectedBranch.code}
+              </Typography>
+              <Typography>
+                <strong>Name:</strong> {selectedBranch.name}
+              </Typography>
+              <Typography>
+                <strong>Address:</strong> {selectedBranch.address}
+              </Typography>
               <Divider sx={{ my: 2 }} />
 
-              <Typography><strong>Mobile:</strong> {selectedBranch.mobile}</Typography>
-              <Typography><strong>Email:</strong> {selectedBranch.email || "-"}</Typography>
-              <Typography><strong>Phone:</strong> {selectedBranch.phone || "-"}</Typography>
+              <Typography>
+                <strong>Mobile:</strong> {selectedBranch.mobile}
+              </Typography>
+              <Typography>
+                <strong>Email:</strong> {selectedBranch.email || "-"}
+              </Typography>
+              <Typography>
+                <strong>Phone:</strong> {selectedBranch.phone || "-"}
+              </Typography>
               <Divider sx={{ my: 2 }} />
 
               <Typography>
@@ -184,7 +190,10 @@ const ViewBranches = () => {
                   color={selectedBranch.status === 1 ? "success" : "default"}
                 />
               </Typography>
-              <Typography><strong>Active Employees:</strong> {selectedBranch.active_employees_count}</Typography>
+              <Typography>
+                <strong>Active Employees:</strong>{" "}
+                {selectedBranch.active_employees_count}
+              </Typography>
             </Box>
           ) : (
             <Loader message="Loading..." />

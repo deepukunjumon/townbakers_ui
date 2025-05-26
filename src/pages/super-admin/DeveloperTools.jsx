@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   Box,
   Card,
@@ -19,49 +19,72 @@ import { getToken } from "../../utils/auth";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import Loader from "../../components/Loader";
 
+// Custom hook for form handling
+const useFormState = (initialState) => {
+  const [form, setForm] = useState(initialState);
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState(null);
+
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
+  const resetForm = useCallback(() => {
+    setForm(initialState);
+    setResponse(null);
+  }, [initialState]);
+
+  return {
+    form,
+    loading,
+    response,
+    setLoading,
+    setResponse,
+    handleChange,
+    resetForm,
+  };
+};
+
 const DeveloperTools = () => {
   const [expanded, setExpanded] = useState({
     mail: false,
     whatsapp: false,
   });
 
-  const [mailForm, setMailForm] = useState({
-    to: "",
-    cc: "",
-  });
+  const mailState = useFormState({ to: "", cc: "" });
+  const whatsappState = useFormState({ phone: "", message: "" });
 
-  const [mailLoading, setMailLoading] = useState(false);
-  const [mailResponse, setMailResponse] = useState(null);
   const [snack, setSnack] = useState({
     open: false,
     message: "",
     severity: "info",
   });
 
-  const handleExpand = (tool) => {
+  const handleExpand = useCallback((tool) => {
     setExpanded((prev) => ({
       ...prev,
       [tool]: !prev[tool],
     }));
-  };
+  }, []);
 
-  const handleMailChange = (e) => {
-    const { name, value } = e.target;
-    setMailForm((prev) => ({ ...prev, [name]: value }));
-  };
+  const showSnackbar = useCallback((message, severity = "info") => {
+    setSnack({
+      open: true,
+      message,
+      severity,
+    });
+  }, []);
 
-  const handleTestMail = async () => {
-    if (!mailForm.to) {
-      setSnack({
-        open: true,
-        message: "Please enter recipient email",
-        severity: "error",
-      });
+  const handleTestMail = useCallback(async () => {
+    if (!mailState.form.to) {
+      showSnackbar("Please enter recipient email", "error");
       return;
     }
 
-    setMailLoading(true);
-    setMailResponse(null);
+    mailState.setLoading(true);
+    mailState.setResponse(null);
+
     try {
       const res = await fetch(apiConfig.MAIL_TEST, {
         method: "POST",
@@ -70,156 +93,262 @@ const DeveloperTools = () => {
           Authorization: `Bearer ${getToken()}`,
         },
         body: JSON.stringify({
-          to: mailForm.to,
-          ...(mailForm.cc && { cc: mailForm.cc }),
+          to: mailState.form.to,
+          ...(mailState.form.cc && { cc: mailState.form.cc }),
         }),
       });
 
       const data = await res.json();
-      setSnack({
-        open: true,
-        message:
-          data.message ||
-          (res.ok ? "Test mail sent successfully" : "Failed to send test mail"),
-        severity: res.ok ? "success" : "error",
-      });
+      const message =
+        data.message ||
+        (res.ok ? "Test mail sent successfully" : "Failed to send test mail");
+      showSnackbar(message, res.ok ? "success" : "error");
 
       if (res.ok) {
-        setMailForm({ to: "", cc: "" });
-        setMailResponse(data.message);
-        setTimeout(() => {
-          setMailResponse(null);
-        }, 5000);
+        mailState.resetForm();
+        mailState.setResponse(data.message);
+        setTimeout(() => mailState.setResponse(null), 5000);
       }
     } catch (error) {
-      setSnack({
-        open: true,
-        message: "Failed to send test mail",
-        severity: "error",
-      });
+      showSnackbar("Failed to send test mail", "error");
     } finally {
-      setMailLoading(false);
+      mailState.setLoading(false);
     }
-  };
+  }, [mailState, showSnackbar]);
 
-  const tools = [
-    {
-      id: "mail",
-      title: "Mail Test",
-      icon: <MailIcon />,
-      content: (
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Test email functionality and configurations
-          </Typography>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <TextFieldComponent
-              label="To Email"
-              name="to"
-              value={mailForm.to}
-              onChange={handleMailChange}
-              required
-              type="email"
-            />
-            <TextFieldComponent
-              label="CC Email (Optional)"
-              name="cc"
-              value={mailForm.cc}
-              onChange={handleMailChange}
-              type="email"
-            />
-            <ButtonComponent
-              variant="contained"
-              onClick={handleTestMail}
-              disabled={mailLoading}
-              sx={{ alignSelf: "flex-start" }}
-              color="success"
-            >
-              {mailLoading ? "Sending..." : "Send Test Mail"}
-            </ButtonComponent>
+  const handleTestWhatsapp = useCallback(async () => {
+    if (!whatsappState.form.phone) {
+      showSnackbar("Please enter phone number", "error");
+      return;
+    }
 
-            {mailLoading && <Loader />}
+    whatsappState.setLoading(true);
+    whatsappState.setResponse(null);
 
-            {mailResponse && (
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 2,
-                  bgcolor: "success.light",
-                  color: "success.contrastText",
-                  mt: 2,
-                }}
+    try {
+      const res = await fetch(apiConfig.WHATSAPP_TEST, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`,
+        },
+        body: JSON.stringify({
+          phone: whatsappState.form.phone,
+          message:
+            whatsappState.form.message || "Test message from developer tools",
+        }),
+      });
+
+      const data = await res.json();
+      const message =
+        data.message ||
+        (res.ok
+          ? "WhatsApp test message sent successfully"
+          : "Failed to send WhatsApp message");
+      showSnackbar(message, res.ok ? "success" : "error");
+
+      if (res.ok) {
+        whatsappState.resetForm();
+        whatsappState.setResponse(data.message);
+        setTimeout(() => whatsappState.setResponse(null), 5000);
+      }
+    } catch (error) {
+      showSnackbar("Failed to send WhatsApp message", "error");
+    } finally {
+      whatsappState.setLoading(false);
+    }
+  }, [whatsappState, showSnackbar]);
+
+  const tools = useMemo(
+    () => [
+      {
+        id: "mail",
+        title: "Mail Test",
+        icon: <MailIcon sx={{ color: "#D44638" }} />,
+        content: (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Test email functionality and configurations
+            </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <TextFieldComponent
+                label="To Email"
+                name="to"
+                value={mailState.form.to}
+                onChange={mailState.handleChange}
+                required
+                type="email"
+              />
+              <TextFieldComponent
+                label="CC Email (Optional)"
+                name="cc"
+                value={mailState.form.cc}
+                onChange={mailState.handleChange}
+                type="email"
+              />
+              <ButtonComponent
+                variant="contained"
+                onClick={handleTestMail}
+                disabled={mailState.loading}
+                sx={{ alignSelf: "flex-start" }}
+                color="success"
               >
-                <Typography variant="body2">{mailResponse}</Typography>
-              </Paper>
-            )}
+                {mailState.loading ? "Sending..." : "Send Test Mail"}
+              </ButtonComponent>
+
+              {mailState.loading && <Loader />}
+
+              {mailState.response && (
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    bgcolor: "success.light",
+                    color: "success.contrastText",
+                    mt: 2,
+                  }}
+                >
+                  <Typography variant="body2">{mailState.response}</Typography>
+                </Paper>
+              )}
+            </Box>
           </Box>
-        </Box>
-      ),
-    },
-    {
-      id: "whatsapp",
-      title: "WhatsApp Test",
-      icon: <WhatsAppIcon />,
-      content: (
-        <Box sx={{ mt: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            Test WhatsApp integration and message delivery
-          </Typography>
-          {/* Add WhatsApp test content here */}
-        </Box>
-      ),
-    },
-  ];
+        ),
+      },
+      {
+        id: "whatsapp",
+        title: "WhatsApp Test",
+        icon: <WhatsAppIcon sx={{ color: "#25D366" }} />,
+        content: (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Test WhatsApp integration and message delivery
+            </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <TextFieldComponent
+                label="Phone Number"
+                name="phone"
+                value={whatsappState.form.phone}
+                onChange={whatsappState.handleChange}
+                required
+                placeholder="Include country code"
+              />
+              <TextFieldComponent
+                label="Message (Optional)"
+                name="message"
+                value={whatsappState.form.message}
+                onChange={whatsappState.handleChange}
+                multiline
+                rows={3}
+              />
+              <ButtonComponent
+                variant="contained"
+                onClick={handleTestWhatsapp}
+                disabled={whatsappState.loading}
+                sx={{ alignSelf: "flex-start" }}
+                color="success"
+              >
+                {whatsappState.loading ? "Sending..." : "Send Test Message"}
+              </ButtonComponent>
+
+              {whatsappState.loading && <Loader />}
+
+              {whatsappState.response && (
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2,
+                    bgcolor: "success.light",
+                    color: "success.contrastText",
+                    mt: 2,
+                  }}
+                >
+                  <Typography variant="body2">
+                    {whatsappState.response}
+                  </Typography>
+                </Paper>
+              )}
+            </Box>
+          </Box>
+        ),
+      },
+    ],
+    [mailState, whatsappState, handleTestMail, handleTestWhatsapp]
+  );
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", my: 4, px: 2 }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", my: 4, px: 2 }}>
       <Typography variant="h6" gutterBottom>
         Developer Tools
       </Typography>
       <Divider sx={{ mb: 2 }} />
 
-      {tools.map((tool) => (
-        <Card
-          key={tool.id}
-          sx={{
-            mb: 2,
-            "&:hover": {
-              boxShadow: 3,
-            },
-          }}
-        >
-          <CardContent sx={{ p: 2 }}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                cursor: "pointer",
-              }}
-              onClick={() => handleExpand(tool.id)}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                {tool.icon}
-                <Typography variant="subtitle1" fontWeight="medium">
-                  {tool.title}
-                </Typography>
-              </Box>
-              <IconButton
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "repeat(2, 1fr)",
+            md: "repeat(3, 1fr)",
+          },
+          gap: 2,
+          alignItems: "flex-start",
+        }}
+      >
+        {tools.map((tool) => (
+          <Card
+            key={tool.id}
+            sx={{
+              minWidth: 300,
+              display: "flex",
+              flexDirection: "column",
+              "&:hover": {
+                boxShadow: 3,
+              },
+            }}
+          >
+            <CardContent sx={{ p: 2, flexGrow: 1 }}>
+              <Box
                 sx={{
-                  transform: expanded[tool.id]
-                    ? "rotate(180deg)"
-                    : "rotate(0deg)",
-                  transition: "transform 0.3s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleExpand(tool.id)}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  {tool.icon}
+                  <Typography variant="subtitle1" fontWeight="medium">
+                    {tool.title}
+                  </Typography>
+                </Box>
+                <IconButton
+                  sx={{
+                    transform: expanded[tool.id]
+                      ? "rotate(180deg)"
+                      : "rotate(0deg)",
+                    transition: "transform 0.3s",
+                  }}
+                >
+                  <ExpandMoreIcon />
+                </IconButton>
+              </Box>
+              <Collapse
+                in={expanded[tool.id]}
+                unmountOnExit
+                sx={{
+                  "& > .MuiCollapse-wrapper": {
+                    display: "block !important",
+                  },
                 }}
               >
-                <ExpandMoreIcon />
-              </IconButton>
-            </Box>
-            <Collapse in={expanded[tool.id]}>{tool.content}</Collapse>
-          </CardContent>
-        </Card>
-      ))}
+                {tool.content}
+              </Collapse>
+            </CardContent>
+          </Card>
+        ))}
+      </Box>
 
       <SnackbarAlert
         open={snack.open}

@@ -105,7 +105,6 @@ const SuperAdminDashboard = () => {
         sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}
       >
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
-          Good Evening Super Admin
         </Typography>
         <IconButton aria-label="refresh" onClick={fetchStats}>
           <RefreshIcon />
