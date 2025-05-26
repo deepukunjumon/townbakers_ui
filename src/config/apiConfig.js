@@ -1,7 +1,7 @@
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
     ? "https://api-tbms.up.railway.app/api" //Production URL
-    : "http://172.20.10.3:8000/api"; //Development URL
+    : "http://localhost:8000/api"; //Development URL
 
 const apiConfig = {
   BASE_URL: API_BASE_URL,
@@ -18,6 +18,7 @@ const apiConfig = {
   UPDATE_EMPLOYEE_STATUS: `${API_BASE_URL}/employee/update-status`,
 
   CREATE_ITEM: `${API_BASE_URL}/create/item`,
+  IMPORT_ITEMS: `${API_BASE_URL}/import/items`,
   ITEMS_LIST: `${API_BASE_URL}/items`,
   MINIMAL_ITEMS: `${API_BASE_URL}/items/minimal`,
   UPDATE_ITEM_STATUS: `${API_BASE_URL}/item/update-status`,

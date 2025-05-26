@@ -9,6 +9,7 @@ import apiConfig from "../../../config/apiConfig";
 import SearchFieldComponent from "../../../components/SearchFieldComponent";
 import TextFieldComponent from "../../../components/TextFieldComponent";
 import SelectFieldComponent from "../../../components/SelectFieldComponent";
+import ImportMenuComponent from "../../../components/ImportMenuComponent";
 
 const categoryOptions = [
   { label: "Snacks", value: "snacks" },
@@ -36,6 +37,11 @@ const ItemsList = () => {
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState(null);
   const [newItemDescription, setNewItemDescription] = useState("");
+
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [file, setFile] = useState(null);
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState(null);
 
   // Update ref when pagination changes
   useEffect(() => {
@@ -221,11 +227,70 @@ const ItemsList = () => {
     }
   };
 
+  const handleImportClick = () => {
+    setImportModalOpen(true);
+  };
+
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    setFile(selectedFile);
+    setImportResult(null);
+  };
+
+  const handleImport = async () => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setImporting(true);
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(apiConfig.IMPORT_ITEMS, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to import items');
+      }
+
+      setImportResult({
+        success: data.success,
+        message: data.message,
+        errors: data.errors || [],
+      });
+
+      fetchItems(searchTerm, 1, pagination.per_page);
+    } catch (error) {
+      setImportResult({
+        success: false,
+        message: error.message || 'Failed to import items',
+        errors: [],
+      });
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const columns = [
     {
       field: "name",
       headerName: "Item",
       width: 400,
+      headerAlign: "left",
+      align: "left",
+    },
+    {
+      field: "category",
+      headerName: "Category",
+      width: 300,
       headerAlign: "left",
       align: "left",
     },
@@ -292,9 +357,12 @@ const ItemsList = () => {
 
   return (
     <Box sx={{ maxWidth: "auto", mx: "auto", p: 3, position: "relative" }}>
-      <Typography variant="h5" gutterBottom>
-        Items List
-      </Typography>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+        <Typography variant="h5" sx={{ flexGrow: 1 }}>
+          Items List
+        </Typography>
+        <ImportMenuComponent onImportClick={handleImportClick} />
+      </Box>
       <Divider sx={{ mb: 3 }} />
 
       <Box
@@ -362,6 +430,65 @@ const ItemsList = () => {
         onClose={() => setModalOpen(false)}
         title="Create New Item"
         content={modalContent}
+      />
+
+      <ModalComponent
+        open={importModalOpen}
+        onClose={() => {
+          setImportModalOpen(false);
+          setFile(null);
+          setImportResult(null);
+        }}
+        title="Import Items"
+        content={
+          <Box>
+            <input
+              type="file"
+              accept=".xlsx,.csv"
+              onChange={handleFileChange}
+              disabled={importing}
+            />
+            <Button
+              onClick={handleImport}
+              disabled={!file || importing}
+              sx={{ mt: 2 }}
+              variant="contained"
+            >
+              {importing ? "Importing..." : "Import"}
+            </Button>
+            <Box sx={{ mb: 2 }}>
+              <a
+                href={`${apiConfig.BASE_URL}/../sample-files/items.xlsx`}
+                download
+                style={{ textDecoration: "underline", color: "#1976d2" }}
+                rel="noopener noreferrer"
+              >
+                Sample File
+              </a>
+            </Box>
+            {importResult && (
+              <Box sx={{ mt: 2 }}>
+                <Typography
+                  color={importResult.success ? "success.main" : "error.main"}
+                >
+                  {importResult.message}
+                </Typography>
+                {importResult.errors && importResult.errors.length > 0 && (
+                  <Box sx={{ mt: 1 }}>
+                    <Typography variant="subtitle2">Errors:</Typography>
+                    <ul>
+                      {importResult.errors.map((err, idx) => (
+                        <li key={idx}>
+                          Row {err.row}: {Object.values(err.errors).join(", ")}
+                        </li>
+                      ))}
+                    </ul>
+                  </Box>
+                )}
+              </Box>
+            )}
+          </Box>
+        }
       />
     </Box>
   );
