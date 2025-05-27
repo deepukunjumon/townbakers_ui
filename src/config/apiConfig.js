@@ -1,7 +1,3 @@
-// const API_BASE_URL =
-//   window.location.hostname === "localhost"
-//     ? "http://localhost:8000/api"
-//     : "https://api-tbms.up.railway.app/api";
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
     ? "https://api-tbms.up.railway.app/api" //Production URL
