@@ -259,6 +259,7 @@ const CreateEmployee = () => {
           />
           <TextFieldComponent
             name="mobile"
+            type="mobile"
             label="Mobile Number"
             value={form.mobile}
             onChange={handleChange}

@@ -36,11 +36,12 @@ function stringToColor(str) {
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  let color = "#";
-  for (let i = 0; i < 3; i++) {
-    color += ("00" + ((hash >> (i * 8)) & 0xff).toString(16)).slice(-2);
-  }
-  return color;
+  
+  const h = Math.abs(hash) % 360;
+  const s = 70 + Math.abs(hash >> 8) % 30;
+  const l = 45 + Math.abs(hash >> 16) % 10;
+  
+  return `hsl(${h}, ${s}%, ${l}%)`;
 }
 
 const AllEmployees = () => {
@@ -480,26 +481,6 @@ const AllEmployees = () => {
           onPaginationChange={handlePaginationChange}
         />
       )}
-      <Fab
-        color="primary"
-        aria-label="add"
-        onClick={() => {
-          if (role === "admin") {
-            navigate(ROUTES.ADMIN.CREATE_EMPLOYEE);
-          }
-          if (role === "super_admin") {
-            navigate(ROUTES.SUPER_ADMIN.CREATE_EMPLOYEE);
-          }
-        }}
-        sx={{
-          position: "fixed",
-          bottom: 32,
-          right: 32,
-          zIndex: 1300,
-        }}
-      >
-        <AddIcon />
-      </Fab>
 
       <ModalComponent
         open={confirmModalOpen}
@@ -508,6 +489,26 @@ const AllEmployees = () => {
         title="Confirm Action"
         content={confirmationModalContent}
       />
+
+      <Fab
+        color="primary"
+        sx={{
+          position: "fixed",
+          bottom: 30,
+          right: 30,
+          boxShadow: 3,
+        }}
+        onClick={() => {
+          if (role === "admin") {
+            navigate(ROUTES.ADMIN.CREATE_EMPLOYEE);
+          }
+          if (role === "super_admin") {
+            navigate(ROUTES.SUPER_ADMIN.CREATE_EMPLOYEE);
+          }
+        }}
+      >
+        <AddIcon />
+      </Fab>
     </Box>
   );
 };

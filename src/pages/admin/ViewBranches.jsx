@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Box, Typography, Button, Divider, Chip } from "@mui/material";
+import { Box, Typography, Button, Divider, Chip, Fab } from "@mui/material";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import ModalComponent from "../../components/ModalComponent";
@@ -9,6 +9,7 @@ import apiConfig from "../../config/apiConfig";
 import { ROUTES } from "../../constants/routes";
 import Loader from "../../components/Loader";
 import ChipComponent from "../../components/ChipComponent";
+import AddIcon from "@mui/icons-material/Add";
 
 const ViewBranches = () => {
   const navigate = useNavigate();
@@ -203,17 +204,12 @@ const ViewBranches = () => {
         }
       />
 
-      <Button
-        variant="contained"
+      <Fab
         color="primary"
         sx={{
           position: "fixed",
           bottom: 30,
           right: 30,
-          borderRadius: "50%",
-          fontSize: 35,
-          height: 56,
-          minWidth: 0,
           boxShadow: 3,
         }}
         onClick={() => {
@@ -225,8 +221,8 @@ const ViewBranches = () => {
           }
         }}
       >
-        +
-      </Button>
+        <AddIcon />
+      </Fab>
     </Box>
   );
 };
