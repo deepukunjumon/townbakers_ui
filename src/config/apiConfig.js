@@ -1,6 +1,6 @@
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
-    ? "https://api-tbms.up.railway.app/api" //Production URL
+    ? `${process.env.REACT_APP_BACKEND_URL}/api` //Production URL
     : "http://localhost:8000/api"; //Development URL
 
 const apiConfig = {
