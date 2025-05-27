@@ -401,9 +401,18 @@ const AllEmployees = () => {
 
   return (
     <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        All Employees
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+        <Typography variant="h5">
+          All Employees
+        </Typography>
+        <ExportMenu
+          anchorEl={anchorEl}
+          open={menuOpen}
+          onClose={handleExportClose}
+          onExportClick={handleExportClick}
+          disabled={employees.length === 0}
+        />
+      </Box>
       <Divider sx={{ mb: 2 }} />
 
       <Box
@@ -451,14 +460,6 @@ const AllEmployees = () => {
             placeholder="Search employees..."
           />
         </Box>
-
-        <ExportMenu
-          anchorEl={anchorEl}
-          open={menuOpen}
-          onClose={handleExportClose}
-          onExportClick={handleExportClick}
-          disabled={employees.length === 0}
-        />
       </Box>
 
       <SnackbarAlert
