@@ -5,9 +5,31 @@ export const ROUTES = {
   UNAUTHORIZED: "/unauthorized",
   PROFILE: "/profile",
 
+  ITEMS_LIST: "/items",
+
+  SUPER_ADMIN: {
+    ROOT: "/super-admin",
+    DASHBOARD: "/super-admin/dashboard",
+    DESIGNATIONS: "/super-admin/designations",
+
+    CREATE_USER: "/super-admin/create/user",
+    CREATE_BRANCH: "/super-admin/create/branch",
+    BRANCH_LIST: "/super-admin/view/branches",
+
+    CREATE_EMPLOYEE: "/super-admin/create/employee",
+    EMPLOYEES_LIST: "/super-admin/employees",
+
+    STOCK_SUMMARY: "/super-admin/stocks/summary",
+
+    ALL_ORDERS: "/super-admin/orders",
+
+    DEVELOPER_TOOLS: "/super-admin/tools",
+  },
+
   ADMIN: {
     ROOT: "/admin",
     DASHBOARD: "/admin/dashboard",
+    DESIGNATIONS: "/admin/designations",
 
     CREATE_BRANCH: "/admin/create/branch",
     BRANCH_LIST: "/admin/view/branches",
@@ -16,6 +38,8 @@ export const ROUTES = {
     EMPLOYEES_LIST: "/admin/employees",
 
     STOCK_SUMMARY: "/admin/stocks/summary",
+
+    ALL_ORDERS: "/admin/orders",
   },
 
   BRANCH: {

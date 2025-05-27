@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Box, Typography, CircularProgress, Divider } from "@mui/material";
+import React, { useEffect, useState, useCallback } from "react";
+import { Box, Typography, Divider } from "@mui/material";
 import format from "date-fns/format";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import Loader from "../../components/Loader";
@@ -65,7 +65,7 @@ const ViewStocks = () => {
     handleExportClose();
   };
 
-  const fetchStocks = async () => {
+  const fetchStocks = useCallback(async () => {
     setLoading(true);
     const formattedDate = format(date, "yyyy-MM-dd");
 
@@ -113,11 +113,11 @@ const ViewStocks = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [date, pagination.current_page, pagination.per_page]);
 
   useEffect(() => {
     fetchStocks();
-  }, [date, pagination.current_page, pagination.per_page]);
+  }, [fetchStocks]);
 
   const handleDateChange = (newDate) => {
     setDate(newDate);
@@ -142,7 +142,7 @@ const ViewStocks = () => {
   ];
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 3 }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
       <Typography variant="h5" gutterBottom>
         Stock Summary
       </Typography>

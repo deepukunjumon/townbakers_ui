@@ -17,11 +17,7 @@ const AvatarComponent = ({ onLogout, onProfile }) => {
     name: "User",
   };
 
-  const initials = user.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
+  const initials = user.name.charAt(0).toUpperCase();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -49,6 +45,7 @@ const AvatarComponent = ({ onLogout, onProfile }) => {
           >
             <Avatar
               sx={{
+                fontWeight: "bold",
                 bgcolor: theme.palette.avatar.main,
                 width: { xs: 32, sm: 36, md: 40 },
                 height: { xs: 32, sm: 36, md: 40 },
@@ -81,12 +78,14 @@ const AvatarComponent = ({ onLogout, onProfile }) => {
               gap: 1,
             }}
           >
-            <Box sx={
-              {
+            <Box
+              sx={{
                 fontWeight: "bold",
                 color: theme.palette.primary.main,
-              }
-            }>{user.name}</Box>
+              }}
+            >
+              {user.name}
+            </Box>
           </Box>
         </MenuItem>
         <MenuItem

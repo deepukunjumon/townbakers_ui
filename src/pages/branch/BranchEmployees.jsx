@@ -1,20 +1,15 @@
-import React, { useEffect, useState, useRef } from "react";
-import {
-  Box,
-  Typography,
-  CircularProgress,
-  Divider,
-  TextField,
-} from "@mui/material";
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import { Box, Typography, Divider, TextField, Fab } from "@mui/material";
 import TableComponent from "../../components/TableComponent";
 import Loader from "../../components/Loader";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
-import { getBranchIdFromToken } from "../../utils/auth";
-import SearchFieldComponent from "../../components/SearchFieldComponent";
+import AddIcon from "@mui/icons-material/Add";
+import { ROUTES } from "../../constants/routes";
+import { useNavigate } from "react-router-dom";
 
 const BranchEmployees = () => {
-  const branchId = getBranchIdFromToken();
+  const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
@@ -24,12 +19,67 @@ const BranchEmployees = () => {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimeout = useRef(null);
-  const [controller, setController] = useState(null);
+  const controllerRef = useRef(null);
   const [snack, setSnack] = useState({
     open: false,
     severity: "error",
     message: "",
   });
+
+  const fetchEmployees = useCallback(
+    async (search = "") => {
+      if (controllerRef.current) {
+        controllerRef.current.abort();
+      }
+
+      const token = localStorage.getItem("token");
+      const newController = new AbortController();
+      controllerRef.current = newController;
+
+      setLoading(true);
+
+      try {
+        const params = new URLSearchParams({
+          page: pagination.current_page,
+          per_page: pagination.per_page,
+          search: search.trim(),
+        }).toString();
+
+        const res = await fetch(
+          `${apiConfig.BASE_URL}/branch/employees?${params}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            signal: newController.signal,
+          }
+        );
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          setEmployees(data.employees || []);
+          setPagination((prev) => ({
+            ...prev,
+            total: data.pagination?.total || 0,
+          }));
+        } else {
+          throw new Error(data.message || "Failed to load employee data");
+        }
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          setSnack({
+            open: true,
+            severity: "error",
+            message: error.message || "Failed to load employee data",
+          });
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [pagination.current_page, pagination.per_page]
+  );
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -37,56 +87,7 @@ const BranchEmployees = () => {
     }, 200);
 
     return () => clearTimeout(delayDebounce);
-  }, [searchTerm, pagination.current_page, pagination.per_page]);
-
-  const fetchEmployees = async (search = "") => {
-    if (controller) controller.abort();
-
-    const token = localStorage.getItem("token");
-    const newController = new AbortController();
-    setController(newController);
-
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: pagination.current_page,
-        per_page: pagination.per_page,
-        search: search.trim(),
-      }).toString();
-
-      const res = await fetch(
-        `${apiConfig.BASE_URL}/branch/employees?${params}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          signal: newController.signal,
-        }
-      );
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        setEmployees(data.employees || []);
-        setPagination((prev) => ({
-          ...prev,
-          total: data.pagination?.total || 0,
-        }));
-      } else {
-        throw new Error(data.message || "Failed to load employee data");
-      }
-    } catch (error) {
-      if (error.name !== "AbortError") {
-        setSnack({
-          open: true,
-          severity: "error",
-          message: error.message || "Failed to load employee data",
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [searchTerm, fetchEmployees]);
 
   const handlePaginationChange = ({ page, rowsPerPage }) => {
     setPagination((prev) => ({
@@ -94,11 +95,6 @@ const BranchEmployees = () => {
       current_page: page,
       per_page: rowsPerPage,
     }));
-  };
-
-  const handleClearSearch = () => {
-    setSearchTerm("");
-    setPagination((prev) => ({ ...prev, current_page: 1 }));
   };
 
   const columns = [
@@ -118,7 +114,7 @@ const BranchEmployees = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 3 }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
       <Typography variant="h5" gutterBottom>
         Branch Employees
       </Typography>
@@ -129,7 +125,7 @@ const BranchEmployees = () => {
           mb: 2,
           display: "flex",
           justifyContent: "flex-end",
-          maxWidth: 1200,
+          alignItems: "center",
           width: "100%",
         }}
       >
@@ -165,6 +161,21 @@ const BranchEmployees = () => {
           }
         />
       )}
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={() => {
+          navigate(ROUTES.BRANCH.CREATE_EMPLOYEE);
+        }}
+        sx={{
+          position: "fixed",
+          bottom: 32,
+          right: 32,
+          zIndex: 1300,
+        }}
+      >
+        <AddIcon />
+      </Fab>
     </Box>
   );
 };

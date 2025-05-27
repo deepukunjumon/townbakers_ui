@@ -1,12 +1,13 @@
-import React, { useState } from "react";
-import { AppBar, Toolbar, Typography, IconButton, Box } from "@mui/material";
+import React from "react";
+import { AppBar, Toolbar, IconButton, Box } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import AvatarComponent from "./AvatarComponent";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ROUTES } from "../constants/routes";
 
 const Navbar = ({ toggleDrawer }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     localStorage.clear();
@@ -17,6 +18,8 @@ const Navbar = ({ toggleDrawer }) => {
     navigate(ROUTES.PROFILE);
   };
 
+  const hideMenuIcon = location.pathname === ROUTES.RESET_PASSWORD;
+
   return (
     <AppBar
       position="fixed"
@@ -26,20 +29,20 @@ const Navbar = ({ toggleDrawer }) => {
       }}
     >
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        {/* Left: Menu Icon and Logo */}
         <Box display="flex" alignItems="center">
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={toggleDrawer}
-            sx={{ mr: 1 }}
-          >
-            <MenuIcon />
-          </IconButton>
+          {!hideMenuIcon && (
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              onClick={toggleDrawer}
+              sx={{ mr: 1 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
         </Box>
 
-        {/* Right: Avatar with dropdown */}
         <AvatarComponent onLogout={handleLogout} onProfile={handleProfile} />
       </Toolbar>
     </AppBar>

@@ -162,7 +162,7 @@ const ViewBranchStockSummary = () => {
   ];
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ maxWidth: "auto", p: 3 }}>
       {loading && <Loader message="Loading..." />}
       <SnackbarAlert
         open={snack.open}
@@ -171,7 +171,12 @@ const ViewBranchStockSummary = () => {
         message={snack.message}
       />
 
-      <Box display="flex" justifyContent="space-between" alignItems="center">
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ maxWidth: "auto" }}
+      >
         <Typography variant="h5">Branch-wise Stock Summary</Typography>
         <ExportMenu
           anchorEl={anchorEl}
@@ -184,7 +189,18 @@ const ViewBranchStockSummary = () => {
 
       <Divider sx={{ mb: 3 }} />
 
-      <Box display="flex" gap={2} alignItems="center" my={2} flexWrap="wrap">
+      <Box
+        display="flex"
+        gap={2}
+        alignItems="center"
+        my={2}
+        flexWrap="wrap"
+        sx={{
+          "& > *": {
+            flex: { xs: "1 1 100%", sm: "1 1 auto" },
+          },
+        }}
+      >
         <SelectFieldComponent
           label="Select Branch"
           value={branchId}
@@ -195,29 +211,36 @@ const ViewBranchStockSummary = () => {
             `${branch.branche_code || branch.code} - ${branch.name}`
           }
           required
-          fullWidth
-          sx={{ minWidth: 250 }}
+          sx={{
+            maxWidth: { xs: "100%", sm: 300 },
+          }}
         />
 
-        <DateSelectorComponent
-          required
-          label="Select Date"
-          sx={{
-            maxWidth: { xs: 185, md: 320 },
-          }}
-          date={date}
-          onChange={(newDate) => setDate(newDate)}
-          error={submitted && !date}
-          helperText={submitted && !date ? "Date is required" : ""}
-          maxDate={new Date()}
-        />
-        <ButtonComponent
-          onClick={fetchSummary}
-          variant="contained"
-          color="primary"
-        >
-          SUBMIT
-        </ButtonComponent>
+        <Box display="flex" gap={2}>
+          <DateSelectorComponent
+            required
+            label="Select Date"
+            sx={{
+              maxWidth: { xs: 200, sm: "100%" },
+            }}
+            date={date}
+            onChange={(newDate) => setDate(newDate)}
+            error={submitted && !date}
+            helperText={submitted && !date ? "Date is required" : ""}
+            maxDate={new Date()}
+          />
+          <ButtonComponent
+            onClick={fetchSummary}
+            variant="contained"
+            color="primary"
+            sx={{
+              width: { xs: "100%", sm: "fit-content" },
+              alignSelf: { xs: "stretch", sm: "flex-end" },
+            }}
+          >
+            SUBMIT
+          </ButtonComponent>
+        </Box>
       </Box>
 
       {rows.length > 0 && (

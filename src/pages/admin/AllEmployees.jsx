@@ -1,23 +1,51 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Box, Typography, Chip, Divider, TextField } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Chip,
+  Divider,
+  TextField,
+  Switch,
+  Button,
+  Fab,
+  CircularProgress,
+  Avatar,
+} from "@mui/material";
+import { getRoleFromToken } from "../../utils/auth";
+import AddIcon from "@mui/icons-material/Add";
+import { ROUTES } from "../../constants/routes";
+import { useNavigate } from "react-router-dom";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import Loader from "../../components/Loader";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
+import ModalComponent from "../../components/ModalComponent";
 import apiConfig from "../../config/apiConfig";
-import { getBranchIdFromToken } from "../../utils/auth";
 import { userStatusMap } from "../../constants/status";
 import ExportMenu from "../../components/ExportMenu";
 
 const statusOptions = [
   { name: "All", id: "" },
   { name: "Active", id: "1" },
-  { name: "Inactive", id: "0" },
+  { name: "Disabled", id: "0" },
   { name: "Deleted", id: "-1" },
 ];
 
+function stringToColor(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let color = "#";
+  for (let i = 0; i < 3; i++) {
+    color += ("00" + ((hash >> (i * 8)) & 0xff).toString(16)).slice(-2);
+  }
+  return color;
+}
+
 const AllEmployees = () => {
-  const branchId = getBranchIdFromToken();
+  const navigate = useNavigate();
+  const role = getRoleFromToken();
   const [employees, setEmployees] = useState([]);
   const [branches, setBranches] = useState([{ name: "All", id: "" }]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +66,13 @@ const AllEmployees = () => {
   const [branchFilter, setBranchFilter] = useState({ name: "All", id: "" });
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimeout = useRef(null);
+
+  const [loadingSwitches, setLoadingSwitches] = useState({});
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmPayload, setConfirmPayload] = useState({
+    id: null,
+    currentStatus: null,
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -80,15 +115,13 @@ const AllEmployees = () => {
 
     let url = `${apiConfig.ALL_EMPLOYEES_LIST}?page=${pagination.current_page}&per_page=${pagination.per_page}`;
 
-    if (statusFilter && statusFilter.id !== "") {
-      url += `&status=${statusFilter.id}`;
-    }
-    if (branchFilter && branchFilter.id !== "") {
-      url += `&branch_code=${branchFilter.id}`;
-    }
-    if (searchTerm.trim() !== "") {
-      url += `&q=${encodeURIComponent(searchTerm.trim())}`;
-    }
+    const params = new URLSearchParams();
+
+    if (statusFilter.id) params.append("status", statusFilter.id);
+    if (branchFilter.id) params.append("branch_code", branchFilter.id);
+    if (searchTerm.trim()) params.append("q", searchTerm.trim());
+
+    url += `&${params.toString()}`;
 
     fetch(url, {
       headers: {
@@ -115,7 +148,6 @@ const AllEmployees = () => {
         setLoading(false);
       });
   }, [
-    branchId,
     pagination.current_page,
     pagination.per_page,
     statusFilter,
@@ -123,8 +155,109 @@ const AllEmployees = () => {
     searchTerm,
   ]);
 
+  const handleToggleStatus = async (id, currentStatus) => {
+    setConfirmModalOpen(true);
+    setConfirmPayload({ id, currentStatus });
+  };
+
+  const handleConfirmToggle = async () => {
+    const { id, currentStatus } = confirmPayload;
+    if (!id) {
+      setConfirmModalOpen(false);
+      return;
+    }
+
+    setConfirmModalOpen(false);
+    const newStatus = currentStatus === 1 ? 0 : 1;
+    setLoadingSwitches((prev) => ({ ...prev, [id]: true }));
+
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(apiConfig.UPDATE_EMPLOYEE_STATUS, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to update status");
+      }
+
+      setEmployees((prevEmployees) =>
+        prevEmployees.map((emp) =>
+          emp.id === id ? { ...emp, status: newStatus } : emp
+        )
+      );
+
+      setSnack({
+        open: true,
+        severity: "success",
+        message: "Status updated successfully",
+      });
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: error.message || "Failed to update status",
+      });
+    } finally {
+      setLoadingSwitches((prev) => {
+        const copy = { ...prev };
+        delete copy[id];
+        return copy;
+      });
+    }
+  };
+
+  const confirmationModalContent = (
+    <Box sx={{ p: 2 }}>
+      <Typography variant="h6" gutterBottom>
+        {confirmPayload.currentStatus === 1
+          ? "Are you sure you want to disable this employee?"
+          : "Are you sure you want to enable this employee?"}
+      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
+        <Button variant="text" onClick={() => setConfirmModalOpen(false)}>
+          Cancel
+        </Button>
+        <Button variant="text" onClick={handleConfirmToggle} autoFocus>
+          Confirm
+        </Button>
+      </Box>
+    </Box>
+  );
+
   const columns = [
     { field: "employee_code", headerName: "Employee Code", flex: 1 },
+    {
+      field: "avatar",
+      headerName: "",
+      flex: 0.5,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => (
+        <Avatar
+          sx={{
+            bgcolor: stringToColor(params.row.name),
+            color: "#fff",
+            width: 32,
+            height: 32,
+            fontWeight: 600,
+            fontSize: 16,
+            mr: 1,
+          }}
+          alt={params.row.name}
+        >
+          {params.row.name
+            ? params.row.name.charAt(0).toUpperCase()
+            : "?"}
+        </Avatar>
+      ),
+    },
     { field: "name", headerName: "Name", flex: 1 },
     { field: "mobile", headerName: "Mobile", flex: 1 },
     { field: "designation", headerName: "Designation", flex: 1 },
@@ -146,7 +279,48 @@ const AllEmployees = () => {
             color={status.color}
             size="small"
             variant="filled"
+            sx={{ fontSize: 13, color: "white" }}
           />
+        );
+      },
+    },
+    {
+      field: "toggle",
+      headerName: "",
+      flex: 1,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => {
+        const statusNum = Number(params.row.status);
+        const isLoading = !!loadingSwitches[params.row.id];
+        if (statusNum !== 0 && statusNum !== 1) return null;
+        return (
+          <Box sx={{ position: "relative", display: "inline-flex" }}>
+            <Switch
+              checked={statusNum === 1}
+              onChange={() => {
+                if (!isLoading) {
+                  handleToggleStatus(params.row.id, statusNum);
+                }
+              }}
+              size="medium"
+              color="primary"
+              disabled={isLoading}
+            />
+            {isLoading && (
+              <CircularProgress
+                size={24}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  marginTop: "-12px",
+                  marginLeft: "-12px",
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+          </Box>
         );
       },
     },
@@ -225,13 +399,12 @@ const AllEmployees = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 3 }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
       <Typography variant="h5" gutterBottom>
         All Employees
       </Typography>
       <Divider sx={{ mb: 2 }} />
 
-      {/* Filters in a single row, aligned right */}
       <Box
         sx={{
           display: "flex",
@@ -307,6 +480,34 @@ const AllEmployees = () => {
           onPaginationChange={handlePaginationChange}
         />
       )}
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={() => {
+          if (role === "admin") {
+            navigate(ROUTES.ADMIN.CREATE_EMPLOYEE);
+          }
+          if (role === "super_admin") {
+            navigate(ROUTES.SUPER_ADMIN.CREATE_EMPLOYEE);
+          }
+        }}
+        sx={{
+          position: "fixed",
+          bottom: 32,
+          right: 32,
+          zIndex: 1300,
+        }}
+      >
+        <AddIcon />
+      </Fab>
+
+      <ModalComponent
+        open={confirmModalOpen}
+        onClose={() => { }}
+        hideCloseIcon={true}
+        title="Confirm Action"
+        content={confirmationModalContent}
+      />
     </Box>
   );
 };

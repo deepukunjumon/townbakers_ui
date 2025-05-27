@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, MenuItem, Paper, Divider } from "@mui/material";
+import { Box, Typography, Divider } from "@mui/material";
 import TextFieldComponent from "../../components/TextFieldComponent";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
@@ -22,16 +22,16 @@ const CreateEmployee = () => {
     severity: "info",
     message: "",
   });
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchDesignations = async () => {
       try {
-        const res = await fetch(`${apiConfig.BASE_URL}/designations`, {
+        const res = await fetch(`${apiConfig.ACTIVE_DESIGNATIONS}`, {
           headers: { Authorization: getToken() },
         });
         const data = await res.json();
-        if (res.ok) setDesignations(data.data || []);
+        if (res.ok) setDesignations(data.designations || []);
         else throw new Error();
       } catch {
         setSnack({
@@ -156,13 +156,12 @@ const CreateEmployee = () => {
         <SelectFieldComponent
           label="Designation"
           name="designation_id"
-          value={form.designation_id}
-          onChange={(e) => setForm({ ...form, designation_id: e.target.value })}
+          value={designations.find(d => d.id === form.designation_id) || null}
+          onChange={(e) => setForm({ ...form, designation_id: e.target.value?.id || "" })}
           options={designations}
           valueKey="id"
-          displayKey={(des) => des.designation}
+          displayKey="designation"
           required
-          fullWidth
         />
 
         <ButtonComponent

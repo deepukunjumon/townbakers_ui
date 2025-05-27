@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -19,13 +19,11 @@ import apiConfig from "../config/apiConfig";
 import TextFieldComponent from "../components/TextFieldComponent";
 import SnackbarAlert from "../components/SnackbarAlert";
 import login_page_image from "../assets/images/login_page_image.svg";
-import { AppInfoContext } from "../context/AppInfoContext";
 
 const Login = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const { version, copyright } = useContext(AppInfoContext);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -86,9 +84,17 @@ const Login = () => {
 
         setTimeout(() => {
           setSnack((prev) => ({ ...prev, open: false }));
-          if (role === "admin") navigate(ROUTES.ADMIN.DASHBOARD);
-          else if (role === "branch") navigate(ROUTES.BRANCH.DASHBOARD);
-        }, 1000);
+
+          if (role === "super_admin") {
+            navigate(ROUTES.SUPER_ADMIN.DASHBOARD);
+          }
+          if (role === "admin") {
+            navigate(ROUTES.ADMIN.DASHBOARD);
+          }
+          if (role === "branch") {
+            navigate(ROUTES.BRANCH.DASHBOARD);
+          }
+        }, 300);
       } else {
         setSnack({
           open: true,
@@ -201,7 +207,7 @@ const Login = () => {
       <Grid sx={{ mt: { xs: 7, md: -2 } }}>
         <FooterComponent />
       </Grid>
-    </Box >
+    </Box>
   );
 };
 

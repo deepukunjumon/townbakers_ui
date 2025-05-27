@@ -4,7 +4,8 @@ import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TextFieldComponent from "../../components/TextFieldComponent";
-import Loader from "../../components/Loader"; // <-- Import Loader
+import Loader from "../../components/Loader";
+import ModalComponent from "../../components/ModalComponent";
 
 const initialState = {
   code: "",
@@ -24,6 +25,8 @@ const CreateBranch = () => {
     message: "",
     severity: "success",
   });
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const [additionalInfo, setAdditionalInfo] = useState("");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -46,6 +49,10 @@ const CreateBranch = () => {
       const data = await res.json();
       if (data.success) {
         setSnack({ open: true, message: data.message, severity: "success" });
+        if (data.additional_info) {
+          setAdditionalInfo(data.additional_info);
+          setInfoModalOpen(true);
+        }
         setForm(initialState);
       } else {
         setSnack({
@@ -60,6 +67,10 @@ const CreateBranch = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const isFormValid = () => {
+    return form.code && form.name && form.address && form.mobile;
   };
 
   return (
@@ -141,6 +152,7 @@ const CreateBranch = () => {
             <TextFieldComponent
               label="Email"
               name="email"
+              required
               value={form.email}
               onChange={handleChange}
               error={!!errors.email}
@@ -151,7 +163,7 @@ const CreateBranch = () => {
               type="submit"
               variant="contained"
               color="primary"
-              disabled={loading}
+              disabled={loading || !isFormValid()}
             >
               {loading ? "Creating..." : "Create Branch"}
             </Button>
@@ -163,6 +175,18 @@ const CreateBranch = () => {
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
         severity={snack.severity}
         message={snack.message}
+      />
+
+      <ModalComponent
+        open={infoModalOpen}
+        onClose={() => setInfoModalOpen(false)}
+        title="Additional Information"
+        content={
+          <Box sx={{ whiteSpace: "pre-wrap", fontSize: 15 }}>
+            {additionalInfo}
+          </Box>
+        }
+        hideClose
       />
     </Box>
   );

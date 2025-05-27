@@ -1,22 +1,18 @@
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  CircularProgress,
-  Button,
-  Divider,
-} from "@mui/material";
+import React, { useState, useEffect, useCallback } from "react";
+import { Box, Typography, Button, Divider, Chip } from "@mui/material";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import ModalComponent from "../../components/ModalComponent";
 import { useNavigate } from "react-router-dom";
-import { getToken } from "../../utils/auth";
+import { getToken, getRoleFromToken } from "../../utils/auth";
 import apiConfig from "../../config/apiConfig";
 import { ROUTES } from "../../constants/routes";
 import Loader from "../../components/Loader";
+import ChipComponent from "../../components/ChipComponent";
 
 const ViewBranches = () => {
   const navigate = useNavigate();
+  const role = getRoleFromToken();
 
   const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -33,11 +29,7 @@ const ViewBranches = () => {
     message: "",
   });
 
-  useEffect(() => {
-    fetchBranches();
-  }, [pagination.current_page, pagination.per_page]);
-
-  const fetchBranches = async () => {
+  const fetchBranches = useCallback(async () => {
     setLoading(true);
     const token = getToken();
 
@@ -47,12 +39,9 @@ const ViewBranches = () => {
     });
 
     try {
-      const res = await fetch(
-        `${apiConfig.BASE_URL}/branches/minimal?${params}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await fetch(`${apiConfig.MINIMAL_BRANCHES}?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await res.json();
 
       if (data.success) {
@@ -79,7 +68,11 @@ const ViewBranches = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.current_page, pagination.per_page]);
+
+  useEffect(() => {
+    fetchBranches();
+  }, [fetchBranches]);
 
   const handlePaginationChange = ({ page, rowsPerPage }) => {
     setPagination((prev) => ({
@@ -89,21 +82,48 @@ const ViewBranches = () => {
     }));
   };
 
-  const handleBranchClick = (branchId) => {
-    const branch = branches.find((b) => b.id === branchId);
-    setSelectedBranch(branch);
-    setOpenModal(true);
+  const handleBranchClick = async (branchId) => {
+    const token = getToken();
+    setLoading(true);
+
+    try {
+      const res = await fetch(
+        `${apiConfig.BRANCH_DETAILS.replace("{id}", branchId)}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        setSelectedBranch(data.branch_details);
+        setOpenModal(true);
+      } else {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: data.message || "Failed to load branch details",
+        });
+      }
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to load branch details",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const columns = [
     { field: "code", headerName: "Code", flex: 1 },
     { field: "name", headerName: "Branch Name", flex: 1 },
-    { field: "address", headerName: "Address", flex: 2 },
-    { field: "mobile", headerName: "Mobile", flex: 1 },
   ];
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 3 }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
       <Typography variant="h5" gutterBottom>
         Branches List
       </Typography>
@@ -150,18 +170,31 @@ const ViewBranches = () => {
               <Typography>
                 <strong>Address:</strong> {selectedBranch.address}
               </Typography>
+              <Divider sx={{ my: 2 }} />
+
               <Typography>
                 <strong>Mobile:</strong> {selectedBranch.mobile}
               </Typography>
               <Typography>
-                <strong>Email:</strong> {selectedBranch.email || "N/A"}
+                <strong>Email:</strong> {selectedBranch.email || "-"}
               </Typography>
               <Typography>
-                <strong>Phone:</strong> {selectedBranch.phone || "N/A"}
+                <strong>Phone:</strong> {selectedBranch.phone || "-"}
               </Typography>
+              <Divider sx={{ my: 2 }} />
+
               <Typography>
                 <strong>Status:</strong>{" "}
-                {selectedBranch.status === 1 ? "Active" : "Inactive"}
+                <ChipComponent
+                  size="small"
+                  variant="filled"
+                  label={selectedBranch.status === 1 ? "Active" : "Inactive"}
+                  color={selectedBranch.status === 1 ? "success" : "default"}
+                />
+              </Typography>
+              <Typography>
+                <strong>Active Employees:</strong>{" "}
+                {selectedBranch.active_employees_count}
               </Typography>
             </Box>
           ) : (
@@ -184,7 +217,12 @@ const ViewBranches = () => {
           boxShadow: 3,
         }}
         onClick={() => {
-          navigate(ROUTES.ADMIN.CREATE_BRANCH);
+          if (role === "admin") {
+            navigate(ROUTES.ADMIN.CREATE_BRANCH);
+          }
+          if (role === "super_admin") {
+            navigate(ROUTES.SUPER_ADMIN.CREATE_BRANCH);
+          }
         }}
       >
         +

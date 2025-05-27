@@ -5,26 +5,31 @@ import { ROUTES } from "../constants/routes";
 import {
   Dashboard,
   Domain,
-  DomainAdd,
-  People,
   PersonAddAltRounded,
   PeopleAltRounded,
+  Security,
   Badge,
   MenuBook,
   Token,
   Inventory,
   Article,
+  Construction,
   Assignment
 } from "@mui/icons-material";
 
-const AdminLayout = () => {
+const SuperAdminLayout = () => {
   const navigate = useNavigate();
 
   const menuItems = [
     {
       label: "Dashboard",
       icon: <Dashboard />,
-      onClick: () => navigate(ROUTES.ADMIN.DASHBOARD),
+      onClick: () => navigate(ROUTES.SUPER_ADMIN.DASHBOARD),
+    },
+    {
+      icon: <PersonAddAltRounded />,
+      label: "Create User",
+      onClick: () => navigate(ROUTES.SUPER_ADMIN.CREATE_USER),
     },
     {
       label: "Masters",
@@ -38,39 +43,23 @@ const AdminLayout = () => {
         {
           icon: <Badge />,
           label: "Designations",
-          onClick: () => navigate(ROUTES.ADMIN.DESIGNATIONS),
+          onClick: () => navigate(ROUTES.SUPER_ADMIN.DESIGNATIONS),
         },
       ],
     },
     {
-      label: "Branches",
+      label: "Manage",
       icon: <Domain />,
       children: [
         {
-          icon: <DomainAdd />,
-          label: "Create Branch",
-          onClick: () => navigate(ROUTES.ADMIN.CREATE_BRANCH),
-        },
-        {
           icon: <Domain />,
-          label: "All Branches",
-          onClick: () => navigate(ROUTES.ADMIN.BRANCH_LIST),
-        },
-      ],
-    },
-    {
-      label: "Employees",
-      icon: <People />,
-      children: [
-        {
-          icon: <PersonAddAltRounded />,
-          label: "Add Employee",
-          onClick: () => navigate(ROUTES.ADMIN.CREATE_EMPLOYEE),
+          label: "Branches",
+          onClick: () => navigate(ROUTES.SUPER_ADMIN.BRANCH_LIST),
         },
         {
           icon: <PeopleAltRounded />,
-          label: "Manage Employees",
-          onClick: () => navigate(ROUTES.ADMIN.EMPLOYEES_LIST),
+          label: "Employees",
+          onClick: () => navigate(ROUTES.SUPER_ADMIN.EMPLOYEES_LIST),
         },
       ],
     },
@@ -81,7 +70,7 @@ const AdminLayout = () => {
         {
           icon: <Article />,
           label: "Stocks Summary",
-          onClick: () => navigate(ROUTES.ADMIN.STOCK_SUMMARY),
+          onClick: () => navigate(ROUTES.SUPER_ADMIN.STOCK_SUMMARY),
         },
       ],
     },
@@ -92,7 +81,18 @@ const AdminLayout = () => {
         {
           icon: <Assignment />,
           label: "All Orders",
-          onClick: () => navigate(ROUTES.ADMIN.ALL_ORDERS),
+          onClick: () => navigate(ROUTES.SUPER_ADMIN.ALL_ORDERS),
+        },
+      ],
+    },
+    {
+      label: "Super Access",
+      icon: <Security />,
+      children: [
+        {
+          label: "Developer Tools",
+          icon: <Construction />,
+          onClick: () => navigate(ROUTES.SUPER_ADMIN.DEVELOPER_TOOLS),
         },
       ],
     },
@@ -104,11 +104,11 @@ const AdminLayout = () => {
       drawerWidth={280}
       collapsedWidth={60}
       showIconsWhenCollapsed={true}
-      title="Admin Dashboard"
+      title="Super-Admin Dashboard"
     >
       <Outlet />
     </MainLayout>
   );
 };
 
-export default AdminLayout;
+export default SuperAdminLayout;

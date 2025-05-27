@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
   CircularProgress,
   Grid,
   TextField,
-  Button,
   Chip,
   FormControl,
   InputLabel,
@@ -23,7 +22,8 @@ import apiConfig from "../../config/apiConfig";
 import { format } from "date-fns";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ModalComponent from "../../components/ModalComponent";
-import Loader from "../../components/Loader"; // <-- Import Loader
+import Loader from "../../components/Loader";
+import TextFieldComponent from "../../components/TextFieldComponent";
 
 const ListOrders = () => {
   const currentDate = new Date();
@@ -52,18 +52,7 @@ const ListOrders = () => {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [
-    pagination.current_page,
-    pagination.per_page,
-    startDate,
-    endDate,
-    search,
-    statusFilter,
-  ]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     const token = getToken();
 
@@ -107,7 +96,18 @@ const ListOrders = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    pagination.current_page,
+    pagination.per_page,
+    startDate,
+    endDate,
+    search,
+    statusFilter,
+  ]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const handlePaginationChange = ({ page, rowsPerPage }) => {
     setPagination((prev) => ({
@@ -126,7 +126,7 @@ const ListOrders = () => {
     setModalLoading(true);
     try {
       const token = getToken();
-      const res = await fetch(`${apiConfig.BASE_URL}/branch/order/${orderId}`, {
+      const res = await fetch(`${apiConfig.BASE_URL}/order/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -177,7 +177,7 @@ const ListOrders = () => {
         });
 
         const orderRes = await fetch(
-          `${apiConfig.BASE_URL}/branch/order/${selectedOrder.id}`,
+          `${apiConfig.BASE_URL}/order/${selectedOrder.id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -213,7 +213,7 @@ const ListOrders = () => {
   const fetchEmployees = async () => {
     try {
       const token = getToken();
-      const res = await fetch(`${apiConfig.BASE_URL}/employees`, {
+      const res = await fetch(`${apiConfig.BASE_URL}/employees/minimal`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -331,21 +331,18 @@ const ListOrders = () => {
     }
   };
 
-  const handleEndDateChange = (newDate) => {
-    setEndDate(newDate);
-    setOrders([]);
-  };
-
   const handleStatusFilterChange = (event) => {
     setStatusFilter(event.target.value);
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", py: 3, px: { xs: 1, sm: 2 } }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", py: 3, px: { xs: 1, sm: 2 } }}>
       {loading && <Loader message="Loading..." />}
       <Typography variant="h5" gutterBottom>
         Orders List
       </Typography>
+
+      <Divider sx={{ mb: 2 }} />
 
       <SnackbarAlert
         open={snack.open}
@@ -373,13 +370,8 @@ const ListOrders = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={3} lg={3}>
-          <FormControl
-            sx={{
-              width: { xs: 320, md: 150 },
-            }}
-            variant="outlined"
-          >
+        <Grid item xs={12} md={2.5} lg={2.5}>
+          <FormControl sx={{ width: { xs: 320, md: 150 } }} variant="outlined">
             <InputLabel>Status</InputLabel>
             <Select
               value={
@@ -397,16 +389,14 @@ const ListOrders = () => {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} md={3} lg={3}>
-          <TextField
+
+        <Grid item xs={12} md={2} lg={2} sx={{ ml: "auto" }}>
+          <TextFieldComponent
             label="Search Orders"
             value={search}
             onChange={handleSearchChange}
             variant="outlined"
-            sx={{
-              ml: { xs: 0, md: 32 },
-              width: { xs: 320, md: "auto" },
-            }}
+            sx={{ width: { xs: 320, md: 200 } }}
           />
         </Grid>
       </Grid>
@@ -446,7 +436,7 @@ const ListOrders = () => {
               <CircularProgress />
             </Box>
           ) : selectedOrder ? (
-            <Box>
+            <>
               <Box mb={2}>
                 <Typography>
                   <strong>Title:</strong> {selectedOrder.title}
@@ -508,7 +498,6 @@ const ListOrders = () => {
                     : "-"}
                 </Typography>
               </Box>
-              {/* Delivered Details Section */}
               {selectedOrder.status === 1 && (
                 <>
                   <Divider sx={{ my: 2 }} />
@@ -531,7 +520,6 @@ const ListOrders = () => {
               {selectedOrder.status === 0 && (
                 <Box sx={{ mt: 3 }}>
                   <Divider sx={{ my: 2 }} />
-
                   {showEmployeeSelect ? (
                     <Stack spacing={2}>
                       <Autocomplete
@@ -572,9 +560,7 @@ const ListOrders = () => {
                         variant="contained"
                         color="success"
                         onClick={handleShowEmployeeSelect}
-                        sx={{
-                          minWidth: { xs: 20, md: 120 },
-                        }}
+                        sx={{ minWidth: { xs: 20, md: 120 } }}
                       >
                         Completed
                       </ButtonComponent>
@@ -589,7 +575,7 @@ const ListOrders = () => {
                   )}
                 </Box>
               )}
-            </Box>
+            </>
           ) : null
         }
       />

@@ -3,13 +3,16 @@ import { Box, Grid, Typography, IconButton } from "@mui/material";
 import StatCard from "../../components/StatCard";
 import PeopleIcon from "@mui/icons-material/People";
 import BusinessIcon from "@mui/icons-material/Business";
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import axios from "axios";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../constants/routes";
 
-const Dashboard = () => {
+const SuperAdminDashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState([
     {
       title: "Total Branches",
@@ -17,6 +20,7 @@ const Dashboard = () => {
       loading: true,
       color: "info",
       icon: <BusinessIcon />,
+      onClick: () => navigate(ROUTES.SUPER_ADMIN.BRANCH_LIST),
     },
     {
       title: "Total Employees",
@@ -24,6 +28,14 @@ const Dashboard = () => {
       loading: true,
       color: "primary",
       icon: <PeopleIcon />,
+      onClick: () => navigate(`${ROUTES.SUPER_ADMIN.EMPLOYEES_LIST}?status=0`),
+    },
+    {
+      title: "Pending Orders",
+      subtitle: "Pending orders count",
+      loading: true,
+      color: "warning",
+      icon: <AssignmentIcon />,
     },
     {
       title: "Pending Orders",
@@ -96,7 +108,9 @@ const Dashboard = () => {
         mx: "auto",
       }}
     >
-      <Box sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}>
+      <Box
+        sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}
+      >
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
           Dashboard
         </Typography>
@@ -115,4 +129,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default SuperAdminDashboard;

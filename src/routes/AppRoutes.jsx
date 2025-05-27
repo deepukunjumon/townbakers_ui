@@ -13,6 +13,8 @@ import ViewProfile from "../pages/ViewProfile";
 import AdminLayout from "../layouts/AdminLayout";
 import BranchLayout from "../layouts/BranchLayout";
 
+import SuperAdminDashboard from "../pages/super-admin/Dashboard";
+
 import AdminDashboard from "../pages/admin/Dashboard";
 import AllEmployees from "../pages/admin/AllEmployees";
 import CreateBranch from "../pages/admin/CreateBranch";
@@ -31,6 +33,12 @@ import ListOrders from "../pages/branch/ListOrders";
 import RoleBasedLayout from "../layouts/RoleBasedLayout";
 
 import NotFound from "../pages/NotFound";
+import ItemsList from "../pages/common/masters/ItemsList";
+import Designations from "../pages/common/masters/Designations";
+import SuperAdminLayout from "../layouts/SuperAdminlayout";
+import CreateUser from "../pages/super-admin/CreateUser";
+import DeveloperTools from "../pages/super-admin/DeveloperTools";
+import OrdersList from "../pages/admin/OrdersList";
 
 const AppRoutes = () => (
   <Routes>
@@ -39,15 +47,63 @@ const AppRoutes = () => (
     <Route path={ROUTES.LOGIN} element={<Login />} />
     <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
 
-    <Route element={<ProtectedRoute allowedRoles={["admin", "branch"]} />}>
+    <Route
+      element={
+        <ProtectedRoute allowedRoles={["admin", "branch", "super_admin"]} />
+      }
+    >
       <Route path={ROUTES.PROFILE} element={<RoleBasedLayout />}>
         <Route index element={<ViewProfile />} />
       </Route>
       <Route path={ROUTES.RESET_PASSWORD} element={<RoleBasedLayout />}>
         <Route index element={<ResetPassword />} />
       </Route>
+      <Route path={ROUTES.ITEMS_LIST} element={<RoleBasedLayout />}>
+        <Route index element={<ItemsList />} />
+      </Route>
     </Route>
 
+    {/* Super Admin Protected */}
+    <Route
+      path={ROUTES.SUPER_ADMIN.ROOT}
+      element={
+        <ProtectedRoute allowedRoles={["super_admin"]}>
+          <SuperAdminLayout />
+        </ProtectedRoute>
+      }
+    >
+      <Route
+        path={ROUTES.SUPER_ADMIN.DASHBOARD}
+        element={<SuperAdminDashboard />}
+      />
+      <Route path={ROUTES.SUPER_ADMIN.CREATE_USER} element={<CreateUser />} />
+      <Route
+        path={ROUTES.SUPER_ADMIN.CREATE_BRANCH}
+        element={<CreateBranch />}
+      />
+      <Route path={ROUTES.SUPER_ADMIN.BRANCH_LIST} element={<ViewBranches />} />
+      <Route
+        path={ROUTES.SUPER_ADMIN.CREATE_EMPLOYEE}
+        element={<CreateEmployeeByAdmin />}
+      />
+      <Route
+        path={ROUTES.SUPER_ADMIN.EMPLOYEES_LIST}
+        element={<AllEmployees />}
+      />
+      <Route
+        path={ROUTES.SUPER_ADMIN.STOCK_SUMMARY}
+        element={<ViewBranchStockSummary />}
+      />
+      <Route
+        path={ROUTES.SUPER_ADMIN.DESIGNATIONS}
+        element={<Designations />}
+      />
+      <Route path={ROUTES.SUPER_ADMIN.ALL_ORDERS} element={<OrdersList />} />
+      <Route
+        path={ROUTES.SUPER_ADMIN.DEVELOPER_TOOLS}
+        element={<DeveloperTools />}
+      />
+    </Route>
 
     {/* Admin Protected */}
     <Route
@@ -62,14 +118,10 @@ const AppRoutes = () => (
       <Route path={ROUTES.ADMIN.EMPLOYEES_LIST} element={<AllEmployees />} />
       <Route path={ROUTES.ADMIN.CREATE_BRANCH} element={<CreateBranch />} />
       <Route path={ROUTES.ADMIN.BRANCH_LIST} element={<ViewBranches />} />
-      <Route
-        path={ROUTES.ADMIN.CREATE_EMPLOYEE}
-        element={<CreateEmployeeByAdmin />}
-      />
-      <Route
-        path={ROUTES.ADMIN.STOCK_SUMMARY}
-        element={<ViewBranchStockSummary />}
-      />
+      <Route path={ROUTES.ADMIN.CREATE_EMPLOYEE} element={<CreateEmployeeByAdmin />} />
+      <Route path={ROUTES.ADMIN.STOCK_SUMMARY} element={<ViewBranchStockSummary />} />
+      <Route path={ROUTES.ADMIN.DESIGNATIONS} element={<Designations />} />
+      <Route path={ROUTES.ADMIN.ALL_ORDERS} element={<OrdersList />} />
     </Route>
 
     {/* Branch Protected */}

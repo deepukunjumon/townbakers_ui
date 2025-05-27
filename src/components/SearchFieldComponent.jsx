@@ -4,7 +4,7 @@ import { TextField } from "@mui/material";
 const SearchFieldComponent = ({
   label = "Search",
   onSearch,
-  delay = 500,
+  delay = 0,
   placeholder = "",
   fullWidth = true,
   sx = {},
@@ -21,6 +21,11 @@ const SearchFieldComponent = ({
   const handleChange = (e) => {
     const val = e.target.value;
     setInputValue(val);
+
+    if (delay === 0) {
+      onSearch(val.trim());
+      return;
+    }
 
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
     debounceTimeout.current = setTimeout(() => {
