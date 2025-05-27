@@ -27,6 +27,11 @@ const SuperAdminLayout = () => {
       onClick: () => navigate(ROUTES.SUPER_ADMIN.DASHBOARD),
     },
     {
+      icon: <PersonAddAltRounded />,
+      label: "Create User",
+      onClick: () => navigate(ROUTES.SUPER_ADMIN.CREATE_USER),
+    },
+    {
       label: "Masters",
       icon: <Token />,
       children: [
@@ -39,17 +44,6 @@ const SuperAdminLayout = () => {
           icon: <Badge />,
           label: "Designations",
           onClick: () => navigate(ROUTES.SUPER_ADMIN.DESIGNATIONS),
-        },
-      ],
-    },
-    {
-      label: "Super Access",
-      icon: <Security />,
-      children: [
-        {
-          icon: <PersonAddAltRounded />,
-          label: "Create User",
-          onClick: () => navigate(ROUTES.SUPER_ADMIN.CREATE_USER),
         },
       ],
     },
@@ -92,9 +86,15 @@ const SuperAdminLayout = () => {
       ],
     },
     {
-      label: "Developer Tools",
-      icon: <Construction />,
-      onClick: () => navigate(ROUTES.SUPER_ADMIN.DEVELOPER_TOOLS),
+      label: "Super Access",
+      icon: <Security />,
+      children: [
+        {
+          label: "Developer Tools",
+          icon: <Construction />,
+          onClick: () => navigate(ROUTES.SUPER_ADMIN.DEVELOPER_TOOLS),
+        },
+      ],
     },
   ];
 
