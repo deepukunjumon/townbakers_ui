@@ -8,6 +8,7 @@ import { getToken, getRoleFromToken } from "../../utils/auth";
 import apiConfig from "../../config/apiConfig";
 import { ROUTES } from "../../constants/routes";
 import Loader from "../../components/Loader";
+import ChipComponent from "../../components/ChipComponent";
 
 const ViewBranches = () => {
   const navigate = useNavigate();
@@ -184,8 +185,9 @@ const ViewBranches = () => {
 
               <Typography>
                 <strong>Status:</strong>{" "}
-                <Chip
+                <ChipComponent
                   size="small"
+                  variant="filled"
                   label={selectedBranch.status === 1 ? "Active" : "Inactive"}
                   color={selectedBranch.status === 1 ? "success" : "default"}
                 />

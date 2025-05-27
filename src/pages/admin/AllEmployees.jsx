@@ -9,6 +9,7 @@ import {
   Button,
   Fab,
   CircularProgress,
+  Avatar,
 } from "@mui/material";
 import { getRoleFromToken } from "../../utils/auth";
 import AddIcon from "@mui/icons-material/Add";
@@ -29,6 +30,18 @@ const statusOptions = [
   { name: "Disabled", id: "0" },
   { name: "Deleted", id: "-1" },
 ];
+
+function stringToColor(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let color = "#";
+  for (let i = 0; i < 3; i++) {
+    color += ("00" + ((hash >> (i * 8)) & 0xff).toString(16)).slice(-2);
+  }
+  return color;
+}
 
 const AllEmployees = () => {
   const navigate = useNavigate();
@@ -220,6 +233,31 @@ const AllEmployees = () => {
 
   const columns = [
     { field: "employee_code", headerName: "Employee Code", flex: 1 },
+    {
+      field: "avatar",
+      headerName: "",
+      flex: 0.5,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => (
+        <Avatar
+          sx={{
+            bgcolor: stringToColor(params.row.name),
+            color: "#fff",
+            width: 32,
+            height: 32,
+            fontWeight: 600,
+            fontSize: 16,
+            mr: 1,
+          }}
+          alt={params.row.name}
+        >
+          {params.row.name
+            ? params.row.name.charAt(0).toUpperCase()
+            : "?"}
+        </Avatar>
+      ),
+    },
     { field: "name", headerName: "Name", flex: 1 },
     { field: "mobile", headerName: "Mobile", flex: 1 },
     { field: "designation", headerName: "Designation", flex: 1 },
@@ -465,7 +503,7 @@ const AllEmployees = () => {
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => {}}
+        onClose={() => { }}
         hideCloseIcon={true}
         title="Confirm Action"
         content={confirmationModalContent}

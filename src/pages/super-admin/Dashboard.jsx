@@ -37,6 +37,13 @@ const SuperAdminDashboard = () => {
       color: "warning",
       icon: <AssignmentIcon />,
     },
+    {
+      title: "Pending Orders",
+      subtitle: "Pending orders count",
+      loading: true,
+      color: "warning",
+      icon: <AssignmentIcon />,
+    },
   ]);
 
   const fetchStats = useCallback(() => {
@@ -105,6 +112,7 @@ const SuperAdminDashboard = () => {
         sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}
       >
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
+          Dashboard
         </Typography>
         <IconButton aria-label="refresh" onClick={fetchStats}>
           <RefreshIcon />

@@ -16,6 +16,7 @@ import SnackbarAlert from "../../../components/SnackbarAlert";
 import Loader from "../../../components/Loader";
 import SelectFieldComponent from "../../../components/SelectFieldComponent";
 import ModalComponent from "../../../components/ModalComponent";
+import ChipComponent from "../../../components/ChipComponent";
 import apiConfig from "../../../config/apiConfig";
 
 const statusOptions = [
@@ -187,19 +188,6 @@ const Designations = () => {
     }
   };
 
-  const getStatusChip = (status) => {
-    switch (Number(status)) {
-      case 1:
-        return <Chip label="Active" color="success" size="small" />;
-      case 0:
-        return <Chip label="Disabled" color="error" size="small" />;
-      case -1:
-        return <Chip label="Deleted" color="default" size="small" />;
-      default:
-        return null;
-    }
-  };
-
   const columns = [
     {
       field: "designation",
@@ -214,11 +202,48 @@ const Designations = () => {
       flex: 1,
       headerAlign: "center",
       align: "center",
-      renderCell: (params) => (
-        <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
-          {getStatusChip(params.row.status)}
-        </Box>
-      ),
+      renderCell: (params) => {
+        const status = Number(params.row.status);
+        let chipProps = {
+          size: "small"
+        };
+
+        switch (status) {
+          case 1:
+            chipProps = {
+              ...chipProps,
+              label: "Active",
+              color: "success",
+            };
+            break;
+          case 0:
+            chipProps = {
+              ...chipProps,
+              label: "Disabled",
+              color: "warning",
+            };
+            break;
+          case -1:
+            chipProps = {
+              ...chipProps,
+              label: "Deleted",
+              color: "error",
+            };
+            break;
+          default:
+            chipProps = {
+              ...chipProps,
+              label: "Unknown",
+              color: "default",
+            };
+        }
+
+        return (
+          <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
+            <ChipComponent {...chipProps} />
+          </Box>
+        );
+      },
     },
     {
       field: "toggle",
@@ -470,7 +495,7 @@ const Designations = () => {
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => {}}
+        onClose={() => { }}
         hideCloseIcon={true}
         title="Confirm Action"
         content={confirmationModalContent}
