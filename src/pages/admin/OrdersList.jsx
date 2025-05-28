@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Box,
   Typography,
   CircularProgress,
   Grid,
   TextField,
-  Chip,
   FormControl,
   InputLabel,
   Select,
@@ -21,6 +20,8 @@ import { format } from "date-fns";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ModalComponent from "../../components/ModalComponent";
 import Loader from "../../components/Loader";
+import ChipComponent from "../../components/ChipComponent";
+import { ORDER_STATUS_CONFIG } from "../../constants/statuses";
 
 const OrdersList = () => {
   const currentDate = new Date();
@@ -41,12 +42,14 @@ const OrdersList = () => {
   const [branches, setBranches] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
   const [snack, setSnack] = useState({
     open: false,
     severity: "error",
     message: "",
   });
-  const [modalLoading, setModalLoading] = useState(false);
+
+  const controllerRef = useRef(null);
 
   const fetchBranches = async () => {
     try {
@@ -68,7 +71,7 @@ const OrdersList = () => {
           message: data.message || "Failed to load branches",
         });
       }
-    } catch (error) {
+    } catch {
       setSnack({
         open: true,
         severity: "error",
@@ -90,7 +93,7 @@ const OrdersList = () => {
       end_date: format(endDate, "yyyy-MM-dd"),
       page: pagination.current_page,
       per_page: pagination.per_page,
-      search: search,
+      search,
       status: statusFilter,
       branch_id: branchFilter,
     });
@@ -117,7 +120,7 @@ const OrdersList = () => {
           message: data.message || "Failed to load orders",
         });
       }
-    } catch (error) {
+    } catch {
       setSnack({
         open: true,
         severity: "error",
@@ -154,13 +157,20 @@ const OrdersList = () => {
   };
 
   const fetchOrderDetails = async (orderId) => {
+    const controller = new AbortController();
+    controllerRef.current = controller;
+
     setModalLoading(true);
+    setSelectedOrder(null);
+
     try {
       const token = getToken();
       const res = await fetch(`${apiConfig.BASE_URL}/order/${orderId}`, {
         headers: { Authorization: `Bearer ${token}` },
+        signal: controller.signal,
       });
       const data = await res.json();
+
       if (data.success && data.order) {
         setSelectedOrder(data.order);
       } else {
@@ -169,19 +179,47 @@ const OrdersList = () => {
           severity: "error",
           message: data.message || "Order details not found",
         });
-        setSelectedOrder(null);
       }
     } catch (error) {
-      setSnack({
-        open: true,
-        severity: "error",
-        message: "Failed to fetch order details",
-      });
-      setSelectedOrder(null);
+      if (error.name !== "AbortError") {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to fetch order details",
+        });
+      }
     } finally {
       setModalLoading(false);
     }
   };
+
+  const handleModalClose = () => {
+    setOpenModal(false);
+    setSelectedOrder(null);
+    setModalLoading(false);
+    if (controllerRef.current) controllerRef.current.abort();
+  };
+
+  const tableRows = orders.map((order) => ({
+    id: order.id,
+    title: order.title,
+    delivery_date: order.delivery_date,
+    total_amount: order.total_amount,
+    customer_name: order.customer_name,
+    customer_mobile: order.customer_mobile,
+    status: (
+      <ChipComponent
+        label={
+          ORDER_STATUS_CONFIG[order.status]?.label ||
+          ORDER_STATUS_CONFIG.default.label
+        }
+        color={
+          ORDER_STATUS_CONFIG[order.status]?.color ||
+          ORDER_STATUS_CONFIG.default.color
+        }
+      />
+    ),
+  }));
 
   const columns = [
     { field: "title", headerName: "Title", flex: 1 },
@@ -196,43 +234,6 @@ const OrdersList = () => {
     { field: "customer_mobile", headerName: "Customer Mobile", flex: 1 },
     { field: "status", headerName: "Status", flex: 1 },
   ];
-
-  const tableRows = orders.map((order) => ({
-    id: order.id,
-    title: order.title,
-    delivery_date: order.delivery_date,
-    total_amount: order.total_amount,
-    customer_name: order.customer_name,
-    customer_mobile: order.customer_mobile,
-    status:
-      order.status === 0 ? (
-        <Chip label="Pending" color="error" />
-      ) : order.status === 1 ? (
-        <Chip label="Completed" color="success" />
-      ) : (
-        <Chip label="Cancelled" color="default" />
-      ),
-  }));
-
-  const handleSearchChange = (e) => {
-    setSearch(e.target.value);
-  };
-
-  const handleStartDateChange = (newDate) => {
-    setStartDate(newDate);
-    setOrders([]);
-    if (newDate > endDate) {
-      setEndDate(newDate);
-    }
-  };
-
-  const handleStatusFilterChange = (event) => {
-    setStatusFilter(event.target.value);
-  };
-
-  const handleBranchFilterChange = (event, newValue) => {
-    setBranchFilter(newValue?.id || "");
-  };
 
   return (
     <Box sx={{ maxWidth: "auto", mx: "auto", py: 3, px: { xs: 1, sm: 2 } }}>
@@ -249,19 +250,22 @@ const OrdersList = () => {
       />
 
       <Grid container spacing={2} alignItems="center" sx={{ mb: 3, my: 3 }}>
-        <Grid item xs={6} md={3} lg={3}>
+        <Grid item xs={6} md={3}>
           <DateSelectorComponent
             label="Start Date"
             value={startDate}
-            onChange={handleStartDateChange}
+            onChange={(d) => {
+              setStartDate(d);
+              if (d > endDate) setEndDate(d);
+            }}
             sx={{ width: { xs: 150, md: 180 } }}
           />
         </Grid>
-        <Grid item xs={6} md={3} lg={3}>
+        <Grid item xs={6} md={3}>
           <DateSelectorComponent
             label="End Date"
             value={endDate}
-            onChange={(newDate) => setEndDate(newDate)}
+            onChange={setEndDate}
             minDate={startDate}
             sx={{ width: { xs: 150, md: 180 } }}
           />
@@ -272,7 +276,7 @@ const OrdersList = () => {
             <InputLabel shrink={true}>Status</InputLabel>
             <Select
               value={statusFilter}
-              onChange={handleStatusFilterChange}
+              onChange={(e) => setStatusFilter(e.target.value)}
               label="Status"
               displayEmpty
               sx={{ width: { xs: 150, md: 160 } }}
@@ -287,9 +291,9 @@ const OrdersList = () => {
               }}
             >
               <MenuItem value="">All</MenuItem>
-              <MenuItem value={"0"}>Pending</MenuItem>
-              <MenuItem value={"1"}>Completed</MenuItem>
-              <MenuItem value={"-1"}>Cancelled</MenuItem>
+              <MenuItem value="0">Pending</MenuItem>
+              <MenuItem value="1">Completed</MenuItem>
+              <MenuItem value="-1">Cancelled</MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -297,34 +301,21 @@ const OrdersList = () => {
         <Grid item xs={12} md={2.5} lg={2.5}>
           <Autocomplete
             options={branches}
-            getOptionLabel={(option) => `${option.code} - ${option.name}`}
+            getOptionLabel={(o) => `${o.code} - ${o.name}`}
             value={branches.find((b) => b.id === branchFilter) || null}
-            onChange={handleBranchFilterChange}
+            onChange={(e, newVal) => setBranchFilter(newVal?.id || "")}
             sx={{ width: { xs: 150, md: 200 } }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Branch"
-                variant="outlined"
-                fullWidth
-                placeholder="All"
-                InputProps={{
-                  ...params.InputProps,
-                  placeholder:
-                    branchFilter === "" ? "All" : params.InputProps.placeholder,
-                }}
-              />
-            )}
+            renderInput={(params) => <TextField {...params} label="Branch" />}
           />
         </Grid>
 
         <Grid item xs={12} md={2} lg={2} sx={{ ml: { md: "auto" } }}>
           <TextField
+            fullWidth
             label="Search Orders"
             value={search}
-            onChange={handleSearchChange}
-            variant="outlined"
             sx={{ width: 320 }}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </Grid>
       </Grid>
@@ -343,11 +334,7 @@ const OrdersList = () => {
 
       <ModalComponent
         open={openModal}
-        onClose={() => {
-          setOpenModal(false);
-          setSelectedOrder(null);
-          setModalLoading(false);
-        }}
+        onClose={handleModalClose}
         title="Order Details"
         content={
           modalLoading ? (
@@ -389,13 +376,17 @@ const OrdersList = () => {
               <Divider sx={{ my: 2 }} />
               <Typography>
                 <strong>Status:</strong>{" "}
-                {selectedOrder.status === 0 ? (
-                  <Chip label="Pending" color="error" size="small" />
-                ) : selectedOrder.status === 1 ? (
-                  <Chip label="Completed" color="success" size="small" />
-                ) : (
-                  <Chip label="Cancelled" color="default" size="small" />
-                )}
+                <ChipComponent
+                  size="small"
+                  variant="filled"
+                  label={
+                    ORDER_STATUS_CONFIG[selectedOrder.status]?.label ||
+                    "Unknown"
+                  }
+                  color={
+                    ORDER_STATUS_CONFIG[selectedOrder.status]?.color || "info"
+                  }
+                />
               </Typography>
               <Typography>
                 <strong>Total Amount:</strong> {selectedOrder.total_amount}

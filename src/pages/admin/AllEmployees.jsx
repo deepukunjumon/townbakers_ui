@@ -21,7 +21,7 @@ import Loader from "../../components/Loader";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
 import ModalComponent from "../../components/ModalComponent";
 import apiConfig from "../../config/apiConfig";
-import { userStatusMap } from "../../constants/status";
+import { userStatusMap } from "../../constants/statuses";
 import ExportMenu from "../../components/ExportMenu";
 
 const statusOptions = [
@@ -38,8 +38,8 @@ function stringToColor(str) {
   }
 
   const h = Math.abs(hash) % 360;
-  const s = 70 + Math.abs(hash >> 8) % 30;
-  const l = 45 + Math.abs(hash >> 16) % 10;
+  const s = 70 + (Math.abs(hash >> 8) % 30);
+  const l = 45 + (Math.abs(hash >> 16) % 10);
 
   return `hsl(${h}, ${s}%, ${l}%)`;
 }
@@ -253,9 +253,7 @@ const AllEmployees = () => {
           }}
           alt={params.row.name}
         >
-          {params.row.name
-            ? params.row.name.charAt(0).toUpperCase()
-            : "?"}
+          {params.row.name ? params.row.name.charAt(0).toUpperCase() : "?"}
         </Avatar>
       ),
     },
@@ -401,10 +399,15 @@ const AllEmployees = () => {
 
   return (
     <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-        <Typography variant="h5">
-          All Employees
-        </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Typography variant="h5">All Employees</Typography>
         <ExportMenu
           anchorEl={anchorEl}
           open={menuOpen}
@@ -420,14 +423,14 @@ const AllEmployees = () => {
           display: "flex",
           justifyContent: {
             xs: "flex-start",
-            md: "flex-end"
+            md: "flex-end",
           },
           gap: 2,
           flexWrap: "wrap",
           mb: 2,
         }}
       >
-        <Box sx={{ width: { xs: 170, md: 200 } }}>
+        <Box sx={{ width: { xs: "100%", sm: 170, md: 200 } }}>
           <SelectFieldComponent
             label="Branch"
             name="branch_code"
@@ -441,7 +444,7 @@ const AllEmployees = () => {
           />
         </Box>
 
-        <Box sx={{ width: { xs: 100, md: 200 } }}>
+        <Box sx={{ width: { xs: "100%", sm: 170, md: 200 } }}>
           <SelectFieldComponent
             label="Status"
             name="status"
@@ -454,7 +457,7 @@ const AllEmployees = () => {
           />
         </Box>
 
-        <Box sx={{ width: 300 }}>
+        <Box sx={{ width: { xs: "100%", sm: 300 } }}>
           <TextField
             label="Search"
             variant="outlined"
@@ -488,7 +491,7 @@ const AllEmployees = () => {
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => { }}
+        onClose={() => {}}
         hideCloseIcon={true}
         title="Confirm Action"
         content={confirmationModalContent}

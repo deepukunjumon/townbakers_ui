@@ -1,5 +1,12 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Box, Typography, Button, Divider, Chip, Fab } from "@mui/material";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import {
+  Box,
+  Typography,
+  Divider,
+  Chip,
+  Fab,
+  CircularProgress,
+} from "@mui/material";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import ModalComponent from "../../components/ModalComponent";
@@ -17,6 +24,7 @@ const ViewBranches = () => {
 
   const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
   const [pagination, setPagination] = useState({
     current_page: 1,
     per_page: 10,
@@ -29,6 +37,8 @@ const ViewBranches = () => {
     severity: "error",
     message: "",
   });
+
+  const controllerRef = useRef(null); // NEW: reference to cancel API call
 
   const fetchBranches = useCallback(async () => {
     setLoading(true);
@@ -84,14 +94,19 @@ const ViewBranches = () => {
   };
 
   const handleBranchClick = async (branchId) => {
-    const token = getToken();
-    setLoading(true);
+    setModalLoading(true);
+    setOpenModal(true);
+
+    const controller = new AbortController(); // NEW
+    controllerRef.current = controller;
 
     try {
+      const token = getToken();
       const res = await fetch(
         `${apiConfig.BRANCH_DETAILS.replace("{id}", branchId)}`,
         {
           headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal, // NEW: attach signal
         }
       );
 
@@ -99,22 +114,25 @@ const ViewBranches = () => {
 
       if (data.success) {
         setSelectedBranch(data.branch_details);
-        setOpenModal(true);
       } else {
         setSnack({
           open: true,
           severity: "error",
           message: data.message || "Failed to load branch details",
         });
+        setOpenModal(false);
       }
     } catch (error) {
-      setSnack({
-        open: true,
-        severity: "error",
-        message: "Failed to load branch details",
-      });
+      if (error.name !== "AbortError") {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load branch details",
+        });
+        setOpenModal(false);
+      }
     } finally {
-      setLoading(false);
+      setModalLoading(false);
     }
   };
 
@@ -157,10 +175,23 @@ const ViewBranches = () => {
         onClose={() => {
           setOpenModal(false);
           setSelectedBranch(null);
+          setModalLoading(false);
+          controllerRef.current?.abort();
         }}
         title="Branch Details"
         content={
-          selectedBranch ? (
+          modalLoading ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: 150,
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          ) : selectedBranch ? (
             <Box>
               <Typography>
                 <strong>Code:</strong> {selectedBranch.code}
@@ -172,7 +203,6 @@ const ViewBranches = () => {
                 <strong>Address:</strong> {selectedBranch.address}
               </Typography>
               <Divider sx={{ my: 2 }} />
-
               <Typography>
                 <strong>Mobile:</strong> {selectedBranch.mobile}
               </Typography>
@@ -183,7 +213,6 @@ const ViewBranches = () => {
                 <strong>Phone:</strong> {selectedBranch.phone || "-"}
               </Typography>
               <Divider sx={{ my: 2 }} />
-
               <Typography>
                 <strong>Status:</strong>{" "}
                 <ChipComponent
@@ -198,9 +227,7 @@ const ViewBranches = () => {
                 {selectedBranch.active_employees_count}
               </Typography>
             </Box>
-          ) : (
-            <Loader message="Loading..." />
-          )
+          ) : null
         }
       />
 

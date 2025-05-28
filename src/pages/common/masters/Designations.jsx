@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   Box,
   Typography,
-  Chip,
   Divider,
   TextField,
   Switch,
@@ -205,7 +204,7 @@ const Designations = () => {
       renderCell: (params) => {
         const status = Number(params.row.status);
         let chipProps = {
-          size: "small"
+          size: "small",
         };
 
         switch (status) {
@@ -239,7 +238,9 @@ const Designations = () => {
         }
 
         return (
-          <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
+          <Box
+            sx={{ display: "flex", justifyContent: "center", width: "100%" }}
+          >
             <ChipComponent {...chipProps} />
           </Box>
         );
@@ -495,7 +496,7 @@ const Designations = () => {
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => { }}
+        onClose={() => {}}
         hideCloseIcon={true}
         title="Confirm Action"
         content={confirmationModalContent}
