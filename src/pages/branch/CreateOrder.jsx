@@ -150,7 +150,7 @@ const CreateOrder = () => {
 
   return (
     <Box sx={{ maxWidth: "auto", mx: "auto", py: 2, px: 2 }}>
-      {loading && <Loader message="Submitting stock..." />}
+      {loading && <Loader message="Creating Order..." />}
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
