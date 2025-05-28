@@ -170,11 +170,11 @@ const ViewProfile = () => {
                 setSnack({ open: true, severity: "success", message: "Profile updated successfully" });
                 setModalOpen(false);
                 setProfile((p) => {
-                    const updated = { 
-                        ...p, 
-                        email: formData.email, 
+                    const updated = {
+                        ...p,
+                        email: formData.email,
                         mobile: formData.mobile,
-                        name: formData.name 
+                        name: formData.name
                     };
                     if (p.role === "Branch") {
                         updated.branch = { ...p.branch, address: formData.address, name: formData.name };
@@ -316,6 +316,7 @@ const ViewProfile = () => {
                         <TextFieldComponent
                             label="Mobile"
                             name="mobile"
+                            type="mobile"
                             value={formData.mobile}
                             onChange={handleChange}
                             fullWidth

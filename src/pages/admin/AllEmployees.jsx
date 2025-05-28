@@ -36,11 +36,11 @@ function stringToColor(str) {
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  
+
   const h = Math.abs(hash) % 360;
   const s = 70 + Math.abs(hash >> 8) % 30;
   const l = 45 + Math.abs(hash >> 16) % 10;
-  
+
   return `hsl(${h}, ${s}%, ${l}%)`;
 }
 
@@ -418,13 +418,16 @@ const AllEmployees = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: {
+            xs: "flex-start",
+            md: "flex-end"
+          },
           gap: 2,
           flexWrap: "wrap",
           mb: 2,
         }}
       >
-        <Box sx={{ width: { xs: 163, md: 200 } }}>
+        <Box sx={{ width: { xs: 170, md: 200 } }}>
           <SelectFieldComponent
             label="Branch"
             name="branch_code"

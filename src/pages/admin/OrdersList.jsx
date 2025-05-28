@@ -254,7 +254,7 @@ const OrdersList = () => {
             label="Start Date"
             value={startDate}
             onChange={handleStartDateChange}
-            sx={{ width: { xs: 152, md: 180 } }}
+            sx={{ width: { xs: 150, md: 180 } }}
           />
         </Grid>
         <Grid item xs={6} md={3} lg={3}>
@@ -263,7 +263,7 @@ const OrdersList = () => {
             value={endDate}
             onChange={(newDate) => setEndDate(newDate)}
             minDate={startDate}
-            sx={{ width: { xs: 152, md: 180 } }}
+            sx={{ width: { xs: 150, md: 180 } }}
           />
         </Grid>
 
@@ -275,7 +275,7 @@ const OrdersList = () => {
               onChange={handleStatusFilterChange}
               label="Status"
               displayEmpty
-              sx={{ width: { xs: 152, md: 160 } }}
+              sx={{ width: { xs: 150, md: 160 } }}
               renderValue={(selected) => {
                 if (selected === "") return "All";
                 const selectedOption = [
@@ -300,7 +300,7 @@ const OrdersList = () => {
             getOptionLabel={(option) => `${option.code} - ${option.name}`}
             value={branches.find((b) => b.id === branchFilter) || null}
             onChange={handleBranchFilterChange}
-            sx={{ width: { xs: 152, md: 200 } }}
+            sx={{ width: { xs: 150, md: 200 } }}
             renderInput={(params) => (
               <TextField
                 {...params}

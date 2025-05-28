@@ -36,7 +36,7 @@ const CreateEmployee = () => {
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const res = await fetch(`${apiConfig.BASE_URL}/branches/minimal`, {
+        const res = await fetch(`${apiConfig.MINIMAL_BRANCHES}`, {
           headers: { Authorization: getToken() },
         });
         const data = await res.json();
@@ -88,7 +88,7 @@ const CreateEmployee = () => {
         ...form,
         designation_id:
           typeof form.designation_id === "object" &&
-          form.designation_id !== null
+            form.designation_id !== null
             ? form.designation_id.id
             : form.designation_id,
         branch_id:
