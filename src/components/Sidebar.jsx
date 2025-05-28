@@ -13,6 +13,7 @@ import {
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import company_logo from "../assets/images/logo.png";
 
 const drawerWidth = 260;
 
@@ -45,9 +46,14 @@ const Sidebar = ({ open, toggleDrawer, menuItems = [], isMobile }) => {
         }}
       >
         <img
-          src="/path/to/logo.png"
+          src={company_logo}
           alt="Company Logo"
-          style={{ maxWidth: "100%", maxHeight: 25 }}
+          style={{
+            maxWidth: "100%",
+            maxHeight: 60,
+            marginLeft: -50,
+            marginTop: -20,
+          }}
         />
       </Box>
       <Divider />
