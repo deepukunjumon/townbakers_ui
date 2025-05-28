@@ -65,7 +65,7 @@ const ViewProfile = () => {
                 email: profile.email || "",
                 mobile: profile.mobile || "",
                 address: profile.role === "Branch" ? profile.branch?.address || "" : "",
-                name: profile.role === "Branch" ? profile.branch?.name || "" : "",
+                name: profile.name || "",
             };
             setFormData(initData);
             setInitialFormData(initData);
@@ -133,6 +133,7 @@ const ViewProfile = () => {
 
     const isFormChanged = () => {
         return (
+            formData.name !== initialFormData.name ||
             formData.email !== initialFormData.email ||
             formData.mobile !== initialFormData.mobile ||
             (profile.role === "Branch" && (formData.address !== initialFormData.address || formData.name !== initialFormData.name))
@@ -152,7 +153,7 @@ const ViewProfile = () => {
         try {
             const token = getToken();
             const payload = {
-                username: formData.username,
+                name: formData.name,
                 email: formData.email,
                 mobile: formData.mobile,
             };
@@ -169,7 +170,12 @@ const ViewProfile = () => {
                 setSnack({ open: true, severity: "success", message: "Profile updated successfully" });
                 setModalOpen(false);
                 setProfile((p) => {
-                    const updated = { ...p, email: formData.email, mobile: formData.mobile };
+                    const updated = { 
+                        ...p, 
+                        email: formData.email, 
+                        mobile: formData.mobile,
+                        name: formData.name 
+                    };
                     if (p.role === "Branch") {
                         updated.branch = { ...p.branch, address: formData.address, name: formData.name };
                     }
@@ -257,6 +263,18 @@ const ViewProfile = () => {
                             error={Boolean(errors.username)}
                             helperText={errors.username}
                         />
+                        {profile.role === "admin" || profile.role === "super_admin" && (
+                            <TextFieldComponent
+                                label="Name"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                fullWidth
+                                error={Boolean(errors.name)}
+                                helperText={errors.name}
+                                required
+                            />
+                        )}
                         {profile.role === "Branch" && (
                             <TextFieldComponent
                                 label="Branch Name"

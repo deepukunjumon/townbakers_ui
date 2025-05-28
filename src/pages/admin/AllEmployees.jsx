@@ -36,11 +36,12 @@ function stringToColor(str) {
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  let color = "#";
-  for (let i = 0; i < 3; i++) {
-    color += ("00" + ((hash >> (i * 8)) & 0xff).toString(16)).slice(-2);
-  }
-  return color;
+  
+  const h = Math.abs(hash) % 360;
+  const s = 70 + Math.abs(hash >> 8) % 30;
+  const l = 45 + Math.abs(hash >> 16) % 10;
+  
+  return `hsl(${h}, ${s}%, ${l}%)`;
 }
 
 const AllEmployees = () => {
@@ -400,9 +401,18 @@ const AllEmployees = () => {
 
   return (
     <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        All Employees
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+        <Typography variant="h5">
+          All Employees
+        </Typography>
+        <ExportMenu
+          anchorEl={anchorEl}
+          open={menuOpen}
+          onClose={handleExportClose}
+          onExportClick={handleExportClick}
+          disabled={employees.length === 0}
+        />
+      </Box>
       <Divider sx={{ mb: 2 }} />
 
       <Box
@@ -450,14 +460,6 @@ const AllEmployees = () => {
             placeholder="Search employees..."
           />
         </Box>
-
-        <ExportMenu
-          anchorEl={anchorEl}
-          open={menuOpen}
-          onClose={handleExportClose}
-          onExportClick={handleExportClick}
-          disabled={employees.length === 0}
-        />
       </Box>
 
       <SnackbarAlert
@@ -480,26 +482,6 @@ const AllEmployees = () => {
           onPaginationChange={handlePaginationChange}
         />
       )}
-      <Fab
-        color="primary"
-        aria-label="add"
-        onClick={() => {
-          if (role === "admin") {
-            navigate(ROUTES.ADMIN.CREATE_EMPLOYEE);
-          }
-          if (role === "super_admin") {
-            navigate(ROUTES.SUPER_ADMIN.CREATE_EMPLOYEE);
-          }
-        }}
-        sx={{
-          position: "fixed",
-          bottom: 32,
-          right: 32,
-          zIndex: 1300,
-        }}
-      >
-        <AddIcon />
-      </Fab>
 
       <ModalComponent
         open={confirmModalOpen}
@@ -508,6 +490,26 @@ const AllEmployees = () => {
         title="Confirm Action"
         content={confirmationModalContent}
       />
+
+      <Fab
+        color="primary"
+        sx={{
+          position: "fixed",
+          bottom: 30,
+          right: 30,
+          boxShadow: 3,
+        }}
+        onClick={() => {
+          if (role === "admin") {
+            navigate(ROUTES.ADMIN.CREATE_EMPLOYEE);
+          }
+          if (role === "super_admin") {
+            navigate(ROUTES.SUPER_ADMIN.CREATE_EMPLOYEE);
+          }
+        }}
+      >
+        <AddIcon />
+      </Fab>
     </Box>
   );
 };
