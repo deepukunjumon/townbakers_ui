@@ -241,6 +241,7 @@ const OrdersList = () => {
       <Typography variant="h5" gutterBottom>
         Orders List
       </Typography>
+      <Divider sx={{ mb: 2 }} />
 
       <SnackbarAlert
         open={snack.open}

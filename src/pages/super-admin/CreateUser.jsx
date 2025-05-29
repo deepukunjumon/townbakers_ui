@@ -8,6 +8,7 @@ import {
   FormControlLabel,
   Radio,
   Button,
+  Divider,
 } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TextFieldComponent from "../../components/TextFieldComponent";
@@ -166,6 +167,7 @@ const CreateUser = () => {
       <Typography variant="h5" fontWeight={600} sx={{ mb: 3 }}>
         Create New User
       </Typography>
+      <Divider sx={{ mb: 2 }} />
 
       <form onSubmit={handleSubmit}>
         <FormControl component="fieldset" sx={{ mb: 3, display: "block" }}>

@@ -144,10 +144,9 @@ const ViewBranches = () => {
   return (
     <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
       <Typography variant="h5" gutterBottom>
-        Branches List
+        Branches
       </Typography>
-
-      <Divider sx={{ mb: 3 }} />
+      <Divider sx={{ mb: 2 }} />
 
       <SnackbarAlert
         open={snack.open}

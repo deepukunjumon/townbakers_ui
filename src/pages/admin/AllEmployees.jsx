@@ -10,6 +10,7 @@ import {
   Fab,
   CircularProgress,
   Avatar,
+  Autocomplete,
 } from "@mui/material";
 import { getRoleFromToken } from "../../utils/auth";
 import AddIcon from "@mui/icons-material/Add";
@@ -48,7 +49,7 @@ const AllEmployees = () => {
   const navigate = useNavigate();
   const role = getRoleFromToken();
   const [employees, setEmployees] = useState([]);
-  const [branches, setBranches] = useState([{ name: "All", id: "" }]);
+  const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingBranches, setLoadingBranches] = useState(true);
   const [snack, setSnack] = useState({
@@ -64,7 +65,7 @@ const AllEmployees = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
   const [statusFilter, setStatusFilter] = useState(statusOptions[0]);
-  const [branchFilter, setBranchFilter] = useState({ name: "All", id: "" });
+  const [branchFilter, setBranchFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimeout = useRef(null);
 
@@ -86,15 +87,11 @@ const AllEmployees = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && Array.isArray(data.branches)) {
-          const branchOpts = [
-            { name: "All", id: "" },
-            ...data.branches.map((b) => ({
-              name: b.code,
-              id: b.code,
-            })),
-          ];
-          setBranches(branchOpts);
+        if (data.success) {
+          setBranches([
+            { id: "", code: "All", name: "Branches" },
+            ...(data.branches || []),
+          ]);
           setLoadingBranches(false);
         } else {
           throw new Error("Invalid branches data");
@@ -119,7 +116,7 @@ const AllEmployees = () => {
     const params = new URLSearchParams();
 
     if (statusFilter.id) params.append("status", statusFilter.id);
-    if (branchFilter.id) params.append("branch_code", branchFilter.id);
+    if (branchFilter) params.append("branch_code", branchFilter);
     if (searchTerm.trim()) params.append("q", searchTerm.trim());
 
     url += `&${params.toString()}`;
@@ -196,8 +193,8 @@ const AllEmployees = () => {
 
       setSnack({
         open: true,
-        severity: "success",
-        message: "Status updated successfully",
+        severity: data.success,
+        message: data.message,
       });
     } catch (error) {
       setSnack({
@@ -351,7 +348,7 @@ const AllEmployees = () => {
     const token = localStorage.getItem("token");
     if (token) addField("token", token);
     addField("status", statusFilter.id || "");
-    addField("branch_code", branchFilter.id || "");
+    addField("branch_code", branchFilter || "");
     addField("q", searchTerm.trim() || "");
     addField("export", "true");
     addField("type", type);
@@ -379,15 +376,6 @@ const AllEmployees = () => {
     }));
   };
 
-  const handleBranchChange = (event) => {
-    const selectedBranch = event.target.value || branches[0];
-    setBranchFilter(selectedBranch);
-    setPagination((prev) => ({
-      ...prev,
-      current_page: 1,
-    }));
-  };
-
   const handleSearchChange = (event) => {
     const value = event.target.value;
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
@@ -398,7 +386,7 @@ const AllEmployees = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
+    <Box sx={{ maxWidth: "auto", p: 3 }}>
       <Box
         sx={{
           display: "flex",
@@ -430,21 +418,8 @@ const AllEmployees = () => {
           mb: 2,
         }}
       >
-        <Box sx={{ width: { xs: "100%", sm: 170, md: 200 } }}>
-          <SelectFieldComponent
-            label="Branch"
-            name="branch_code"
-            value={branchFilter}
-            onChange={handleBranchChange}
-            options={branches}
-            valueKey="id"
-            displayKey="name"
-            fullWidth
-            disabled={loadingBranches}
-          />
-        </Box>
 
-        <Box sx={{ width: { xs: "100%", sm: 170, md: 200 } }}>
+        <Box sx={{ width: { xs: 135, sm: 170, md: 200 } }}>
           <SelectFieldComponent
             label="Status"
             name="status"
@@ -454,6 +429,18 @@ const AllEmployees = () => {
             valueKey="id"
             displayKey="name"
             fullWidth
+          />
+        </Box>
+
+        <Box sx={{ width: { xs: 135, sm: 200, md: 250 } }}>
+          <Autocomplete
+            options={branches}
+            getOptionLabel={(o) => `${o.code} - ${o.name}`}
+            value={branches.find((b) => b.id === branchFilter) || null}
+            onChange={(e, newVal) => setBranchFilter(newVal?.id || "")}
+            sx={{ width: "100%" }}
+            renderInput={(params) => <TextField {...params} label="Branch" />}
+            disabled={loadingBranches}
           />
         </Box>
 
@@ -491,7 +478,7 @@ const AllEmployees = () => {
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => {}}
+        onClose={() => { }}
         hideCloseIcon={true}
         title="Confirm Action"
         content={confirmationModalContent}
