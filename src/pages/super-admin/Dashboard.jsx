@@ -51,6 +51,13 @@ const SuperAdminDashboard = () => {
       color: "error",
       icon: <AssignmentIcon />,
     },
+    {
+      title: "Cancelled Orders",
+      subtitle: "Cancelled orders count",
+      loading: true,
+      color: "error",
+      icon: <AssignmentIcon />,
+    },
   ]);
 
   const fetchStats = useCallback(() => {

@@ -50,8 +50,8 @@ const StatCard = ({
           lg: "50%",
           xl: "40%",
         },
-        minWidth: { xs: 130, sm: 160, md: 230 },
-        maxWidth: isXs ? 135 : 100,
+        minWidth: { xs: 130, sm: 160, md: 225 },
+        maxWidth: isXs ? 140 : 100,
         height: "auto",
         px: 2,
         py: 1,
@@ -119,10 +119,9 @@ const StatCard = ({
                 variant="body2"
                 sx={{
                   fontSize: { xs: 12, sm: 14 },
-                  fontWeight: { xs: 500, sm: 600 },
+                  fontWeight: { xs: 600, sm: 600 },
                   color: theme.palette[paletteColor].main,
                   textAlign: isXs ? "left" : "inherit",
-                  mr: isXs ? 1 : 0,
                 }}
               >
                 {title}

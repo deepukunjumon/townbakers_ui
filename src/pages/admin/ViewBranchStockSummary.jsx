@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Box, Typography, Divider } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TableComponent from "../../components/TableComponent";
@@ -11,12 +11,15 @@ import { format } from "date-fns";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
 import Loader from "../../components/Loader";
 import axios from "axios";
+import TextFieldComponent from "../../components/TextFieldComponent";
 
 const ViewBranchStockSummary = () => {
   const [branches, setBranches] = useState([]);
   const [branchId, setBranchId] = useState("");
   const [date, setDate] = useState("");
   const [rows, setRows] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const searchTimeout = useRef(null);
   const [pagination, setPagination] = useState({
     current_page: 1,
     per_page: 10,
@@ -108,6 +111,7 @@ const ViewBranchStockSummary = () => {
           date: format(date, "yyyy-MM-dd"),
           page: pagination.current_page,
           per_page: pagination.per_page,
+          q: searchTerm.trim(),
         },
         {
           headers: {
@@ -156,13 +160,28 @@ const ViewBranchStockSummary = () => {
     fetchSummary();
   };
 
+  const handleSearchChange = (event) => {
+    const value = event.target.value;
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {
+      setSearchTerm(value);
+    }, 500);
+  };
+
+  // Add useEffect to watch for search term changes
+  useEffect(() => {
+    if (submitted && branchId && date) {
+      fetchSummary();
+    }
+  }, [searchTerm]);
+
   const columns = [
     { field: "item_name", headerName: "Item" },
     { field: "quantity", headerName: "Quantity" },
   ];
 
   return (
-    <Box sx={{ maxWidth: "auto", p: 3 }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
       {loading && <Loader message="Loading..." />}
       <SnackbarAlert
         open={snack.open}
@@ -201,46 +220,72 @@ const ViewBranchStockSummary = () => {
           },
         }}
       >
-        <SelectFieldComponent
-          label="Select Branch"
-          value={branchId}
-          onChange={(e) => setBranchId(e.target.value)}
-          options={branches}
-          valueKey="id"
-          displayKey={(branch) =>
-            `${branch.branche_code || branch.code} - ${branch.name}`
-          }
-          required
+        <Box
+          display="flex"
+          gap={2}
+          alignItems="center"
+          flexWrap="wrap"
           sx={{
-            maxWidth: { xs: "100%", sm: 300 },
+            flex: { xs: "1 1 100%", sm: "1 1 auto" },
+            "& > *": {
+              flex: { xs: "1 1 100%", sm: "1 1 auto" },
+            },
           }}
-        />
-
-        <Box display="flex" gap={2}>
-          <DateSelectorComponent
+        >
+          <SelectFieldComponent
+            label="Select Branch"
+            value={branchId}
+            onChange={(e) => setBranchId(e.target.value)}
+            options={branches}
+            valueKey="id"
+            displayKey={(branch) =>
+              `${branch.branche_code || branch.code} - ${branch.name}`
+            }
             required
-            label="Select Date"
             sx={{
-              maxWidth: { xs: 200, sm: "100%" },
+              maxWidth: { xs: "100%", sm: 300 },
             }}
-            date={date}
-            onChange={(newDate) => setDate(newDate)}
-            error={submitted && !date}
-            helperText={submitted && !date ? "Date is required" : ""}
-            maxDate={new Date()}
           />
-          <ButtonComponent
-            onClick={fetchSummary}
-            variant="contained"
-            color="primary"
-            sx={{
-              width: { xs: "100%", sm: "fit-content" },
-              alignSelf: { xs: "stretch", sm: "flex-end" },
-            }}
-          >
-            SUBMIT
-          </ButtonComponent>
+
+          <Box display="flex" gap={2} alignItems="center">
+            <DateSelectorComponent
+              required
+              label="Select Date"
+              sx={{
+                maxWidth: { xs: 200, sm: "100%" },
+              }}
+              date={date}
+              onChange={(newDate) => setDate(newDate)}
+              error={submitted && !date}
+              helperText={submitted && !date ? "Date is required" : ""}
+              maxDate={new Date()}
+            />
+
+            <ButtonComponent
+              onClick={fetchSummary}
+              variant="contained"
+              color="primary"
+              sx={{
+                width: "auto",
+                minWidth: "100px",
+                height: "56px",
+              }}
+            >
+              SUBMIT
+            </ButtonComponent>
+          </Box>
         </Box>
+
+        {rows.length > 0 && (
+          <Box sx={{ width: { xs: "100%", sm: 0 } }}>
+            <TextFieldComponent
+              label="Search"
+              variant="outlined"
+              onChange={handleSearchChange}
+              placeholder="Search items..."
+            />
+          </Box>
+        )}
       </Box>
 
       {rows.length > 0 && (

@@ -36,10 +36,15 @@ export const STRINGS = {
   SOMETHING_WENT_WRONG: "Something went wrong. Please try again later.",
 
   //All Employees
-  DISABLE_EMPLOYEE_CONFIRMATION: "Are you sure you want to disable this employee ?",
-  ENABLE_EMPLOYEE_CONFIRMATION: "Are you sure you want to enable this employee ?",
+  DISABLE_EMPLOYEE_CONFIRMATION:
+    "Are you sure you want to disable this employee ?",
+  ENABLE_EMPLOYEE_CONFIRMATION:
+    "Are you sure you want to enable this employee ?",
 
   //Designations
   DISABLE_DESIGNATION: "Are you sure you want to disable this designation ?",
   ENABLE_DESIGNATION: "Are you sure you want to enable this designation ?",
+
+  //Add Stock
+  SUBMIT_CONFIRMATION: "Are you sure you want to submit ?",
 };

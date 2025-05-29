@@ -4,7 +4,7 @@ import { Box, Grid, Typography, IconButton } from "@mui/material";
 import StatCard from "../../components/StatCard";
 import PeopleIcon from "@mui/icons-material/People";
 import BusinessIcon from "@mui/icons-material/Business";
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import axios from "axios";
 import apiConfig from "../../config/apiConfig";
@@ -16,7 +16,7 @@ const Dashboard = () => {
 
   const [stats, setStats] = useState([
     {
-      title: "Employees",
+      title: "Active Employees",
       subtitle: "Active employees count",
       loading: true,
       color: "primary",
@@ -24,14 +24,14 @@ const Dashboard = () => {
       onClick: () => navigate(ROUTES.BRANCH.LIST_EMPLOYEES),
     },
     {
-      title: "Total Upcoming Orders",
+      title: "Upcoming Orders",
       subtitle: "Count of pending orders",
       loading: true,
       color: "warning",
       icon: <AssignmentIcon />,
     },
     {
-      title: "Today's Pending Oders",
+      title: "Today's Pending Orders",
       subtitle: "Orders to be completed today",
       loading: true,
       color: "info",
@@ -58,14 +58,14 @@ const Dashboard = () => {
 
           setStats((prevStats) =>
             prevStats.map((stat) => {
-              if (stat.title === "Employees") {
+              if (stat.title === "Active Employees") {
                 return {
                   ...stat,
                   value: data.active_employees_count,
                   loading: false,
                 };
               }
-              if (stat.title === "Total Upcoming Orders") {
+              if (stat.title === "Upcoming Orders") {
                 return {
                   ...stat,
                   value: data.pending_orders_count,
@@ -79,7 +79,7 @@ const Dashboard = () => {
                   loading: false,
                 };
               }
-              if (stat.title === "Today's Pending Oders") {
+              if (stat.title === "Today's Pending Orders") {
                 return {
                   ...stat,
                   value: data.todays_pending_orders_count,
@@ -101,8 +101,16 @@ const Dashboard = () => {
   }, [fetchStats]);
 
   return (
-    <Box sx={{ mt: { xs: -3 }, p: 3, maxWidth: "100%", mx: "auto" }}>
-      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+    <Box
+      sx={{
+        p: 3,
+        maxWidth: "auto",
+        mx: "auto",
+      }}
+    >
+      <Box
+        sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}
+      >
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
           Dashboard
         </Typography>
