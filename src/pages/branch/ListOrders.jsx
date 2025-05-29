@@ -336,7 +336,7 @@ const ListOrders = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", py: 3, px: { xs: 1, sm: 2 } }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
       {loading && <Loader message="Loading..." />}
       <Typography variant="h5" gutterBottom>
         Orders List
@@ -357,7 +357,7 @@ const ListOrders = () => {
             label="Start Date"
             value={startDate}
             onChange={handleStartDateChange}
-            sx={{ width: { xs: 152, md: "auto" } }}
+            sx={{ width: { xs: 151, md: "auto" } }}
           />
         </Grid>
         <Grid item xs={6} md={3} lg={3}>
@@ -366,7 +366,7 @@ const ListOrders = () => {
             value={endDate}
             onChange={(newDate) => setEndDate(newDate)}
             minDate={startDate}
-            sx={{ width: { xs: 152, md: "auto" } }}
+            sx={{ width: { xs: 151, md: "auto" } }}
           />
         </Grid>
 

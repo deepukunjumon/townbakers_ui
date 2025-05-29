@@ -114,7 +114,7 @@ const BranchEmployees = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
       <Typography variant="h5" gutterBottom>
         Branch Employees
       </Typography>

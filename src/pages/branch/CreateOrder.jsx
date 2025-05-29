@@ -149,7 +149,7 @@ const CreateOrder = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", py: 2, px: 2 }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
       {loading && <Loader message="Creating Order..." />}
       <SnackbarAlert
         open={snack.open}
@@ -181,7 +181,7 @@ const CreateOrder = () => {
               name="title"
               value={form.title}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340, sm: "auto" } }}
+              sx={{ minWidth: { xs: 320, sm: "auto" } }}
               required
             />
           </Grid>
@@ -193,7 +193,7 @@ const CreateOrder = () => {
               onChange={handleChange}
               multiline
               rows={3}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 320 } }}
             />
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -204,7 +204,7 @@ const CreateOrder = () => {
               onChange={handleChange}
               multiline
               rows={3}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 320 } }}
             />
           </Grid>
         </Grid>
@@ -227,7 +227,7 @@ const CreateOrder = () => {
               value={form.delivery_date}
               onChange={handleDateChange}
               minDate={new Date()}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 320 } }}
               required
             />
           </Grid>
@@ -237,7 +237,7 @@ const CreateOrder = () => {
               name="delivery_time"
               value={form.delivery_time}
               onChange={(time) => handleTimeChange(time, "delivery_time")}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 320 } }}
               required
             />
           </Grid>
@@ -265,7 +265,7 @@ const CreateOrder = () => {
               name="customer_name"
               value={form.customer_name}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 320 } }}
               required
             />
           </Grid>
@@ -275,7 +275,7 @@ const CreateOrder = () => {
               name="customer_mobile"
               value={form.customer_mobile}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 320 } }}
               required
             />
           </Grid>
@@ -285,7 +285,7 @@ const CreateOrder = () => {
               name="customer_email"
               value={form.customer_email}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 320 } }}
               type="email"
             />
           </Grid>
@@ -379,7 +379,7 @@ const CreateOrder = () => {
               displayKey={(emp) => `${emp.employee_code} - ${emp.name}`}
               required
               fullWidth
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 320 } }}
             />
           </Grid>
         </Grid>

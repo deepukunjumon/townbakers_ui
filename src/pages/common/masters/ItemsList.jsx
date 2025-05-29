@@ -241,14 +241,14 @@ const ItemsList = () => {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     setImporting(true);
     const token = localStorage.getItem("token");
 
     try {
       const res = await fetch(apiConfig.IMPORT_ITEMS, {
-        method: 'POST',
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -258,7 +258,7 @@ const ItemsList = () => {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Failed to import items');
+        throw new Error(data.error || "Failed to import items");
       }
 
       setImportResult({
@@ -271,7 +271,7 @@ const ItemsList = () => {
     } catch (error) {
       setImportResult({
         success: false,
-        message: error.message || 'Failed to import items',
+        message: error.message || "Failed to import items",
         errors: [],
       });
     } finally {
@@ -356,7 +356,7 @@ const ItemsList = () => {
   );
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 3, position: "relative" }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2, position: "relative" }}>
       <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
           Items List

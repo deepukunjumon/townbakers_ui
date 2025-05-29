@@ -199,7 +199,7 @@ const AddStock = () => {
   );
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", py: 2, px: 2 }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
       {loading && <Loader message="Submitting stock..." />}
       <SnackbarAlert
         open={snack.open}

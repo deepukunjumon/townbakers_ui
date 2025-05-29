@@ -101,13 +101,7 @@ const Dashboard = () => {
   }, [fetchStats]);
 
   return (
-    <Box
-      sx={{
-        p: 3,
-        maxWidth: "auto",
-        mx: "auto",
-      }}
-    >
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
       <Box
         sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}
       >

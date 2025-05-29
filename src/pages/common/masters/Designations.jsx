@@ -378,11 +378,9 @@ const Designations = () => {
 
   const confirmationModalContent = (
     <Box>
-      {
-        confirmPayload.currentStatus === 1
-          ? STRINGS.DISABLE_DESIGNATION
-          : STRINGS.ENABLE_DESIGNATION
-      }
+      {confirmPayload.currentStatus === 1
+        ? STRINGS.DISABLE_DESIGNATION
+        : STRINGS.ENABLE_DESIGNATION}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
         <Button variant="text" onClick={() => setConfirmModalOpen(false)}>
           Cancel
@@ -417,7 +415,7 @@ const Designations = () => {
   );
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
       <Typography variant="h5" gutterBottom>
         Designations
       </Typography>
@@ -497,7 +495,7 @@ const Designations = () => {
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => { }}
+        onClose={() => {}}
         hideCloseIcon={true}
         title={STRINGS.CONFIRM_ACTION}
         content={confirmationModalContent}
