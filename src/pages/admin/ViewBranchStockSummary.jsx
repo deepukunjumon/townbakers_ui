@@ -133,7 +133,7 @@ const ViewBranchStockSummary = () => {
         setSnack({
           open: true,
           severity: "success",
-          message: data.message || "Data fetched",
+          message: data.message,
         });
       } else throw new Error();
     } catch {

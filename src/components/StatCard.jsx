@@ -39,20 +39,20 @@ const StatCard = ({
         borderRadius: 3,
         boxShadow: "0 2px 8px rgba(31,41,55,0.07)",
         display: "flex",
-        flexDirection: isXs ? "row" : "row",
+        flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
         cursor: "pointer",
-        height: { xs: 100, sm: 120, md: 140 },
         width: {
           xs: "100%",
-          sm: "75%",
+          sm: "60%",
           md: "60%",
           lg: "50%",
           xl: "40%",
         },
-        minWidth: { xs: 100, sm: 245, md: 240 },
-        maxWidth: { xs: 135, sm: 240, md: 240 },
+        minWidth: { xs: 130, sm: 160, md: 230 },
+        maxWidth: isXs ? 135 : 100,
+        height: "auto",
         px: 2,
         py: 1,
         transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
@@ -67,17 +67,16 @@ const StatCard = ({
       {icon && (
         <Box
           sx={{
-            bgcolor: theme.palette[paletteColor].light,
+            // bgcolor: theme.palette[paletteColor].light,
             color: theme.palette[paletteColor].main,
-            width: isXs ? 40 : 50,
-            height: isXs ? 40 : 50,
+            width: isXs ? 20 : 50,
+            height: isXs ? 20 : 50,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             borderRadius: "50%",
             fontSize: isXs ? 20 : 24,
             mr: isXs ? 1.5 : 2,
-            ml: isXs ? 0 : 2,
           }}
         >
           {icon}
@@ -136,8 +135,9 @@ const StatCard = ({
                 fontWeight: 700,
                 color: "text.primary",
                 mb: 0.2,
+                mt: isXs ? 1 : 0,
                 fontSize: 20,
-                lineHeight: 1.1,
+                lineHeight: 1,
                 textAlign: isXs ? "center" : "left",
               }}
             >

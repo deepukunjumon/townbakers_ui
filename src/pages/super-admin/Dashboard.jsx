@@ -38,10 +38,17 @@ const SuperAdminDashboard = () => {
       icon: <AssignmentIcon />,
     },
     {
-      title: "Pending Orders",
-      subtitle: "Pending orders count",
+      title: "Completed Orders",
+      subtitle: "Completed orders count",
       loading: true,
-      color: "warning",
+      color: "success",
+      icon: <AssignmentIcon />,
+    },
+    {
+      title: "Cancelled Orders",
+      subtitle: "Cancelled orders count",
+      loading: true,
+      color: "error",
       icon: <AssignmentIcon />,
     },
   ]);
@@ -86,6 +93,20 @@ const SuperAdminDashboard = () => {
                   loading: false,
                 };
               }
+              if (stat.title === "Completed Orders") {
+                return {
+                  ...stat,
+                  value: 0,
+                  loading: false,
+                };
+              }
+              if (stat.title === "Cancelled Orders") {
+                return {
+                  ...stat,
+                  value: 0,
+                  loading: false,
+                };
+              }
               return stat;
             })
           );
@@ -104,7 +125,7 @@ const SuperAdminDashboard = () => {
     <Box
       sx={{
         p: 3,
-        maxWidth: "100%",
+        maxWidth: "auto",
         mx: "auto",
       }}
     >

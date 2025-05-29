@@ -24,6 +24,7 @@ import ModalComponent from "../../components/ModalComponent";
 import apiConfig from "../../config/apiConfig";
 import { userStatusMap } from "../../constants/statuses";
 import ExportMenu from "../../components/ExportMenu";
+import { STRINGS } from "../../constants/strings";
 
 const statusOptions = [
   { name: "All", id: "" },
@@ -182,7 +183,7 @@ const AllEmployees = () => {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to update status");
+        throw new Error(data.message || STRINGS.SOMETHING_WENT_WRONG);
       }
 
       setEmployees((prevEmployees) =>
@@ -193,7 +194,7 @@ const AllEmployees = () => {
 
       setSnack({
         open: true,
-        severity: data.success,
+        severity: "success",
         message: data.message,
       });
     } catch (error) {
@@ -212,18 +213,18 @@ const AllEmployees = () => {
   };
 
   const confirmationModalContent = (
-    <Box sx={{ p: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        {confirmPayload.currentStatus === 1
-          ? "Are you sure you want to disable this employee?"
-          : "Are you sure you want to enable this employee?"}
-      </Typography>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
+    <Box>
+      {
+        confirmPayload.currentStatus === 1
+          ? STRINGS.DISABLE_EMPLOYEE_CONFIRMATION
+          : STRINGS.ENABLE_EMPLOYEE_CONFIRMATION
+      }
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
         <Button variant="text" onClick={() => setConfirmModalOpen(false)}>
-          Cancel
+          {STRINGS.CANCEL}
         </Button>
         <Button variant="text" onClick={handleConfirmToggle} autoFocus>
-          Confirm
+          {STRINGS.CONFIRM}
         </Button>
       </Box>
     </Box>
@@ -480,7 +481,7 @@ const AllEmployees = () => {
         open={confirmModalOpen}
         onClose={() => { }}
         hideCloseIcon={true}
-        title="Confirm Action"
+        title={STRINGS.CONFIRM_ACTION}
         content={confirmationModalContent}
       />
 

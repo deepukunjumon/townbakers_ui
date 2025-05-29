@@ -17,6 +17,7 @@ import SelectFieldComponent from "../../../components/SelectFieldComponent";
 import ModalComponent from "../../../components/ModalComponent";
 import ChipComponent from "../../../components/ChipComponent";
 import apiConfig from "../../../config/apiConfig";
+import { STRINGS } from "../../../constants/strings";
 
 const statusOptions = [
   { name: "All", id: "" },
@@ -376,12 +377,12 @@ const Designations = () => {
   };
 
   const confirmationModalContent = (
-    <Box sx={{ p: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        {confirmPayload.currentStatus === 1
-          ? "Are you sure you want to disable this designation?"
-          : "Are you sure you want to enable this designation?"}
-      </Typography>
+    <Box>
+      {
+        confirmPayload.currentStatus === 1
+          ? STRINGS.DISABLE_DESIGNATION
+          : STRINGS.ENABLE_DESIGNATION
+      }
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
         <Button variant="text" onClick={() => setConfirmModalOpen(false)}>
           Cancel
@@ -418,7 +419,7 @@ const Designations = () => {
   return (
     <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
       <Typography variant="h5" gutterBottom>
-        Designations List
+        Designations
       </Typography>
       <Divider sx={{ mb: 2 }} />
 
@@ -496,9 +497,9 @@ const Designations = () => {
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => {}}
+        onClose={() => { }}
         hideCloseIcon={true}
-        title="Confirm Action"
+        title={STRINGS.CONFIRM_ACTION}
         content={confirmationModalContent}
       />
 
