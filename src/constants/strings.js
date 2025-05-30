@@ -47,4 +47,10 @@ export const STRINGS = {
 
   //Add Stock
   SUBMIT_CONFIRMATION: "Are you sure you want to submit ?",
+
+  //Items
+  DISABLE_ITEM_CONFIRMATION: (name) => `Are you sure you want to disable the item "${name}"?`,
+  ENABLE_ITEM_CONFIRMATION: (name) => `Are you sure you want to enable the item "${name}"?`,
+  ENABLE: "Enable",
+  DISABLE: "Disable",
 };

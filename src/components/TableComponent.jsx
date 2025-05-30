@@ -204,8 +204,8 @@ const TableComponent = ({
                       {col.renderCell
                         ? col.renderCell({ value: row[col.field], row })
                         : col.type === "date" && row[col.field]
-                        ? dayjs(row[col.field]).format("DD-MM-YYYY")
-                        : row[col.field] ?? "-"}
+                          ? dayjs(row[col.field]).format("DD-MM-YYYY")
+                          : row[col.field] ?? "-"}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -229,7 +229,7 @@ const TableComponent = ({
       </TableContainer>
 
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25, 50]}
+        rowsPerPageOptions={[5, 10, 25, 50, 100]}
         component="div"
         count={total}
         rowsPerPage={rowsPerPage}

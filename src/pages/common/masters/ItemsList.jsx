@@ -10,6 +10,8 @@ import SearchFieldComponent from "../../../components/SearchFieldComponent";
 import TextFieldComponent from "../../../components/TextFieldComponent";
 import SelectFieldComponent from "../../../components/SelectFieldComponent";
 import ImportMenuComponent from "../../../components/ImportMenuComponent";
+import ButtonComponent from "../../../components/ButtonComponent";
+import { STRINGS } from "../../../constants/strings";
 
 const categoryOptions = [
   { label: "Snacks", value: "snacks" },
@@ -37,6 +39,8 @@ const ItemsList = () => {
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState(null);
   const [newItemDescription, setNewItemDescription] = useState("");
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [file, setFile] = useState(null);
@@ -132,8 +136,21 @@ const ItemsList = () => {
   };
 
   const handleToggleStatus = async (id, currentStatus) => {
+    const item = items.find(item => item.id === id);
+    setSelectedItem({ id, currentStatus, name: item.name });
+    setConfirmModalOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    setConfirmModalOpen(false);
+    setSelectedItem(null);
+  };
+
+  const confirmToggleStatus = async () => {
+    if (!selectedItem) return;
+
     const token = localStorage.getItem("token");
-    const newStatus = currentStatus === 1 ? 0 : 1;
+    const newStatus = selectedItem.currentStatus === 1 ? 0 : 1;
 
     setLoading(true);
 
@@ -144,7 +161,7 @@ const ItemsList = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ id, status: newStatus }),
+        body: JSON.stringify({ id: selectedItem.id, status: newStatus }),
       });
 
       const data = await res.json();
@@ -155,7 +172,7 @@ const ItemsList = () => {
 
       setItems((prevItems) =>
         prevItems.map((item) =>
-          item.id === id ? { ...item, status: newStatus } : item
+          item.id === selectedItem.id ? { ...item, status: newStatus } : item
         )
       );
 
@@ -172,6 +189,7 @@ const ItemsList = () => {
       });
     } finally {
       setLoading(false);
+      handleConfirmCancel();
     }
   };
 
@@ -355,6 +373,41 @@ const ItemsList = () => {
     </Box>
   );
 
+  const renderConfirmationModal = () => (
+    <ModalComponent
+      open={confirmModalOpen}
+      hideCloseIcon={true}
+      onClose={handleConfirmCancel}
+      title="Confirm Status Change"
+      content={
+        <Box>
+          <Typography>
+            {selectedItem?.currentStatus === 1
+              ? STRINGS.DISABLE_ITEM_CONFIRMATION(selectedItem?.name)
+              : STRINGS.ENABLE_ITEM_CONFIRMATION(selectedItem?.name)}
+          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+            <ButtonComponent
+              variant="text"
+              color="primary"
+              onClick={handleConfirmCancel}
+              sx={{ mr: 1 }}
+            >
+              {STRINGS.CANCEL}
+            </ButtonComponent>
+            <ButtonComponent
+              variant="text"
+              color={selectedItem?.currentStatus === 1 ? 'error' : 'success'}
+              onClick={confirmToggleStatus}
+            >
+              {selectedItem?.currentStatus === 1 ? STRINGS.DISABLE : STRINGS.ENABLE}
+            </ButtonComponent>
+          </Box>
+        </Box>
+      }
+    />
+  );
+
   return (
     <Box sx={{ maxWidth: "auto", mx: "auto", p: 2, position: "relative" }}>
       <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
@@ -424,6 +477,8 @@ const ItemsList = () => {
       >
         <AddIcon />
       </Fab>
+
+      {renderConfirmationModal()}
 
       <ModalComponent
         open={modalOpen}

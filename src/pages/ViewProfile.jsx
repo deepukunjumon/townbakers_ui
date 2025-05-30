@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import ModalComponent from "../components/ModalComponent";
 import { ROUTES } from "../constants/routes";
 import TextFieldComponent from "../components/TextFieldComponent";
+import { STRINGS } from "../constants/strings";
 
 const ViewProfile = () => {
   const [profile, setProfile] = useState(null);
@@ -207,7 +208,7 @@ const ViewProfile = () => {
         setSnack({
           open: true,
           severity: "success",
-          message: "Profile updated successfully",
+          message: response.data.message || STRINGS.SUCCESS,
         });
         setModalOpen(false);
         setProfile((p) => {

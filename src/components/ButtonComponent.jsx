@@ -3,14 +3,14 @@ import { Button, CircularProgress } from "@mui/material";
 
 const ButtonComponent = ({
   children,
-  variant = "contained",
+  variant = "outlined",
   color = "primary",
   disabled = false,
   loading = false,
   startIcon = null,
   endIcon = null,
   sx = {},
-  onClick = () => {},
+  onClick = () => { },
   ...props
 }) => {
   return (
@@ -26,7 +26,7 @@ const ButtonComponent = ({
         minWidth: "auto",
         height: "auto",
         fontSize: { xs: "0.875rem", md: "1rem" },
-        color: "white",
+        color: variant === "text" ? "primary" : "white",
         ...sx,
       }}
       {...props}
