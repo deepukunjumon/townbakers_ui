@@ -165,7 +165,7 @@ const OrdersList = () => {
 
     try {
       const token = getToken();
-      const res = await fetch(`${apiConfig.BASE_URL}/order/${orderId}`, {
+      const res = await fetch(apiConfig.ORDER_DETAILS(orderId), {
         headers: { Authorization: `Bearer ${token}` },
         signal: controller.signal,
       });

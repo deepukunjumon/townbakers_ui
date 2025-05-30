@@ -97,7 +97,7 @@ const ViewBranches = () => {
     setModalLoading(true);
     setOpenModal(true);
 
-    const controller = new AbortController(); // NEW
+    const controller = new AbortController();
     controllerRef.current = controller;
 
     try {
@@ -106,7 +106,7 @@ const ViewBranches = () => {
         `${apiConfig.BRANCH_DETAILS.replace("{id}", branchId)}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-          signal: controller.signal, // NEW: attach signal
+          signal: controller.signal,
         }
       );
 

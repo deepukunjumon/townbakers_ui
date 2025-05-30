@@ -75,7 +75,7 @@ const CreateEmployee = () => {
     };
 
     try {
-      const res = await fetch(`${apiConfig.BASE_URL}/branch/create/employee`, {
+      const res = await fetch(`${apiConfig.CREATE_BRANCH_EMPLOYEE}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

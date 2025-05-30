@@ -41,7 +41,7 @@ const AddStock = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch(`${apiConfig.BASE_URL}/employees/minimal`, {
+    fetch(`${apiConfig.MINIMAL_EMPLOYEES}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -54,7 +54,7 @@ const AddStock = () => {
         })
       );
 
-    fetch(`${apiConfig.BASE_URL}/items/minimal`, {
+    fetch(`${apiConfig.MINIMAL_ITEMS}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -153,7 +153,7 @@ const AddStock = () => {
     };
 
     try {
-      const res = await fetch(`${apiConfig.BASE_URL}/stock/add`, {
+      const res = await fetch(`${apiConfig.ADD_STOCK}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

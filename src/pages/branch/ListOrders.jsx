@@ -66,7 +66,7 @@ const ListOrders = () => {
     });
 
     try {
-      const res = await fetch(`${apiConfig.BASE_URL}/branch/orders?${params}`, {
+      const res = await fetch(`${apiConfig.BRANCH_ORDERS}?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -126,7 +126,7 @@ const ListOrders = () => {
     setModalLoading(true);
     try {
       const token = getToken();
-      const res = await fetch(`${apiConfig.BASE_URL}/order/${orderId}`, {
+      const res = await fetch(apiConfig.ORDER_DETAILS(orderId), {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -158,15 +158,14 @@ const ListOrders = () => {
     try {
       const token = getToken();
       const res = await fetch(
-        `${apiConfig.BASE_URL}/order/${selectedOrder.id}/status`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ status }),
-        }
+        `${apiConfig.UPDATE_ORDER_STATUS.replace("{id}", selectedOrder.id)}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status }),
+      }
       );
       const data = await res.json();
       if (data.success) {
@@ -177,7 +176,7 @@ const ListOrders = () => {
         });
 
         const orderRes = await fetch(
-          `${apiConfig.BASE_URL}/order/${selectedOrder.id}`,
+          `${apiConfig.ORDER_DETAILS(selectedOrder.id)}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -213,7 +212,7 @@ const ListOrders = () => {
   const fetchEmployees = async () => {
     try {
       const token = getToken();
-      const res = await fetch(`${apiConfig.BASE_URL}/employees/minimal`, {
+      const res = await fetch(`${apiConfig.MINIMAL_EMPLOYEES}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -241,19 +240,17 @@ const ListOrders = () => {
     setModalLoading(true);
     try {
       const token = getToken();
-      const res = await fetch(
-        `${apiConfig.BASE_URL}/order/${selectedOrder.id}/status`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            status: 1,
-            delivered_by: selectedEmployee.id,
-          }),
-        }
+      const res = await fetch(apiConfig.UPDATE_ORDER_STATUS(selectedOrder.id), {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          status: 1,
+          delivered_by: selectedEmployee.id,
+        }),
+      }
       );
       const data = await res.json();
       if (data.success) {
@@ -262,8 +259,7 @@ const ListOrders = () => {
           severity: "success",
           message: "Order marked as completed",
         });
-        const orderRes = await fetch(
-          `${apiConfig.BASE_URL}/branch/order/${selectedOrder.id}`,
+        const orderRes = await fetch(apiConfig.ORDER_DETAILS(selectedOrder.id),
           {
             headers: { Authorization: `Bearer ${token}` },
           }

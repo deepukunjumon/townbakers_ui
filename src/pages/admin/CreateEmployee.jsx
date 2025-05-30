@@ -53,7 +53,7 @@ const CreateEmployee = () => {
 
     const fetchDesignations = async () => {
       try {
-        const res = await fetch(`${apiConfig.BASE_URL}/designations`, {
+        const res = await fetch(`${apiConfig.DESIGNATIONS}`, {
           headers: { Authorization: getToken() },
         });
         const data = await res.json();
@@ -188,7 +188,7 @@ const CreateEmployee = () => {
             </Button>
             <Box sx={{ mb: 2 }}>
               <a
-                href={`${apiConfig.BASE_URL}/../sample-files/employees.xlsx`}
+                href={`${apiConfig.SAMPLE_EMPLOYEES_IMPORT}`}
                 download
                 style={{ textDecoration: "underline", color: "#1976d2" }}
                 rel="noopener noreferrer"

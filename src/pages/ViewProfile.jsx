@@ -61,7 +61,7 @@ const ViewProfile = () => {
       setLoading(true);
       try {
         const token = getToken();
-        const response = await axios.get(`${apiConfig.BASE_URL}/profile`, {
+        const response = await axios.get(`${apiConfig.PROFILE}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (response.data.success) {
@@ -69,7 +69,7 @@ const ViewProfile = () => {
           setSnack({
             open: true,
             severity: "success",
-            message: "Profile fetched successfully",
+            message: response.data.message,
           });
         } else {
           throw new Error("Failed to fetch profile");
