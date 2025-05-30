@@ -49,7 +49,7 @@ const CreateOrder = () => {
 
   useEffect(() => {
     axios
-      .get(`${apiConfig.BASE_URL}/employees/minimal`, {
+      .get(`${apiConfig.MINIMAL_EMPLOYEES}`, {
         headers: { Authorization: getToken() },
       })
       .then((res) => setEmployeeList(res.data.employees || []))
@@ -122,7 +122,7 @@ const CreateOrder = () => {
 
     try {
       const res = await axios.post(
-        `${apiConfig.BASE_URL}/branch/create/order`,
+        `${apiConfig.CREATE_ORDER}`,
         payload,
         {
           headers: { Authorization: getToken() },

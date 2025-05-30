@@ -46,7 +46,7 @@ const BranchEmployees = () => {
         }).toString();
 
         const res = await fetch(
-          `${apiConfig.BASE_URL}/branch/employees?${params}`,
+          `${apiConfig.BRANCH_EMPLOYEES}?${params}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
