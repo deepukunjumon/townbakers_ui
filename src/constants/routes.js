@@ -24,6 +24,8 @@ export const ROUTES = {
     ALL_ORDERS: "/super-admin/orders",
 
     DEVELOPER_TOOLS: "/super-admin/tools",
+
+    AUDIT_LOGS: "/super-admin/logs/audit-logs",
   },
 
   ADMIN: {

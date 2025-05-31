@@ -33,8 +33,11 @@ const apiConfig = {
   SAMPLE_EMPLOYEES_IMPORT: `${API_BASE_URL}/../sample-files/employees.xlsx`,
 
   //Super Admin APIs
-  CREATE_USER: `${API_BASE_URL}/super-admin/create/user`,
-  MAIL_TEST: `${API_BASE_URL}/super-admin/test-mail`,
+  SUPER_ADMIN: {
+    CREATE_USER: `${API_BASE_URL}/super-admin/create/user`,
+    MAIL_TEST: `${API_BASE_URL}/super-admin/test-mail`,
+    AUDIT_LOGS: `${API_BASE_URL}/super-admin/logs/audit-logs`,
+  },
 
   // Admin APIs
   ADMIN_DASHBOARD_STATS: `${API_BASE_URL}/admin/dashboard/stats`,

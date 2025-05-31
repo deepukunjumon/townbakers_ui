@@ -107,7 +107,7 @@ const CreateUser = () => {
         }),
       };
 
-      const res = await fetch(apiConfig.CREATE_USER, {
+      const res = await fetch(apiConfig.SUPER_ADMIN.CREATE_USER, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

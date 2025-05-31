@@ -127,11 +127,15 @@ const TableComponent = ({
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <TableContainer
         sx={{
-          maxHeight: 400,
+          height: { xs: "100%", sm: "auto" },
+          maxHeight: { xs: "none", sm: 400 },
           overflow: "auto",
           border: "1px solid",
           borderColor: "divider",
           borderRadius: 2,
+          "& .MuiTable-root": {
+            height: { xs: "100%", sm: "auto" },
+          },
         }}
       >
         <Table size="small" stickyHeader>
