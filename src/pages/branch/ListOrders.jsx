@@ -24,6 +24,8 @@ import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ModalComponent from "../../components/ModalComponent";
 import Loader from "../../components/Loader";
 import TextFieldComponent from "../../components/TextFieldComponent";
+import ChipComponent from "../../components/ChipComponent";
+import { ORDER_STATUS_CONFIG } from "../../constants/statuses";
 
 const ListOrders = () => {
   const currentDate = new Date();
@@ -158,14 +160,15 @@ const ListOrders = () => {
     try {
       const token = getToken();
       const res = await fetch(
-        `${apiConfig.UPDATE_ORDER_STATUS.replace("{id}", selectedOrder.id)}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status }),
-      }
+        `${apiConfig.UPDATE_ORDER_STATUS(selectedOrder.id)}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status }),
+        }
       );
       const data = await res.json();
       if (data.success) {
@@ -250,8 +253,7 @@ const ListOrders = () => {
           status: 1,
           delivered_by: selectedEmployee.id,
         }),
-      }
-      );
+      });
       const data = await res.json();
       if (data.success) {
         setSnack({
@@ -259,7 +261,8 @@ const ListOrders = () => {
           severity: "success",
           message: "Order marked as completed",
         });
-        const orderRes = await fetch(apiConfig.ORDER_DETAILS(selectedOrder.id),
+        const orderRes = await fetch(
+          apiConfig.ORDER_DETAILS(selectedOrder.id),
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -305,14 +308,18 @@ const ListOrders = () => {
     total_amount: order.total_amount,
     customer_name: order.customer_name,
     customer_mobile: order.customer_mobile,
-    status:
-      order.status === 0 ? (
-        <Chip label="Pending" color="error" />
-      ) : order.status === 1 ? (
-        <Chip label="Completed" color="success" />
-      ) : (
-        <Chip label="Cancelled" color="default" />
-      ),
+    status: (
+      <ChipComponent
+        label={
+          ORDER_STATUS_CONFIG[order.status]?.label ||
+          ORDER_STATUS_CONFIG.default.label
+        }
+        color={
+          ORDER_STATUS_CONFIG[order.status]?.color ||
+          ORDER_STATUS_CONFIG.default.color
+        }
+      />
+    ),
   }));
 
   const handleSearchChange = (e) => {
@@ -465,13 +472,17 @@ const ListOrders = () => {
               <Box mb={2}>
                 <Typography>
                   <strong>Status:</strong>{" "}
-                  {selectedOrder.status === 0 ? (
-                    <Chip label="Pending" color="error" size="small" />
-                  ) : selectedOrder.status === 1 ? (
-                    <Chip label="Completed" color="success" size="small" />
-                  ) : (
-                    <Chip label="Cancelled" color="default" size="small" />
-                  )}
+                  <ChipComponent
+                    size="small"
+                    variant="filled"
+                    label={
+                      ORDER_STATUS_CONFIG[selectedOrder.status]?.label ||
+                      "Unknown"
+                    }
+                    color={
+                      ORDER_STATUS_CONFIG[selectedOrder.status]?.color || "info"
+                    }
+                  />
                 </Typography>
                 <Typography>
                   <strong>Total Amount:</strong> {selectedOrder.total_amount}

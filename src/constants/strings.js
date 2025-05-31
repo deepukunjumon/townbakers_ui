@@ -33,6 +33,7 @@ export const STRINGS = {
   TOTAL_LIKES: (count) => `${count} Like${count === 1 ? "" : "s"}`,
 
   LOGIN_SUCCESS: "Login successful",
+  FAILED_TO_COMPLETE_ACTION: "Failed to complete the action",
   SOMETHING_WENT_WRONG: "Something went wrong. Please try again later.",
 
   //All Employees
@@ -49,8 +50,10 @@ export const STRINGS = {
   SUBMIT_CONFIRMATION: "Are you sure you want to submit ?",
 
   //Items
-  DISABLE_ITEM_CONFIRMATION: (name) => `Are you sure you want to disable the item "${name}"?`,
-  ENABLE_ITEM_CONFIRMATION: (name) => `Are you sure you want to enable the item "${name}"?`,
+  DISABLE_ITEM_CONFIRMATION: (name) =>
+    `Are you sure you want to disable the item "${name}"?`,
+  ENABLE_ITEM_CONFIRMATION: (name) =>
+    `Are you sure you want to enable the item "${name}"?`,
   ENABLE: "Enable",
   DISABLE: "Disable",
 };

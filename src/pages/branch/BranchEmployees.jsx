@@ -1,22 +1,46 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Box, Typography, Divider, TextField, Fab } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Chip,
+  Divider,
+  Fab,
+  Switch,
+  Typography,
+} from "@mui/material";
 import TableComponent from "../../components/TableComponent";
 import Loader from "../../components/Loader";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
 import AddIcon from "@mui/icons-material/Add";
 import { ROUTES } from "../../constants/routes";
+import { STRINGS } from "../../constants/strings";
 import { useNavigate } from "react-router-dom";
+import { getToken } from "../../utils/auth";
+import { userStatusMap } from "../../constants/statuses";
+import ModalComponent from "../../components/ModalComponent";
+import ButtonComponent from "../../components/ButtonComponent";
+import TextFieldComponent from "../../components/TextFieldComponent";
+import SelectFieldComponent from "../../components/SelectFieldComponent";
+
+const statusOptions = [
+  { name: "All", id: "" },
+  { name: "Active", id: "1" },
+  { name: "Disabled", id: "0" },
+  { name: "Deleted", id: "-1" },
+];
 
 const BranchEmployees = () => {
   const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingSwitches, setLoadingSwitches] = useState({});
   const [pagination, setPagination] = useState({
     current_page: 1,
     per_page: 10,
     total: 0,
   });
+  const [statusFilter, setStatusFilter] = useState(statusOptions[0]);
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimeout = useRef(null);
   const controllerRef = useRef(null);
@@ -25,6 +49,24 @@ const BranchEmployees = () => {
     severity: "error",
     message: "",
   });
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmPayload, setConfirmPayload] = useState({
+    id: null,
+    currentStatus: null,
+  });
+
+  function stringToColor(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    const h = Math.abs(hash) % 360;
+    const s = 70 + (Math.abs(hash >> 8) % 30);
+    const l = 45 + (Math.abs(hash >> 16) % 10);
+
+    return `hsl(${h}, ${s}%, ${l}%)`;
+  }
 
   const fetchEmployees = useCallback(
     async (search = "") => {
@@ -32,7 +74,7 @@ const BranchEmployees = () => {
         controllerRef.current.abort();
       }
 
-      const token = localStorage.getItem("token");
+      const token = getToken();
       const newController = new AbortController();
       controllerRef.current = newController;
 
@@ -43,17 +85,15 @@ const BranchEmployees = () => {
           page: pagination.current_page,
           per_page: pagination.per_page,
           search: search.trim(),
+          status: statusFilter.id,
         }).toString();
 
-        const res = await fetch(
-          `${apiConfig.BRANCH_EMPLOYEES}?${params}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            signal: newController.signal,
-          }
-        );
+        const res = await fetch(`${apiConfig.BRANCH_EMPLOYEES}?${params}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          signal: newController.signal,
+        });
 
         const data = await res.json();
 
@@ -64,21 +104,21 @@ const BranchEmployees = () => {
             total: data.pagination?.total || 0,
           }));
         } else {
-          throw new Error(data.message || "Failed to load employee data");
+          throw new Error(data.message || STRINGS.FAILED_TO_COMPLETE_ACTION);
         }
       } catch (error) {
         if (error.name !== "AbortError") {
           setSnack({
             open: true,
             severity: "error",
-            message: error.message || "Failed to load employee data",
+            message: error.message || STRINGS.SOMETHING_WENT_WRONG,
           });
         }
       } finally {
         setLoading(false);
       }
     },
-    [pagination.current_page, pagination.per_page]
+    [pagination.current_page, pagination.per_page, statusFilter]
   );
 
   useEffect(() => {
@@ -97,11 +137,166 @@ const BranchEmployees = () => {
     }));
   };
 
+  const handleStatusChange = (event) => {
+    const selectedStatus = event.target.value || statusOptions[0];
+    setStatusFilter(selectedStatus);
+    setPagination((prev) => ({
+      ...prev,
+      current_page: 1,
+    }));
+  };
+
+  const handleToggleStatus = (employeeId, currentStatus) => {
+    setConfirmPayload({ id: employeeId, currentStatus });
+    setConfirmModalOpen(true);
+  };
+
+  const handleConfirmToggle = async () => {
+    const { id, currentStatus } = confirmPayload;
+    if (!id) {
+      setConfirmModalOpen(false);
+      return;
+    }
+
+    setConfirmModalOpen(false);
+    const newStatus = currentStatus === 1 ? 0 : 1;
+    setLoadingSwitches((prev) => ({ ...prev, [id]: true }));
+
+    const token = getToken();
+    try {
+      const res = await fetch(apiConfig.UPDATE_EMPLOYEE_STATUS, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Something went wrong");
+      }
+
+      setEmployees((prevEmployees) =>
+        prevEmployees.map((emp) =>
+          emp.id === id ? { ...emp, status: newStatus } : emp
+        )
+      );
+
+      setSnack({
+        open: true,
+        severity: "success",
+        message: data.message,
+      });
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: error.message || "Failed to update status",
+      });
+    } finally {
+      setLoadingSwitches((prev) => {
+        const copy = { ...prev };
+        delete copy[id];
+        return copy;
+      });
+    }
+  };
+
+  const confirmationModalContent = (
+    <Box>
+      {confirmPayload.currentStatus === 1
+        ? STRINGS.DISABLE_EMPLOYEE_CONFIRMATION
+        : STRINGS.ENABLE_EMPLOYEE_CONFIRMATION}
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <ButtonComponent
+          variant="text"
+          onClick={() => setConfirmModalOpen(false)}
+        >
+          {STRINGS.CANCEL}
+        </ButtonComponent>
+        <ButtonComponent variant="text" onClick={handleConfirmToggle} autoFocus>
+          {STRINGS.CONFIRM}
+        </ButtonComponent>
+      </Box>
+    </Box>
+  );
+
   const columns = [
     { field: "employee_code", headerName: "Employee Code", flex: 1 },
+    {
+      field: "avatar",
+      headerName: "",
+      flex: 0.5,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => (
+        <Avatar
+          sx={{
+            bgcolor: stringToColor(params.row.name),
+            color: "#fff",
+            width: 32,
+            height: 32,
+            fontWeight: 600,
+            fontSize: 16,
+            mr: 1,
+          }}
+          alt={params.row.name}
+        >
+          {params.row.name ? params.row.name.charAt(0).toUpperCase() : "?"}
+        </Avatar>
+      ),
+    },
     { field: "name", headerName: "Name", flex: 1 },
-    { field: "designation", headerName: "Designation", flex: 1 },
     { field: "mobile", headerName: "Mobile", flex: 1 },
+    { field: "designation", headerName: "Designation", flex: 1 },
+    {
+      field: "status",
+      headerName: "Status",
+      flex: 1,
+      renderCell: (params) => {
+        const key = String(params.value);
+        const status = userStatusMap[key] || {
+          label: "Unknown",
+          color: "default",
+        };
+        return (
+          <Chip
+            label={status.label}
+            color={status.color}
+            size="small"
+            variant="filled"
+            sx={{ fontSize: 13, color: "white" }}
+          />
+        );
+      },
+    },
+    {
+      field: "toggle",
+      headerName: "",
+      flex: 1,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => {
+        const statusNum = Number(params.row.status);
+        const isLoading = !!loadingSwitches[params.row.id];
+        if (statusNum !== 0 && statusNum !== 1) return null;
+        return (
+          <Switch
+            checked={statusNum === 1}
+            onChange={() => {
+              if (!isLoading) {
+                handleToggleStatus(params.row.id, statusNum);
+              }
+            }}
+            size="medium"
+            color="primary"
+            disabled={isLoading}
+          />
+        );
+      },
+    },
   ];
 
   const handleSearchChange = (event) => {
@@ -126,11 +321,24 @@ const BranchEmployees = () => {
           display: "flex",
           justifyContent: "flex-end",
           alignItems: "center",
+          gap: 2,
           width: "100%",
         }}
       >
+        <Box sx={{ width: { xs: 135, sm: 170, md: 200 } }}>
+          <SelectFieldComponent
+            label="Status"
+            name="status"
+            value={statusFilter}
+            onChange={handleStatusChange}
+            options={statusOptions}
+            valueKey="id"
+            displayKey="name"
+            fullWidth
+          />
+        </Box>
         <Box sx={{ width: 300 }}>
-          <TextField
+          <TextFieldComponent
             label="Search"
             variant="outlined"
             fullWidth
@@ -161,17 +369,22 @@ const BranchEmployees = () => {
           }
         />
       )}
+
+      <ModalComponent
+        open={confirmModalOpen}
+        onClose={() => {}}
+        hideCloseIcon={true}
+        title={STRINGS.CONFIRM_ACTION}
+        content={confirmationModalContent}
+      />
+
       <Fab
         color="primary"
-        aria-label="add"
-        onClick={() => {
-          navigate(ROUTES.BRANCH.CREATE_EMPLOYEE);
-        }}
         sx={{
           position: "fixed",
-          bottom: 32,
-          right: 32,
-          zIndex: 1300,
+          bottom: 30,
+          right: 30,
+          boxShadow: 3,
         }}
       >
         <AddIcon />

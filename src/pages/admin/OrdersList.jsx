@@ -355,7 +355,8 @@ const OrdersList = () => {
                 <strong>Title:</strong> {selectedOrder.title}
               </Typography>
               <Typography>
-                <strong>Delivery Date:</strong> {selectedOrder.delivery_date}
+                <strong>Delivery Date & Time:</strong>{" "}
+                {selectedOrder.delivery_date} {selectedOrder.delivery_time}
               </Typography>
               {selectedOrder.delivered_date && (
                 <Typography>
