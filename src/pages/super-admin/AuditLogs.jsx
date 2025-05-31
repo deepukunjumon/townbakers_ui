@@ -20,15 +20,6 @@ const actionOptions = [
   { id: "disable", name: "Disable" },
 ];
 
-const tableOptions = [
-  { id: "", name: "All Tables" },
-  { id: "branches", name: "Branches" },
-  { id: "employees", name: "Employees" },
-  { id: "items", name: "Items" },
-  { id: "stock", name: "Stock" },
-  { id: "users", name: "Users" },
-];
-
 const AuditLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +32,9 @@ const AuditLogs = () => {
     id: "",
     name: "All Tables",
   });
+  const [tableOptions, setTableOptions] = useState([
+    { id: "", name: "All Tables" },
+  ]);
   const [startDate, setStartDate] = useState(startOfMonth(new Date()));
   const [endDate, setEndDate] = useState(endOfMonth(new Date()));
   const searchTimeout = useRef(null);
@@ -54,6 +48,34 @@ const AuditLogs = () => {
     per_page: 10,
     total: 0,
   });
+
+  const fetchTableOptions = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${apiConfig.SUPER_ADMIN.TABLES_LIST}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setTableOptions([{ id: "", name: "All Tables" }, ...data.tables]);
+      } else {
+        throw new Error(data.message || "Failed to fetch table options");
+      }
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: error.message || "Failed to load table options",
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTableOptions();
+  }, [fetchTableOptions]);
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
