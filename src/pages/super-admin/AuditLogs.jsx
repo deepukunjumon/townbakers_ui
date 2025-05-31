@@ -8,7 +8,7 @@ import TextFieldComponent from "../../components/TextFieldComponent";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
 import ChipComponent from "../../components/ChipComponent";
 import apiConfig from "../../config/apiConfig";
-import { format } from "date-fns";
+import { format, startOfMonth, endOfMonth } from "date-fns";
 
 const actionOptions = [
   { id: "", name: "All Actions" },
@@ -41,8 +41,8 @@ const AuditLogs = () => {
     id: "",
     name: "All Tables",
   });
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(startOfMonth(new Date()));
+  const [endDate, setEndDate] = useState(endOfMonth(new Date()));
   const searchTimeout = useRef(null);
   const [snack, setSnack] = useState({
     open: false,
@@ -179,7 +179,7 @@ const AuditLogs = () => {
     },
     {
       field: "created_at",
-      headerName: "Date & Time",
+      headerName: "Performed On",
       flex: 1,
       renderCell: (params) => (
         <Typography variant="body2">
@@ -242,7 +242,7 @@ const AuditLogs = () => {
             <Grid item xs={6} md={3}>
               <DateSelectorComponent
                 label="Start Date"
-                date={startDate}
+                value={startDate}
                 onChange={(date) => {
                   setStartDate(date);
                   setPagination((prev) => ({ ...prev, current_page: 1 }));
@@ -254,7 +254,7 @@ const AuditLogs = () => {
             <Grid item xs={6} md={3}>
               <DateSelectorComponent
                 label="End Date"
-                date={endDate}
+                value={endDate}
                 onChange={(date) => {
                   setEndDate(date);
                   setPagination((prev) => ({ ...prev, current_page: 1 }));

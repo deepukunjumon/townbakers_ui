@@ -13,9 +13,9 @@ import {
   Token,
   Inventory,
   Article,
-  Construction,
+  LogoDev,
   Assignment,
-  BugReportSharp,
+  MultipleStop,
 } from "@mui/icons-material";
 
 const SuperAdminLayout = () => {
@@ -92,13 +92,19 @@ const SuperAdminLayout = () => {
       children: [
         {
           label: "Developer Tools",
-          icon: <Construction />,
+          icon: <LogoDev />,
           onClick: () => navigate(ROUTES.SUPER_ADMIN.DEVELOPER_TOOLS),
         },
         {
           label: "Logs",
-          icon: <BugReportSharp />,
-          onClick: () => navigate(ROUTES.SUPER_ADMIN.AUDIT_LOGS),
+          icon: <MultipleStop />,
+          children: [
+            {
+              label: "Audit Logs",
+              icon: <MultipleStop />,
+              onClick: () => navigate(ROUTES.SUPER_ADMIN.AUDIT_LOGS),
+            },
+          ],
         },
       ],
     },

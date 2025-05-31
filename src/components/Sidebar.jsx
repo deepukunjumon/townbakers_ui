@@ -87,18 +87,62 @@ const Sidebar = ({ open, toggleDrawer, menuItems = [], isMobile }) => {
               >
                 <List component="div" disablePadding>
                   {item.children.map((child, childIndex) => (
-                    <ListItem
-                      button
-                      key={childIndex}
-                      onClick={() => {
-                        child.onClick();
-                        toggleDrawer();
-                      }}
-                      sx={{ pl: 6, cursor: "pointer" }}
-                    >
-                      {child.icon && <ListItemIcon>{child.icon}</ListItemIcon>}
-                      <ListItemText primary={child.label} />
-                    </ListItem>
+                    <React.Fragment key={childIndex}>
+                      <ListItem
+                        button
+                        onClick={() => {
+                          if (child.children) {
+                            handleToggleSubmenu(child.label);
+                          } else {
+                            child.onClick();
+                            toggleDrawer();
+                          }
+                        }}
+                        sx={{ pl: 6, cursor: "pointer" }}
+                      >
+                        {child.icon && (
+                          <ListItemIcon>{child.icon}</ListItemIcon>
+                        )}
+                        <ListItemText primary={child.label} />
+                        {child.children &&
+                          (openSubmenus[child.label] ? (
+                            <ExpandLess />
+                          ) : (
+                            <ExpandMore />
+                          ))}
+                      </ListItem>
+
+                      {child.children && (
+                        <Collapse
+                          in={openSubmenus[child.label]}
+                          timeout="auto"
+                          unmountOnExit
+                        >
+                          <List component="div" disablePadding>
+                            {child.children.map(
+                              (grandChild, grandChildIndex) => (
+                                <ListItem
+                                  button
+                                  key={grandChildIndex}
+                                  onClick={() => {
+                                    grandChild.onClick();
+                                    toggleDrawer();
+                                  }}
+                                  sx={{ pl: 9, cursor: "pointer" }}
+                                >
+                                  {grandChild.icon && (
+                                    <ListItemIcon>
+                                      {grandChild.icon}
+                                    </ListItemIcon>
+                                  )}
+                                  <ListItemText primary={grandChild.label} />
+                                </ListItem>
+                              )
+                            )}
+                          </List>
+                        </Collapse>
+                      )}
+                    </React.Fragment>
                   ))}
                 </List>
               </Collapse>
