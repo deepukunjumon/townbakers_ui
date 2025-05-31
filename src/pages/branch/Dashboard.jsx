@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Box, Grid, Typography, IconButton } from "@mui/material";
 import StatCard from "../../components/StatCard";
 import PeopleIcon from "@mui/icons-material/People";
-import BusinessIcon from "@mui/icons-material/Business";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import axios from "axios";
@@ -21,7 +20,10 @@ const Dashboard = () => {
       loading: true,
       color: "primary",
       icon: <PeopleIcon />,
-      onClick: () => navigate(ROUTES.BRANCH.LIST_EMPLOYEES),
+      onClick: () =>
+        navigate(ROUTES.BRANCH.LIST_EMPLOYEES, {
+          state: { fromDashboard: true },
+        }),
     },
     {
       title: "Upcoming Orders",
@@ -29,6 +31,10 @@ const Dashboard = () => {
       loading: true,
       color: "warning",
       icon: <AssignmentIcon />,
+      onClick: () =>
+        navigate(ROUTES.BRANCH.LIST_ORDERS, {
+          state: { status: "pending" },
+        }),
     },
     {
       title: "Today's Pending Orders",
@@ -36,6 +42,10 @@ const Dashboard = () => {
       loading: true,
       color: "info",
       icon: <AssignmentIcon />,
+      onClick: () =>
+        navigate(ROUTES.BRANCH.LIST_ORDERS, {
+          state: { status: "pending", todayOnly: true },
+        }),
     },
   ]);
 

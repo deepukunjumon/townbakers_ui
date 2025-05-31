@@ -15,7 +15,7 @@ import apiConfig from "../../config/apiConfig";
 import AddIcon from "@mui/icons-material/Add";
 import { ROUTES } from "../../constants/routes";
 import { STRINGS } from "../../constants/strings";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getToken } from "../../utils/auth";
 import { userStatusMap } from "../../constants/statuses";
 import ModalComponent from "../../components/ModalComponent";
@@ -32,6 +32,7 @@ const statusOptions = [
 
 const BranchEmployees = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingSwitches, setLoadingSwitches] = useState({});
@@ -40,7 +41,10 @@ const BranchEmployees = () => {
     per_page: 10,
     total: 0,
   });
-  const [statusFilter, setStatusFilter] = useState(statusOptions[0]);
+  const [statusFilter, setStatusFilter] = useState(() => {
+    const fromDashboard = location.state?.fromDashboard;
+    return fromDashboard ? statusOptions[1] : statusOptions[0];
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimeout = useRef(null);
   const controllerRef = useRef(null);
@@ -380,6 +384,7 @@ const BranchEmployees = () => {
 
       <Fab
         color="primary"
+        onClick={() => navigate(ROUTES.BRANCH.CREATE_EMPLOYEE)}
         sx={{
           position: "fixed",
           bottom: 30,

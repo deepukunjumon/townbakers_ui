@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Box, Typography, Divider } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TableComponent from "../../components/TableComponent";
@@ -47,7 +47,6 @@ const ViewBranchStockSummary = () => {
 
   const handleExport = (type) => {
     const formattedDate = format(date, "yyyy-MM-dd");
-
     const form = document.createElement("form");
     form.method = "POST";
     form.action = `${apiConfig.BRANCHWISE_STOCK_SUMMARY}`;
@@ -63,11 +62,11 @@ const ViewBranchStockSummary = () => {
     const token = localStorage.getItem("token");
     if (token) addField("token", token);
 
-    // FIX: Always pass branch_id as string
     const branchIdValue =
       typeof branchId === "object" && branchId !== null
         ? branchId.id
         : branchId;
+
     addField("branch_id", branchIdValue);
     addField("date", formattedDate);
     addField("export", "true");
@@ -99,7 +98,7 @@ const ViewBranchStockSummary = () => {
     fetchBranches();
   }, []);
 
-  const fetchSummary = async () => {
+  const fetchSummary = useCallback(async () => {
     setSubmitted(true);
     if (!branchId || !date) return;
     setLoading(true);
@@ -149,7 +148,13 @@ const ViewBranchStockSummary = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    branchId,
+    date,
+    pagination.current_page,
+    pagination.per_page,
+    searchTerm,
+  ]);
 
   const handlePaginationChange = ({ page, rowsPerPage }) => {
     setPagination((prev) => ({
@@ -157,7 +162,6 @@ const ViewBranchStockSummary = () => {
       current_page: page,
       per_page: rowsPerPage,
     }));
-    fetchSummary();
   };
 
   const handleSearchChange = (event) => {
@@ -168,12 +172,17 @@ const ViewBranchStockSummary = () => {
     }, 500);
   };
 
-  // Add useEffect to watch for search term changes
   useEffect(() => {
     if (submitted && branchId && date) {
       fetchSummary();
     }
-  }, [searchTerm]);
+  }, [searchTerm, fetchSummary, submitted, branchId, date]);
+
+  useEffect(() => {
+    if (submitted) {
+      fetchSummary();
+    }
+  }, [pagination.current_page, pagination.per_page, fetchSummary, submitted]);
 
   const columns = [
     { field: "item_name", headerName: "Item" },
@@ -190,12 +199,7 @@ const ViewBranchStockSummary = () => {
         message={snack.message}
       />
 
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        sx={{ maxWidth: "auto" }}
-      >
+      <Box display="flex" justifyContent="space-between" alignItems="center">
         <Typography variant="h5">Branch-wise Stock Summary</Typography>
         <ExportMenu
           anchorEl={anchorEl}

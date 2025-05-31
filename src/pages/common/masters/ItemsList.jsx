@@ -136,7 +136,7 @@ const ItemsList = () => {
   };
 
   const handleToggleStatus = async (id, currentStatus) => {
-    const item = items.find(item => item.id === id);
+    const item = items.find((item) => item.id === id);
     setSelectedItem({ id, currentStatus, name: item.name });
     setConfirmModalOpen(true);
   };
@@ -386,7 +386,7 @@ const ItemsList = () => {
               ? STRINGS.DISABLE_ITEM_CONFIRMATION(selectedItem?.name)
               : STRINGS.ENABLE_ITEM_CONFIRMATION(selectedItem?.name)}
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
             <ButtonComponent
               variant="text"
               color="primary"
@@ -397,10 +397,12 @@ const ItemsList = () => {
             </ButtonComponent>
             <ButtonComponent
               variant="text"
-              color={selectedItem?.currentStatus === 1 ? 'error' : 'success'}
+              color={selectedItem?.currentStatus === 1 ? "error" : "success"}
               onClick={confirmToggleStatus}
             >
-              {selectedItem?.currentStatus === 1 ? STRINGS.DISABLE : STRINGS.ENABLE}
+              {selectedItem?.currentStatus === 1
+                ? STRINGS.DISABLE
+                : STRINGS.ENABLE}
             </ButtonComponent>
           </Box>
         </Box>
@@ -427,7 +429,7 @@ const ItemsList = () => {
           width: "100%",
         }}
       >
-        <Box sx={{ width: 300 }}>
+        <Box sx={{ width: { xs: "100%", sm: 300 } }}>
           <SearchFieldComponent
             label="Search"
             placeholder="Search items..."

@@ -21,6 +21,7 @@ export const STRINGS = {
   NO: "No",
   CANCEL: "Cancel",
   DELETE: "Delete",
+  ENABLE: "Enable",
   DISABLE: "Disable",
   OK: "OK",
 
@@ -54,6 +55,4 @@ export const STRINGS = {
     `Are you sure you want to disable the item "${name}"?`,
   ENABLE_ITEM_CONFIRMATION: (name) =>
     `Are you sure you want to enable the item "${name}"?`,
-  ENABLE: "Enable",
-  DISABLE: "Disable",
 };

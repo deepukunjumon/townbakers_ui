@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Box,
   Typography,
   CircularProgress,
   Grid,
   TextField,
-  Chip,
   FormControl,
   InputLabel,
   Select,
@@ -19,19 +18,21 @@ import ButtonComponent from "../../components/ButtonComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import { getToken } from "../../utils/auth";
 import apiConfig from "../../config/apiConfig";
-import { format } from "date-fns";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ModalComponent from "../../components/ModalComponent";
 import Loader from "../../components/Loader";
+import { STRINGS } from "../../constants/strings";
 import TextFieldComponent from "../../components/TextFieldComponent";
 import ChipComponent from "../../components/ChipComponent";
 import { ORDER_STATUS_CONFIG } from "../../constants/statuses";
+import { useLocation } from "react-router-dom";
 
 const ListOrders = () => {
+  const location = useLocation();
   const currentDate = new Date();
 
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     current_page: 1,
     last_page: 1,
@@ -41,7 +42,13 @@ const ListOrders = () => {
   const [startDate, setStartDate] = useState(currentDate);
   const [endDate, setEndDate] = useState(currentDate);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState(() => {
+    const { status } = location.state || {};
+    if (status === "pending") {
+      return "0"; // Pending status is "0" in the API
+    }
+    return "";
+  });
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [snack, setSnack] = useState({
@@ -53,63 +60,79 @@ const ListOrders = () => {
   const [showEmployeeSelect, setShowEmployeeSelect] = useState(false);
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const controllerRef = useRef(null);
 
-  const fetchOrders = useCallback(async () => {
-    setLoading(true);
-    const token = getToken();
-
-    const params = new URLSearchParams({
-      start_date: format(startDate, "yyyy-MM-dd"),
-      end_date: format(endDate, "yyyy-MM-dd"),
-      page: pagination.current_page,
-      per_page: pagination.per_page,
-      search: search,
-      status: statusFilter,
-    });
-
-    try {
-      const res = await fetch(`${apiConfig.BRANCH_ORDERS}?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        setOrders(data.orders || []);
-        setPagination((prev) => ({
-          ...prev,
-          current_page: data.pagination?.current_page || 1,
-          last_page: data.pagination?.last_page || 1,
-          per_page: data.pagination?.per_page || 10,
-          total: data.pagination?.total || 0,
-        }));
-      } else {
-        setSnack({
-          open: true,
-          severity: "error",
-          message: data.message || "Failed to load orders",
-        });
+  const fetchOrders = useCallback(
+    async (search = "") => {
+      if (controllerRef.current) {
+        controllerRef.current.abort();
       }
-    } catch (error) {
-      setSnack({
-        open: true,
-        severity: "error",
-        message: "Failed to load orders",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    pagination.current_page,
-    pagination.per_page,
-    startDate,
-    endDate,
-    search,
-    statusFilter,
-  ]);
+
+      const token = getToken();
+      const newController = new AbortController();
+      controllerRef.current = newController;
+
+      setLoading(true);
+
+      try {
+        const params = new URLSearchParams({
+          page: pagination.current_page,
+          per_page: pagination.per_page,
+          search: search.trim(),
+          status: statusFilter,
+          today_only: location.state?.todayOnly ? "1" : "0",
+        }).toString();
+
+        const res = await fetch(`${apiConfig.BRANCH_ORDERS}?${params}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          signal: newController.signal,
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          setOrders(data.orders || []);
+          setPagination((prev) => ({
+            ...prev,
+            total: data.pagination?.total || 0,
+          }));
+        } else {
+          throw new Error(data.message || STRINGS.FAILED_TO_COMPLETE_ACTION);
+        }
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          setSnack({
+            open: true,
+            severity: "error",
+            message: error.message || STRINGS.SOMETHING_WENT_WRONG,
+          });
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      pagination.current_page,
+      pagination.per_page,
+      statusFilter,
+      location.state?.todayOnly,
+    ]
+  );
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    setPagination((prev) => ({
+      ...prev,
+      current_page: 1,
+    }));
+  };
 
   const handlePaginationChange = ({ page, rowsPerPage }) => {
     setPagination((prev) => ({
@@ -322,10 +345,6 @@ const ListOrders = () => {
     ),
   }));
 
-  const handleSearchChange = (e) => {
-    setSearch(e.target.value);
-  };
-
   const handleStartDateChange = (newDate) => {
     setStartDate(newDate);
     setOrders([]);
@@ -336,6 +355,10 @@ const ListOrders = () => {
 
   const handleStatusFilterChange = (event) => {
     setStatusFilter(event.target.value);
+    setPagination((prev) => ({
+      ...prev,
+      current_page: 1,
+    }));
   };
 
   return (
@@ -377,18 +400,14 @@ const ListOrders = () => {
           <FormControl sx={{ width: { xs: 320, md: 150 } }} variant="outlined">
             <InputLabel>Status</InputLabel>
             <Select
-              value={
-                statusFilter !== undefined && statusFilter !== null
-                  ? statusFilter
-                  : ""
-              }
+              value={statusFilter}
               onChange={handleStatusFilterChange}
               label="Status"
             >
               <MenuItem value="">All</MenuItem>
-              <MenuItem value={"0"}>Pending</MenuItem>
-              <MenuItem value={"1"}>Completed</MenuItem>
-              <MenuItem value={"-1"}>Cancelled</MenuItem>
+              <MenuItem value="0">Pending</MenuItem>
+              <MenuItem value="1">Completed</MenuItem>
+              <MenuItem value="-1">Cancelled</MenuItem>
             </Select>
           </FormControl>
         </Grid>

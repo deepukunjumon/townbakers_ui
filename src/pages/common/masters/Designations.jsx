@@ -443,7 +443,7 @@ const Designations = () => {
           />
         </Box>
 
-        <Box sx={{ width: 300 }}>
+        <Box sx={{ width: { xs: "100%", sm: 300 } }}>
           <TextField
             label="Search"
             variant="outlined"

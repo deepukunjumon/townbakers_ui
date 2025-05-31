@@ -117,7 +117,7 @@ const AllEmployees = () => {
     const params = new URLSearchParams();
 
     if (statusFilter.id) params.append("status", statusFilter.id);
-    if (branchFilter) params.append("branch_code", branchFilter);
+    if (branchFilter) params.append("branch_id", branchFilter);
     if (searchTerm.trim()) params.append("q", searchTerm.trim());
 
     url += `&${params.toString()}`;
@@ -214,11 +214,9 @@ const AllEmployees = () => {
 
   const confirmationModalContent = (
     <Box>
-      {
-        confirmPayload.currentStatus === 1
-          ? STRINGS.DISABLE_EMPLOYEE_CONFIRMATION
-          : STRINGS.ENABLE_EMPLOYEE_CONFIRMATION
-      }
+      {confirmPayload.currentStatus === 1
+        ? STRINGS.DISABLE_EMPLOYEE_CONFIRMATION
+        : STRINGS.ENABLE_EMPLOYEE_CONFIRMATION}
       <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
         <Button variant="text" onClick={() => setConfirmModalOpen(false)}>
           {STRINGS.CANCEL}
@@ -248,6 +246,7 @@ const AllEmployees = () => {
             fontWeight: 600,
             fontSize: 16,
             mr: 1,
+            display: { xs: "none", sm: "flex" },
           }}
           alt={params.row.name}
         >
@@ -349,7 +348,7 @@ const AllEmployees = () => {
     const token = localStorage.getItem("token");
     if (token) addField("token", token);
     addField("status", statusFilter.id || "");
-    addField("branch_code", branchFilter || "");
+    addField("branch_id", branchFilter || "");
     addField("q", searchTerm.trim() || "");
     addField("export", "true");
     addField("type", type);
@@ -419,8 +418,7 @@ const AllEmployees = () => {
           mb: 2,
         }}
       >
-
-        <Box sx={{ width: { xs: 135, sm: 170, md: 200 } }}>
+        <Box sx={{ width: { xs: 120, sm: 170, md: 200 } }}>
           <SelectFieldComponent
             label="Status"
             name="status"
@@ -433,7 +431,7 @@ const AllEmployees = () => {
           />
         </Box>
 
-        <Box sx={{ width: { xs: 135, sm: 200, md: 250 } }}>
+        <Box sx={{ width: { xs: 165, sm: 200, md: 250 } }}>
           <Autocomplete
             options={branches}
             getOptionLabel={(o) => `${o.code} - ${o.name}`}
@@ -479,7 +477,7 @@ const AllEmployees = () => {
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => { }}
+        onClose={() => {}}
         hideCloseIcon={true}
         title={STRINGS.CONFIRM_ACTION}
         content={confirmationModalContent}
