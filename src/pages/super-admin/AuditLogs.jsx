@@ -15,6 +15,7 @@ const actionOptions = [
   { id: "create", name: "Create" },
   { id: "update", name: "Update" },
   { id: "delete", name: "Delete" },
+  { id: "import", name: "Import" },
 ];
 
 const tableOptions = [
@@ -139,6 +140,7 @@ const AuditLogs = () => {
           create: "success",
           update: "warning",
           delete: "error",
+          import: "info",
         };
 
         const properCase = value
