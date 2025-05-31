@@ -14,7 +14,11 @@ import {
   Inventory,
   Article,
   Construction,
-  Assignment
+  Assignment,
+  Assessment,
+  BugReport,
+  History,
+  BugReportSharp,
 } from "@mui/icons-material";
 
 const SuperAdminLayout = () => {
@@ -93,6 +97,11 @@ const SuperAdminLayout = () => {
           label: "Developer Tools",
           icon: <Construction />,
           onClick: () => navigate(ROUTES.SUPER_ADMIN.DEVELOPER_TOOLS),
+        },
+        {
+          label: "Logs",
+          icon: <BugReportSharp />,
+          onClick: () => navigate(ROUTES.SUPER_ADMIN.AUDIT_LOGS),
         },
       ],
     },
