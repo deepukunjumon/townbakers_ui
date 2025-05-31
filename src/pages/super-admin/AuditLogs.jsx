@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Box, Typography, Divider, Grid } from "@mui/material";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
@@ -16,14 +16,17 @@ const actionOptions = [
   { id: "update", name: "Update" },
   { id: "delete", name: "Delete" },
   { id: "import", name: "Import" },
+  { id: "enable", name: "Enable" },
+  { id: "disable", name: "Disable" },
 ];
 
 const tableOptions = [
   { id: "", name: "All Tables" },
-  { id: "users", name: "Users" },
   { id: "branches", name: "Branches" },
+  { id: "employees", name: "Employees" },
   { id: "items", name: "Items" },
   { id: "stock", name: "Stock" },
+  { id: "users", name: "Users" },
 ];
 
 const AuditLogs = () => {
@@ -52,7 +55,7 @@ const AuditLogs = () => {
     total: 0,
   });
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -98,10 +101,6 @@ const AuditLogs = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchLogs();
   }, [
     pagination.current_page,
     pagination.per_page,
@@ -111,6 +110,10 @@ const AuditLogs = () => {
     startDate,
     endDate,
   ]);
+
+  useEffect(() => {
+    fetchLogs();
+  }, [fetchLogs]);
 
   const handleSearchChange = (event) => {
     const value = event.target.value;
@@ -141,6 +144,8 @@ const AuditLogs = () => {
           update: "warning",
           delete: "error",
           import: "info",
+          enable: "success",
+          disable: "warning",
         };
 
         const properCase = value

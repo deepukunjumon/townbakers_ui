@@ -53,7 +53,7 @@ const CreateEmployee = () => {
 
     const fetchDesignations = async () => {
       try {
-        const res = await fetch(`${apiConfig.DESIGNATIONS}`, {
+        const res = await fetch(`${apiConfig.ACTIVE_DESIGNATIONS}`, {
           headers: { Authorization: getToken() },
         });
         const data = await res.json();
@@ -88,7 +88,7 @@ const CreateEmployee = () => {
         ...form,
         designation_id:
           typeof form.designation_id === "object" &&
-            form.designation_id !== null
+          form.designation_id !== null
             ? form.designation_id.id
             : form.designation_id,
         branch_id:

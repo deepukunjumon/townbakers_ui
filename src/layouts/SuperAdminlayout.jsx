@@ -15,9 +15,6 @@ import {
   Article,
   Construction,
   Assignment,
-  Assessment,
-  BugReport,
-  History,
   BugReportSharp,
 } from "@mui/icons-material";
 
