@@ -80,7 +80,8 @@ const ListOrders = () => {
           per_page: pagination.per_page,
           search: search.trim(),
           status: statusFilter,
-          today_only: location.state?.todayOnly ? "1" : "0",
+          start_date: startDate.toISOString().split("T")[0],
+          end_date: endDate.toISOString().split("T")[0],
         }).toString();
 
         const res = await fetch(`${apiConfig.BRANCH_ORDERS}?${params}`, {
@@ -118,12 +119,14 @@ const ListOrders = () => {
       pagination.per_page,
       statusFilter,
       location.state?.todayOnly,
+      startDate,
+      endDate,
     ]
   );
 
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+    fetchOrders(search);
+  }, [fetchOrders, search]);
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -211,7 +214,7 @@ const ListOrders = () => {
         if (orderData.success && orderData.order) {
           setSelectedOrder(orderData.order);
         }
-        fetchOrders();
+        fetchOrders(search);
       } else {
         setSnack({
           open: true,
@@ -296,7 +299,7 @@ const ListOrders = () => {
         }
         setShowEmployeeSelect(false);
         setSelectedEmployee(null);
-        fetchOrders();
+        fetchOrders(search);
       } else {
         setSnack({
           open: true,
@@ -347,10 +350,21 @@ const ListOrders = () => {
 
   const handleStartDateChange = (newDate) => {
     setStartDate(newDate);
-    setOrders([]);
     if (newDate > endDate) {
       setEndDate(newDate);
     }
+    setPagination((prev) => ({
+      ...prev,
+      current_page: 1,
+    }));
+  };
+
+  const handleEndDateChange = (newDate) => {
+    setEndDate(newDate);
+    setPagination((prev) => ({
+      ...prev,
+      current_page: 1,
+    }));
   };
 
   const handleStatusFilterChange = (event) => {
@@ -390,7 +404,7 @@ const ListOrders = () => {
           <DateSelectorComponent
             label="End Date"
             value={endDate}
-            onChange={(newDate) => setEndDate(newDate)}
+            onChange={handleEndDateChange}
             minDate={startDate}
             sx={{ width: { xs: 151, md: "auto" } }}
           />
