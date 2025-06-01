@@ -6,6 +6,7 @@ import {
   CircularProgress,
   useTheme,
   useMediaQuery,
+  alpha,
 } from "@mui/material";
 
 const StatCard = ({
@@ -20,8 +21,6 @@ const StatCard = ({
 }) => {
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.only("xs"));
-  const isSm = useMediaQuery(theme.breakpoints.down("sm"));
-  const isMd = useMediaQuery(theme.breakpoints.down("md"));
 
   const paletteColor = [
     "primary",
@@ -34,32 +33,42 @@ const StatCard = ({
     ? color
     : "primary";
 
+  const bgGradient = `linear-gradient(135deg, ${alpha(
+    theme.palette[paletteColor].main,
+    0.85
+  )}, ${alpha(theme.palette[paletteColor].dark, 0.85)})`;
+
   return (
     <Card
-      elevation={1}
+      elevation={0}
       sx={{
-        bgcolor: theme.palette.background.paper,
-        borderRadius: 1.5,
-        boxShadow: `0 1px 4px rgba(0, 0, 0, 0.08)`,
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
+        background: bgGradient,
+        color: theme.palette[paletteColor].contrastText,
+        borderRadius: 2,
         width: "100%",
         minWidth: { xs: 120, sm: 140, md: 160 },
         maxWidth: { xs: 140, sm: 160, md: 225 },
         height: "auto",
-        p: 1.5,
+        p: 2,
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
         position: "relative",
         overflow: "hidden",
-        transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
         cursor: "pointer",
+        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+        boxShadow: `0px 4px 12px ${alpha(
+          theme.palette[paletteColor].main,
+          0.3
+        )}`,
+        backdropFilter: "blur(8px)",
         "&:hover": {
-          transform: "translateY(-2px)",
-          boxShadow: `0 4px 12px rgba(0, 0, 0, 0.12)`,
-          "& .icon-box": {
-            transform: "scale(1.1)",
-          },
+          transform: "translateY(-10px)",
+          boxShadow: `0px 8px 20px ${alpha(
+            theme.palette[paletteColor].dark,
+            0.3
+          )}`,
         },
         ...sx,
       }}
@@ -68,10 +77,9 @@ const StatCard = ({
       {/* Icon */}
       {icon && (
         <Box
-          className="icon-box"
           sx={{
-            bgcolor: theme.palette[paletteColor].main,
-            color: "#fff",
+            backgroundColor: alpha(theme.palette.common.white, 0.2),
+            color: theme.palette.common.white,
             width: isXs ? 32 : 36,
             height: isXs ? 32 : 36,
             display: "flex",
@@ -79,9 +87,13 @@ const StatCard = ({
             justifyContent: "center",
             borderRadius: "50%",
             fontSize: isXs ? 18 : 20,
-            mr: 1.5,
+            mr: 2,
             flexShrink: 0,
-            transition: "transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+            backdropFilter: "blur(6px)",
+            transition: "transform 0.3s ease",
+            "&:hover": {
+              transform: "scale(1.1)",
+            },
           }}
         >
           {icon}
@@ -95,7 +107,7 @@ const StatCard = ({
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          minWidth: 0, // Prevents text overflow
+          minWidth: 0,
         }}
       >
         {loading ? (
@@ -108,37 +120,36 @@ const StatCard = ({
               width: "100%",
             }}
           >
-            <CircularProgress size={16} color={paletteColor} />
+            <CircularProgress size={16} color="inherit" />
           </Box>
         ) : (
           <>
             <Typography
               variant="caption"
               sx={{
-                fontWeight: 600,
-                color: theme.palette.text.secondary,
+                fontWeight: 500,
                 textTransform: "uppercase",
-                letterSpacing: 0.5,
                 fontSize: isXs ? "0.625rem" : "0.75rem",
-                mb: 0.25,
+                mb: 0.5,
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
+                opacity: 0.85,
               }}
             >
               {title}
             </Typography>
 
             <Typography
-              variant="body1"
+              variant="h6"
               sx={{
                 fontWeight: 700,
-                color: theme.palette.text.primary,
-                fontSize: isXs ? "0.875rem" : "1rem",
+                fontSize: isXs ? "1rem" : "1.25rem",
                 lineHeight: 1.2,
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
+                mb: subtitle ? 0.5 : 0,
               }}
             >
               {value}
@@ -149,12 +160,11 @@ const StatCard = ({
                 variant="caption"
                 sx={{
                   fontWeight: 500,
-                  color: theme.palette.text.secondary,
                   fontSize: isXs ? "0.625rem" : "0.75rem",
-                  mt: 0.25,
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
+                  opacity: 0.8,
                 }}
               >
                 {subtitle}

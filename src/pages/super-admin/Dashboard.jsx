@@ -28,7 +28,7 @@ const SuperAdminDashboard = () => {
       loading: true,
       color: "primary",
       icon: <PeopleIcon />,
-      onClick: () => navigate(`${ROUTES.SUPER_ADMIN.EMPLOYEES_LIST}?status=0`),
+      onClick: () => navigate(`${ROUTES.SUPER_ADMIN.EMPLOYEES_LIST}`),
     },
     {
       title: "Pending Orders",
