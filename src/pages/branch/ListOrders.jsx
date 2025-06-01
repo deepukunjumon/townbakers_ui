@@ -118,7 +118,6 @@ const ListOrders = () => {
       pagination.current_page,
       pagination.per_page,
       statusFilter,
-      location.state?.todayOnly,
       startDate,
       endDate,
     ]
