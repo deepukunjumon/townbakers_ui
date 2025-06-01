@@ -99,7 +99,6 @@ const ViewBranchStockSummary = () => {
   }, []);
 
   const fetchSummary = useCallback(async () => {
-    setSubmitted(true);
     if (!branchId || !date) return;
     setLoading(true);
     try {
@@ -176,13 +175,12 @@ const ViewBranchStockSummary = () => {
     if (submitted && branchId && date) {
       fetchSummary();
     }
-  }, [searchTerm, fetchSummary, submitted, branchId, date]);
+  }, [fetchSummary, submitted, branchId, date]);
 
-  useEffect(() => {
-    if (submitted) {
-      fetchSummary();
-    }
-  }, [pagination.current_page, pagination.per_page, fetchSummary, submitted]);
+  const handleSubmit = () => {
+    setSubmitted(true);
+    fetchSummary();
+  };
 
   const columns = [
     { field: "item_name", headerName: "Item" },
@@ -266,7 +264,7 @@ const ViewBranchStockSummary = () => {
             />
 
             <ButtonComponent
-              onClick={fetchSummary}
+              onClick={handleSubmit}
               variant="contained"
               color="primary"
               sx={{

@@ -15,6 +15,7 @@ import { STRINGS } from "../../../constants/strings";
 
 const categoryOptions = [
   { label: "Snacks", value: "snacks" },
+  { label: "Cake", value: "cake" },
   { label: "Food Item", value: "food_item" },
 ];
 
