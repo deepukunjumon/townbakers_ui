@@ -20,6 +20,12 @@ export const ROUTES = {
     EMPLOYEES_LIST: "/super-admin/employees",
 
     STOCK_SUMMARY: "/super-admin/stocks/summary",
+
+    ALL_ORDERS: "/super-admin/orders",
+
+    DEVELOPER_TOOLS: "/super-admin/tools",
+
+    AUDIT_LOGS: "/super-admin/logs/audit-logs",
   },
 
   ADMIN: {
@@ -34,6 +40,8 @@ export const ROUTES = {
     EMPLOYEES_LIST: "/admin/employees",
 
     STOCK_SUMMARY: "/admin/stocks/summary",
+
+    ALL_ORDERS: "/admin/orders",
   },
 
   BRANCH: {

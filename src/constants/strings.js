@@ -9,6 +9,8 @@ export const STRINGS = {
     `Are you sure you want to disable user "${name}"?`,
   CONFIRM_DISABLE_USER_DESCRIPTION: "You can re-enable this user later.",
 
+  CONFIRM: "Confirm",
+  CONFIRM_ACTION: "Confirm Action",
   CONFIRM_GENERIC_TITLE: "Are you sure?",
   CONFIRM_GENERIC_CONTENT: "Do you want to proceed?",
   CONFIRM_GENERIC_DESCRIPTION: "",
@@ -19,6 +21,7 @@ export const STRINGS = {
   NO: "No",
   CANCEL: "Cancel",
   DELETE: "Delete",
+  ENABLE: "Enable",
   DISABLE: "Disable",
   OK: "OK",
 
@@ -31,5 +34,25 @@ export const STRINGS = {
   TOTAL_LIKES: (count) => `${count} Like${count === 1 ? "" : "s"}`,
 
   LOGIN_SUCCESS: "Login successful",
-  SOMETHING_WENT_WRONG: "Something went wrong. Please try again.",
+  FAILED_TO_COMPLETE_ACTION: "Failed to complete the action",
+  SOMETHING_WENT_WRONG: "Something went wrong. Please try again later.",
+
+  //All Employees
+  DISABLE_EMPLOYEE_CONFIRMATION:
+    "Are you sure you want to disable this employee ?",
+  ENABLE_EMPLOYEE_CONFIRMATION:
+    "Are you sure you want to enable this employee ?",
+
+  //Designations
+  DISABLE_DESIGNATION: "Are you sure you want to disable this designation ?",
+  ENABLE_DESIGNATION: "Are you sure you want to enable this designation ?",
+
+  //Add Stock
+  SUBMIT_CONFIRMATION: "Are you sure you want to submit ?",
+
+  //Items
+  DISABLE_ITEM_CONFIRMATION: (name) =>
+    `Are you sure you want to disable the item "${name}"?`,
+  ENABLE_ITEM_CONFIRMATION: (name) =>
+    `Are you sure you want to enable the item "${name}"?`,
 };

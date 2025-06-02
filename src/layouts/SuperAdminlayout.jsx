@@ -12,7 +12,10 @@ import {
   MenuBook,
   Token,
   Inventory,
-  Article
+  Article,
+  LogoDev,
+  Assignment,
+  MultipleStop,
 } from "@mui/icons-material";
 
 const SuperAdminLayout = () => {
@@ -23,6 +26,11 @@ const SuperAdminLayout = () => {
       label: "Dashboard",
       icon: <Dashboard />,
       onClick: () => navigate(ROUTES.SUPER_ADMIN.DASHBOARD),
+    },
+    {
+      icon: <PersonAddAltRounded />,
+      label: "Create User",
+      onClick: () => navigate(ROUTES.SUPER_ADMIN.CREATE_USER),
     },
     {
       label: "Masters",
@@ -37,17 +45,6 @@ const SuperAdminLayout = () => {
           icon: <Badge />,
           label: "Designations",
           onClick: () => navigate(ROUTES.SUPER_ADMIN.DESIGNATIONS),
-        },
-      ],
-    },
-    {
-      label: "Super Access",
-      icon: <Security />,
-      children: [
-        {
-          icon: <PersonAddAltRounded />,
-          label: "Create User",
-          onClick: () => navigate(ROUTES.SUPER_ADMIN.CREATE_USER),
         },
       ],
     },
@@ -75,6 +72,39 @@ const SuperAdminLayout = () => {
           icon: <Article />,
           label: "Stocks Summary",
           onClick: () => navigate(ROUTES.SUPER_ADMIN.STOCK_SUMMARY),
+        },
+      ],
+    },
+    {
+      label: "Orders",
+      icon: <Assignment />,
+      children: [
+        {
+          icon: <Assignment />,
+          label: "All Orders",
+          onClick: () => navigate(ROUTES.SUPER_ADMIN.ALL_ORDERS),
+        },
+      ],
+    },
+    {
+      label: "Super Access",
+      icon: <Security />,
+      children: [
+        {
+          label: "Developer Tools",
+          icon: <LogoDev />,
+          onClick: () => navigate(ROUTES.SUPER_ADMIN.DEVELOPER_TOOLS),
+        },
+        {
+          label: "Logs",
+          icon: <MultipleStop />,
+          children: [
+            {
+              label: "Audit Logs",
+              icon: <MultipleStop />,
+              onClick: () => navigate(ROUTES.SUPER_ADMIN.AUDIT_LOGS),
+            },
+          ],
         },
       ],
     },

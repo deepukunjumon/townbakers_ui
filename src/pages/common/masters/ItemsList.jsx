@@ -9,21 +9,25 @@ import apiConfig from "../../../config/apiConfig";
 import SearchFieldComponent from "../../../components/SearchFieldComponent";
 import TextFieldComponent from "../../../components/TextFieldComponent";
 import SelectFieldComponent from "../../../components/SelectFieldComponent";
+import ImportMenuComponent from "../../../components/ImportMenuComponent";
+import ButtonComponent from "../../../components/ButtonComponent";
+import { STRINGS } from "../../../constants/strings";
 
 const categoryOptions = [
   { label: "Snacks", value: "snacks" },
+  { label: "Cake", value: "cake" },
   { label: "Food Item", value: "food_item" },
 ];
 
 const ItemsList = () => {
   const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [initialLoad, setInitialLoad] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     current_page: 1,
     per_page: 10,
     total: 0,
   });
+  const paginationRef = useRef(pagination);
   const [searchTerm, setSearchTerm] = useState("");
   const [snack, setSnack] = useState({
     open: false,
@@ -36,12 +40,24 @@ const ItemsList = () => {
   const [newItemName, setNewItemName] = useState("");
   const [newItemCategory, setNewItemCategory] = useState(null);
   const [newItemDescription, setNewItemDescription] = useState("");
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [file, setFile] = useState(null);
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState(null);
+
+  // Update ref when pagination changes
+  useEffect(() => {
+    paginationRef.current = pagination;
+  }, [pagination]);
 
   const fetchItems = useCallback(
     async (
       q = "",
-      page = pagination.current_page,
-      perPage = pagination.per_page
+      page = paginationRef.current.current_page,
+      perPage = paginationRef.current.per_page
     ) => {
       if (controllerRef.current) {
         controllerRef.current.abort();
@@ -51,7 +67,6 @@ const ItemsList = () => {
       controllerRef.current = newController;
 
       setLoading(true);
-      setInitialLoad(true);
 
       try {
         const params = new URLSearchParams({
@@ -90,14 +105,22 @@ const ItemsList = () => {
         }
       } finally {
         setLoading(false);
-        setInitialLoad(false);
       }
     },
-    [pagination.current_page, pagination.per_page]
+    []
   );
 
   useEffect(() => {
-    fetchItems(searchTerm, pagination.current_page, pagination.per_page);
+    const timeoutId = setTimeout(() => {
+      fetchItems(searchTerm, pagination.current_page, pagination.per_page);
+    }, 0);
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (controllerRef.current) {
+        controllerRef.current.abort();
+      }
+    };
   }, [searchTerm, pagination.current_page, pagination.per_page, fetchItems]);
 
   const handleSearch = (value) => {
@@ -114,8 +137,21 @@ const ItemsList = () => {
   };
 
   const handleToggleStatus = async (id, currentStatus) => {
+    const item = items.find((item) => item.id === id);
+    setSelectedItem({ id, currentStatus, name: item.name });
+    setConfirmModalOpen(true);
+  };
+
+  const handleConfirmCancel = () => {
+    setConfirmModalOpen(false);
+    setSelectedItem(null);
+  };
+
+  const confirmToggleStatus = async () => {
+    if (!selectedItem) return;
+
     const token = localStorage.getItem("token");
-    const newStatus = currentStatus === 1 ? 0 : 1;
+    const newStatus = selectedItem.currentStatus === 1 ? 0 : 1;
 
     setLoading(true);
 
@@ -126,7 +162,7 @@ const ItemsList = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ id, status: newStatus }),
+        body: JSON.stringify({ id: selectedItem.id, status: newStatus }),
       });
 
       const data = await res.json();
@@ -137,7 +173,7 @@ const ItemsList = () => {
 
       setItems((prevItems) =>
         prevItems.map((item) =>
-          item.id === id ? { ...item, status: newStatus } : item
+          item.id === selectedItem.id ? { ...item, status: newStatus } : item
         )
       );
 
@@ -154,6 +190,7 @@ const ItemsList = () => {
       });
     } finally {
       setLoading(false);
+      handleConfirmCancel();
     }
   };
 
@@ -209,11 +246,70 @@ const ItemsList = () => {
     }
   };
 
+  const handleImportClick = () => {
+    setImportModalOpen(true);
+  };
+
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    setFile(selectedFile);
+    setImportResult(null);
+  };
+
+  const handleImport = async () => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    setImporting(true);
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(apiConfig.IMPORT_ITEMS, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to import items");
+      }
+
+      setImportResult({
+        success: data.success,
+        message: data.message,
+        errors: data.errors || [],
+      });
+
+      fetchItems(searchTerm, 1, pagination.per_page);
+    } catch (error) {
+      setImportResult({
+        success: false,
+        message: error.message || "Failed to import items",
+        errors: [],
+      });
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const columns = [
     {
       field: "name",
       headerName: "Item",
       width: 400,
+      headerAlign: "left",
+      align: "left",
+    },
+    {
+      field: "category",
+      headerName: "Category",
+      width: 300,
       headerAlign: "left",
       align: "left",
     },
@@ -278,11 +374,51 @@ const ItemsList = () => {
     </Box>
   );
 
+  const renderConfirmationModal = () => (
+    <ModalComponent
+      open={confirmModalOpen}
+      hideCloseIcon={true}
+      onClose={handleConfirmCancel}
+      title="Confirm Status Change"
+      content={
+        <Box>
+          <Typography>
+            {selectedItem?.currentStatus === 1
+              ? STRINGS.DISABLE_ITEM_CONFIRMATION(selectedItem?.name)
+              : STRINGS.ENABLE_ITEM_CONFIRMATION(selectedItem?.name)}
+          </Typography>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+            <ButtonComponent
+              variant="text"
+              color="primary"
+              onClick={handleConfirmCancel}
+              sx={{ mr: 1 }}
+            >
+              {STRINGS.CANCEL}
+            </ButtonComponent>
+            <ButtonComponent
+              variant="text"
+              color={selectedItem?.currentStatus === 1 ? "error" : "success"}
+              onClick={confirmToggleStatus}
+            >
+              {selectedItem?.currentStatus === 1
+                ? STRINGS.DISABLE
+                : STRINGS.ENABLE}
+            </ButtonComponent>
+          </Box>
+        </Box>
+      }
+    />
+  );
+
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 3, position: "relative" }}>
-      <Typography variant="h5" gutterBottom>
-        Items List
-      </Typography>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2, position: "relative" }}>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+        <Typography variant="h5" sx={{ flexGrow: 1 }}>
+          Items List
+        </Typography>
+        <ImportMenuComponent onImportClick={handleImportClick} />
+      </Box>
       <Divider sx={{ mb: 3 }} />
 
       <Box
@@ -294,7 +430,7 @@ const ItemsList = () => {
           width: "100%",
         }}
       >
-        <Box sx={{ width: 300 }}>
+        <Box sx={{ width: { xs: "100%", sm: 300 } }}>
           <SearchFieldComponent
             label="Search"
             placeholder="Search items..."
@@ -313,7 +449,7 @@ const ItemsList = () => {
       />
 
       <Box sx={{ position: "relative" }}>
-        {loading || initialLoad ? (
+        {loading ? (
           <Loader message="Loading..." />
         ) : (
           <TableComponent
@@ -345,11 +481,72 @@ const ItemsList = () => {
         <AddIcon />
       </Fab>
 
+      {renderConfirmationModal()}
+
       <ModalComponent
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         title="Create New Item"
         content={modalContent}
+      />
+
+      <ModalComponent
+        open={importModalOpen}
+        onClose={() => {
+          setImportModalOpen(false);
+          setFile(null);
+          setImportResult(null);
+        }}
+        title="Import Items"
+        content={
+          <Box>
+            <input
+              type="file"
+              accept=".xlsx,.csv"
+              onChange={handleFileChange}
+              disabled={importing}
+            />
+            <Button
+              onClick={handleImport}
+              disabled={!file || importing}
+              sx={{ mt: 2 }}
+              variant="contained"
+            >
+              {importing ? "Importing..." : "Import"}
+            </Button>
+            <Box sx={{ mb: 2 }}>
+              <a
+                href={`${apiConfig.BASE_URL}/../sample-files/items.xlsx`}
+                download
+                style={{ textDecoration: "underline", color: "#1976d2" }}
+                rel="noopener noreferrer"
+              >
+                Sample File
+              </a>
+            </Box>
+            {importResult && (
+              <Box sx={{ mt: 2 }}>
+                <Typography
+                  color={importResult.success ? "success.main" : "error.main"}
+                >
+                  {importResult.message}
+                </Typography>
+                {importResult.errors && importResult.errors.length > 0 && (
+                  <Box sx={{ mt: 1 }}>
+                    <Typography variant="subtitle2">Errors:</Typography>
+                    <ul>
+                      {importResult.errors.map((err, idx) => (
+                        <li key={idx}>
+                          Row {err.row}: {Object.values(err.errors).join(", ")}
+                        </li>
+                      ))}
+                    </ul>
+                  </Box>
+                )}
+              </Box>
+            )}
+          </Box>
+        }
       />
     </Box>
   );

@@ -12,21 +12,33 @@ const apiConfig = {
   PROFILE: `${API_BASE_URL}/profile`,
   LOGOUT_URL: `${API_BASE_URL}/logout`,
   MINIMAL_BRANCHES: `${API_BASE_URL}/branches/minimal`,
+  MINIMAL_EMPLOYEES: `${API_BASE_URL}/employees/minimal`,
   DESIGNATIONS: `${API_BASE_URL}/designations`,
   ACTIVE_DESIGNATIONS: `${API_BASE_URL}/designations/active`,
 
   UPDATE_EMPLOYEE_STATUS: `${API_BASE_URL}/employee/update-status`,
 
   CREATE_ITEM: `${API_BASE_URL}/create/item`,
+  IMPORT_ITEMS: `${API_BASE_URL}/import/items`,
   ITEMS_LIST: `${API_BASE_URL}/items`,
   MINIMAL_ITEMS: `${API_BASE_URL}/items/minimal`,
   UPDATE_ITEM_STATUS: `${API_BASE_URL}/item/update-status`,
 
+  ORDER_DETAILS: (id) => `${API_BASE_URL}/order/${id}`,
+
   CREATE_DESIGNATION: `${API_BASE_URL}/create/designation`,
   UPDATE_DESIGNATION_STATUS: `${API_BASE_URL}/designation/update-status`,
 
+  //Sample Files
+  SAMPLE_EMPLOYEES_IMPORT: `${API_BASE_URL}/../sample-files/employees.xlsx`,
+
   //Super Admin APIs
-  CREATE_USER: `${API_BASE_URL}/super-admin/create/user`,
+  SUPER_ADMIN: {
+    CREATE_USER: `${API_BASE_URL}/super-admin/create/user`,
+    MAIL_TEST: `${API_BASE_URL}/super-admin/test-mail`,
+    AUDIT_LOGS: `${API_BASE_URL}/super-admin/logs/audit-logs`,
+    TABLES_LIST: `${API_BASE_URL}/super-admin/list/tables`,
+  },
 
   // Admin APIs
   ADMIN_DASHBOARD_STATS: `${API_BASE_URL}/admin/dashboard/stats`,
@@ -41,6 +53,8 @@ const apiConfig = {
 
   BRANCHWISE_STOCK_SUMMARY: `${API_BASE_URL}/admin/branchwise/stock/summary`,
 
+  ALL_ORDERS: `${API_BASE_URL}/admin/orders`,
+
   USERS_COUNTS: `${API_BASE_URL}/admin/users/status/counts`,
   USERS_LIST: `${API_BASE_URL}/admin/users`,
   ADD_USER: `${API_BASE_URL}/admin/add/user`,
@@ -50,6 +64,15 @@ const apiConfig = {
 
   // Branch APIs
   BRANCH_DASHBOARD_STATS: `${API_BASE_URL}/branch/dashboard/stats`,
+
+  CREATE_BRANCH_EMPLOYEE: `${API_BASE_URL}/branch/create/employee`,
+  BRANCH_EMPLOYEES: `${API_BASE_URL}/branch/employees`,
+
+  CREATE_ORDER: `${API_BASE_URL}/branch/create/order`,
+  BRANCH_ORDERS: `${API_BASE_URL}/branch/orders`,
+  UPDATE_ORDER_STATUS: (id) => `${API_BASE_URL}/order/${id}/status`,
+
+  ADD_STOCK: `${API_BASE_URL}/stock/add`,
   STOCK_SUMMARY: `${API_BASE_URL}/branch/stock/summary`,
 };
 

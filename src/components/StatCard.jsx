@@ -6,6 +6,7 @@ import {
   CircularProgress,
   useTheme,
   useMediaQuery,
+  alpha,
 } from "@mui/material";
 
 const StatCard = ({
@@ -20,6 +21,7 @@ const StatCard = ({
 }) => {
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.only("xs"));
+
   const paletteColor = [
     "primary",
     "secondary",
@@ -31,134 +33,144 @@ const StatCard = ({
     ? color
     : "primary";
 
+  const bgGradient = `linear-gradient(135deg, ${alpha(
+    theme.palette[paletteColor].main,
+    0.85
+  )}, ${alpha(theme.palette[paletteColor].dark, 0.85)})`;
+
   return (
     <Card
-      elevation={3}
+      elevation={0}
       sx={{
-        bgcolor: "#fff",
-        borderRadius: 3,
-        boxShadow: "0 2px 8px rgba(31,41,55,0.07)",
+        background: bgGradient,
+        color: theme.palette[paletteColor].contrastText,
+        borderRadius: 2,
+        width: "100%",
+        minWidth: { xs: 120, sm: 140, md: 160 },
+        maxWidth: { xs: 140, sm: 160, md: 225 },
+        height: "auto",
+        p: 2,
         display: "flex",
-        flexDirection: isXs ? "row" : "row",
+        flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
+        position: "relative",
+        overflow: "hidden",
         cursor: "pointer",
-        height: { xs: 100, sm: 120, md: 140 },
-        width: {
-          xs: "100%",
-          sm: "75%",
-          md: "60%",
-          lg: "50%",
-          xl: "40%",
-        },
-        minWidth: { xs: 100, sm: 245, md: 240 },
-        maxWidth: { xs: 135, sm: 240, md: 240 },
-        px: 2,
-        py: 1,
-        transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+        boxShadow: `0px 4px 12px ${alpha(
+          theme.palette[paletteColor].main,
+          0.3
+        )}`,
+        backdropFilter: "blur(8px)",
         "&:hover": {
-          transform: "scale(1.03)",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+          transform: "translateY(-10px)",
+          boxShadow: `0px 8px 20px ${alpha(
+            theme.palette[paletteColor].dark,
+            0.3
+          )}`,
         },
         ...sx,
       }}
       {...rest}
     >
+      {/* Icon */}
       {icon && (
         <Box
           sx={{
-            bgcolor: theme.palette[paletteColor].light,
-            color: theme.palette[paletteColor].main,
-            width: isXs ? 40 : 50,
-            height: isXs ? 40 : 50,
+            backgroundColor: alpha(theme.palette.common.white, 0.2),
+            color: theme.palette.common.white,
+            width: isXs ? 32 : 36,
+            height: isXs ? 32 : 36,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             borderRadius: "50%",
-            fontSize: isXs ? 20 : 24,
-            mr: isXs ? 1.5 : 2,
-            ml: isXs ? 0 : 2,
+            fontSize: isXs ? 18 : 20,
+            mr: 2,
+            flexShrink: 0,
+            backdropFilter: "blur(6px)",
+            transition: "transform 0.3s ease",
+            "&:hover": {
+              transform: "scale(1.1)",
+            },
           }}
         >
           {icon}
         </Box>
       )}
 
+      {/* Content */}
       <Box
         sx={{
           flex: 1,
-          minWidth: 0,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
+          minWidth: 0,
         }}
       >
         {loading ? (
           <Box
             sx={{
-              minHeight: 32,
+              minHeight: 24,
               display: "flex",
               alignItems: "center",
-              justifyContent: "flex-start",
+              justifyContent: "center",
               width: "100%",
             }}
           >
-            <CircularProgress size={20} color={paletteColor} />
+            <CircularProgress size={16} color="inherit" />
           </Box>
         ) : (
           <>
-            <Box
+            <Typography
+              variant="caption"
               sx={{
-                display: "flex",
-                flexDirection: isXs ? "row" : "column",
-                alignItems: isXs ? "center" : "flex-start",
-                justifyContent: "space-between",
-                width: "100%",
+                fontWeight: 500,
+                textTransform: "uppercase",
+                fontSize: isXs ? "0.625rem" : "0.75rem",
+                mb: 0.5,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                opacity: 0.85,
               }}
             >
-              <Typography
-                variant="body2"
-                sx={{
-                  fontSize: { xs: 12, sm: 14 },
-                  fontWeight: { xs: 500, sm: 600 },
-                  color: theme.palette[paletteColor].main,
-                  textAlign: isXs ? "left" : "inherit",
-                  mr: isXs ? 1 : 0,
-                }}
-              >
-                {title}
-              </Typography>
-            </Box>
+              {title}
+            </Typography>
 
             <Typography
               variant="h6"
               sx={{
                 fontWeight: 700,
-                color: "text.primary",
-                mb: 0.2,
-                fontSize: 20,
-                lineHeight: 1.1,
-                textAlign: isXs ? "center" : "left",
+                fontSize: isXs ? "1rem" : "1.25rem",
+                lineHeight: 1.2,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                mb: subtitle ? 0.5 : 0,
               }}
             >
               {value}
             </Typography>
-          </>
-        )}
 
-        {!isXs && subtitle && !loading && (
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            fontSize={12}
-            sx={{
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {subtitle}
-          </Typography>
+            {subtitle && (
+              <Typography
+                variant="caption"
+                sx={{
+                  fontWeight: 500,
+                  fontSize: isXs ? "0.625rem" : "0.75rem",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  opacity: 0.8,
+                }}
+              >
+                {subtitle}
+              </Typography>
+            )}
+          </>
         )}
       </Box>
     </Card>

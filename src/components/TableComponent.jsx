@@ -1,4 +1,5 @@
 import React from "react";
+import dayjs from "dayjs";
 import {
   Table,
   TableBody,
@@ -66,7 +67,6 @@ const TableComponent = ({
     setSelectedItem(null);
   };
 
-  // Add actions column if any CRUD actions are provided
   const tableColumns = [...columns];
   if (showActions && (onEdit || onView || onDelete)) {
     tableColumns.push({
@@ -124,8 +124,20 @@ const TableComponent = ({
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <TableContainer sx={{ maxHeight: { md: 400 }, flex: 1, overflow: "auto" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <TableContainer
+        sx={{
+          height: { xs: "100%", sm: "auto" },
+          maxHeight: { xs: "none", sm: 400 },
+          overflow: "auto",
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: 2,
+          "& .MuiTable-root": {
+            height: { xs: "100%", sm: "auto" },
+          },
+        }}
+      >
         <Table size="small" stickyHeader>
           <TableHead>
             <TableRow>
@@ -133,13 +145,14 @@ const TableComponent = ({
                 sx={{
                   position: "sticky",
                   top: 0,
-                  bgcolor: "background.default",
-                  fontWeight: "fontWeightMedium",
+                  bgcolor: "grey.100",
+                  fontWeight: "bold",
                   zIndex: 2,
                   width: 80,
                   minWidth: 80,
                   textAlign: "center",
-                  verticalAlign: "middle",
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
                 }}
               >
                 Sl.No
@@ -151,9 +164,11 @@ const TableComponent = ({
                   sx={{
                     position: "sticky",
                     top: 0,
-                    bgcolor: "background.default",
-                    fontWeight: "fontWeightMedium",
+                    bgcolor: "grey.100",
+                    fontWeight: "bold",
                     zIndex: 2,
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
                     width: col.width || "auto",
                     minWidth: col.minWidth || "auto",
                     maxWidth: col.maxWidth || "auto",
@@ -174,7 +189,12 @@ const TableComponent = ({
                   onClick={() => onRowClick?.(row)}
                   sx={{
                     cursor: onRowClick ? "pointer" : "default",
-                    "&:last-child td": { borderBottom: 0 },
+                    "&:hover": {
+                      backgroundColor: "grey.50",
+                    },
+                    "&:nth-of-type(odd)": {
+                      backgroundColor: "grey.50",
+                    },
                   }}
                 >
                   <TableCell
@@ -182,7 +202,8 @@ const TableComponent = ({
                       width: 80,
                       minWidth: 80,
                       textAlign: "center",
-                      verticalAlign: "middle",
+                      borderBottom: "1px solid",
+                      borderColor: "divider",
                     }}
                   >
                     {page * rowsPerPage + idx + 1}
@@ -192,6 +213,8 @@ const TableComponent = ({
                       key={col.field}
                       align={col.align || "left"}
                       sx={{
+                        borderBottom: "1px solid",
+                        borderColor: "divider",
                         width: col.width || "auto",
                         minWidth: col.minWidth || "auto",
                         maxWidth: col.maxWidth || "auto",
@@ -203,6 +226,8 @@ const TableComponent = ({
                     >
                       {col.renderCell
                         ? col.renderCell({ value: row[col.field], row })
+                        : col.type === "date" && row[col.field]
+                        ? dayjs(row[col.field]).format("DD-MM-YYYY")
                         : row[col.field] ?? "-"}
                     </TableCell>
                   ))}
@@ -216,6 +241,8 @@ const TableComponent = ({
                     textAlign: "center",
                     color: "text.disabled",
                     py: 2,
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
                   }}
                 >
                   {noDataMessage}
@@ -227,7 +254,7 @@ const TableComponent = ({
       </TableContainer>
 
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25, 50]}
+        rowsPerPageOptions={[5, 10, 25, 50, 100]}
         component="div"
         count={total}
         rowsPerPage={rowsPerPage}
@@ -241,10 +268,9 @@ const TableComponent = ({
         }}
       />
 
-      {/* Delete confirmation dialog */}
       <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
         <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
+        <DialogContent dividers>
           <Typography>{deleteConfirmMessage}</Typography>
         </DialogContent>
         <DialogActions>
@@ -254,7 +280,7 @@ const TableComponent = ({
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </Box>
   );
 };
 

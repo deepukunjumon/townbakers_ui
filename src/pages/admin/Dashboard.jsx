@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Box, Grid, Typography, IconButton } from "@mui/material";
+import { Box, Grid, Typography, IconButton, Divider } from "@mui/material";
 import StatCard from "../../components/StatCard";
 import PeopleIcon from "@mui/icons-material/People";
 import BusinessIcon from "@mui/icons-material/Business";
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import axios from "axios";
 import apiConfig from "../../config/apiConfig";
@@ -89,14 +89,10 @@ const Dashboard = () => {
   }, [fetchStats]);
 
   return (
-    <Box
-      sx={{
-        p: 3,
-        maxWidth: "100%",
-        mx: "auto",
-      }}
-    >
-      <Box sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+      <Box
+        sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}
+      >
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
           Dashboard
         </Typography>
@@ -104,6 +100,7 @@ const Dashboard = () => {
           <RefreshIcon />
         </IconButton>
       </Box>
+      <Divider sx={{ mb: 2 }} />
       <Grid container spacing={2}>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={index}>

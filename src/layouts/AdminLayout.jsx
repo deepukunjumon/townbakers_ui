@@ -13,7 +13,8 @@ import {
   MenuBook,
   Token,
   Inventory,
-  Article
+  Article,
+  Assignment
 } from "@mui/icons-material";
 
 const AdminLayout = () => {
@@ -81,6 +82,17 @@ const AdminLayout = () => {
           icon: <Article />,
           label: "Stocks Summary",
           onClick: () => navigate(ROUTES.ADMIN.STOCK_SUMMARY),
+        },
+      ],
+    },
+    {
+      label: "Orders",
+      icon: <Assignment />,
+      children: [
+        {
+          icon: <Assignment />,
+          label: "All Orders",
+          onClick: () => navigate(ROUTES.ADMIN.ALL_ORDERS),
         },
       ],
     },

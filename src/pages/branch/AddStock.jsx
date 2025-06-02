@@ -8,6 +8,7 @@ import {
   ListItem,
   ListItemText,
   Grid,
+  Button,
 } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import SnackbarAlert from "../../components/SnackbarAlert";
@@ -17,6 +18,8 @@ import apiConfig from "../../config/apiConfig";
 import { getToken, getBranchIdFromToken } from "../../utils/auth";
 import ButtonComponent from "../../components/ButtonComponent";
 import Loader from "../../components/Loader";
+import ModalComponent from "../../components/ModalComponent";
+import { STRINGS } from "../../constants/strings";
 
 const AddStock = () => {
   const [employeeId, setEmployeeId] = useState(null);
@@ -31,13 +34,14 @@ const AddStock = () => {
     message: "",
   });
   const [loading, setLoading] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
 
   const branchId = getBranchIdFromToken();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    fetch(`${apiConfig.BASE_URL}/employees/minimal`, {
+    fetch(`${apiConfig.MINIMAL_EMPLOYEES}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -50,7 +54,7 @@ const AddStock = () => {
         })
       );
 
-    fetch(`${apiConfig.BASE_URL}/items/minimal`, {
+    fetch(`${apiConfig.MINIMAL_ITEMS}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -98,7 +102,12 @@ const AddStock = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // <-- Start loader
+    setConfirmModalOpen(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    setConfirmModalOpen(false);
+    setLoading(true);
 
     let updatedItems = [...addedItems];
 
@@ -144,7 +153,7 @@ const AddStock = () => {
     };
 
     try {
-      const res = await fetch(`${apiConfig.BASE_URL}/stock/add`, {
+      const res = await fetch(`${apiConfig.ADD_STOCK}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -173,8 +182,24 @@ const AddStock = () => {
     }
   };
 
+  const confirmationModalContent = (
+    <Box>
+      <Typography variant="body1" gutterBottom>
+        {STRINGS.SUBMIT_CONFIRMATION}
+      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
+        <Button variant="text" onClick={() => setConfirmModalOpen(false)}>
+          {STRINGS.CANCEL}
+        </Button>
+        <Button variant="text" onClick={handleConfirmSubmit} autoFocus>
+          {STRINGS.CONFIRM}
+        </Button>
+      </Box>
+    </Box>
+  );
+
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", py: 2, px: 2 }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
       {loading && <Loader message="Submitting stock..." />}
       <SnackbarAlert
         open={snack.open}
@@ -253,7 +278,7 @@ const AddStock = () => {
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                   inputProps={{ min: 0.1 }}
-                  sx={{ width: { xs: 85, sm: 100 } }}
+                  sx={{ width: { xs: 80, sm: 100 } }}
                 />
               </Grid>
               <Grid item xs={4} sm={2}>
@@ -333,6 +358,14 @@ const AddStock = () => {
           </Box>
         </Box>
       </form>
+
+      <ModalComponent
+        open={confirmModalOpen}
+        hideCloseIcon={true}
+        onClose={() => setConfirmModalOpen(false)}
+        title="Confirm Submission"
+        content={confirmationModalContent}
+      />
     </Box>
   );
 };

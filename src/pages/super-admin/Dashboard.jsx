@@ -28,13 +28,34 @@ const SuperAdminDashboard = () => {
       loading: true,
       color: "primary",
       icon: <PeopleIcon />,
-      onClick: () => navigate(`${ROUTES.SUPER_ADMIN.EMPLOYEES_LIST}?status=0`),
+      onClick: () => navigate(`${ROUTES.SUPER_ADMIN.EMPLOYEES_LIST}`),
     },
     {
       title: "Pending Orders",
       subtitle: "Pending orders count",
       loading: true,
       color: "warning",
+      icon: <AssignmentIcon />,
+    },
+    {
+      title: "Completed Orders",
+      subtitle: "Completed orders count",
+      loading: true,
+      color: "success",
+      icon: <AssignmentIcon />,
+    },
+    {
+      title: "Cancelled Orders",
+      subtitle: "Cancelled orders count",
+      loading: true,
+      color: "error",
+      icon: <AssignmentIcon />,
+    },
+    {
+      title: "Cancelled Orders",
+      subtitle: "Cancelled orders count",
+      loading: true,
+      color: "error",
       icon: <AssignmentIcon />,
     },
   ]);
@@ -79,6 +100,20 @@ const SuperAdminDashboard = () => {
                   loading: false,
                 };
               }
+              if (stat.title === "Completed Orders") {
+                return {
+                  ...stat,
+                  value: 0,
+                  loading: false,
+                };
+              }
+              if (stat.title === "Cancelled Orders") {
+                return {
+                  ...stat,
+                  value: 0,
+                  loading: false,
+                };
+              }
               return stat;
             })
           );
@@ -94,18 +129,12 @@ const SuperAdminDashboard = () => {
   }, [fetchStats]);
 
   return (
-    <Box
-      sx={{
-        p: 3,
-        maxWidth: "100%",
-        mx: "auto",
-      }}
-    >
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
       <Box
         sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}
       >
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
-          Good Evening Super Admin
+          Dashboard
         </Typography>
         <IconButton aria-label="refresh" onClick={fetchStats}>
           <RefreshIcon />

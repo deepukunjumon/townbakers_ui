@@ -75,7 +75,7 @@ const CreateEmployee = () => {
     };
 
     try {
-      const res = await fetch(`${apiConfig.BASE_URL}/branch/create/employee`, {
+      const res = await fetch(`${apiConfig.CREATE_BRANCH_EMPLOYEE}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -156,11 +156,11 @@ const CreateEmployee = () => {
         <SelectFieldComponent
           label="Designation"
           name="designation_id"
-          value={form.designation_id}
-          onChange={(e) => setForm({ ...form, designation_id: e.target.value.id })}
+          value={designations.find(d => d.id === form.designation_id) || null}
+          onChange={(e) => setForm({ ...form, designation_id: e.target.value?.id || "" })}
           options={designations}
           valueKey="id"
-          displayKey={(des) => des.designation}
+          displayKey="designation"
           required
         />
 

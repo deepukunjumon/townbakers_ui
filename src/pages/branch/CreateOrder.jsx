@@ -49,7 +49,7 @@ const CreateOrder = () => {
 
   useEffect(() => {
     axios
-      .get(`${apiConfig.BASE_URL}/employees/minimal`, {
+      .get(`${apiConfig.MINIMAL_EMPLOYEES}`, {
         headers: { Authorization: getToken() },
       })
       .then((res) => setEmployeeList(res.data.employees || []))
@@ -122,7 +122,7 @@ const CreateOrder = () => {
 
     try {
       const res = await axios.post(
-        `${apiConfig.BASE_URL}/branch/create/order`,
+        `${apiConfig.CREATE_ORDER}`,
         payload,
         {
           headers: { Authorization: getToken() },
@@ -149,43 +149,39 @@ const CreateOrder = () => {
   };
 
   return (
-    <Box sx={{ mx: "auto", my: 4, px: { xs: -3, md: 9 } }}>
-      {loading && <Loader message="Creating order..." />}
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+      {loading && <Loader message="Creating Order..." />}
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
         severity={snack.severity}
         message={snack.message}
       />
-
-      {/* Header */}
-      <Grid
-        container
-        justifyContent="space-between"
-        alignItems="center"
-        sx={{ mb: 2 }}
-      >
-        <Grid item>
-          <Typography variant="h5" fontWeight={600}>
-            Create New Order
-          </Typography>
-        </Grid>
-        <Grid item sx={{ width: 250, mt: 1 }}>
-          <Typography variant="body1" sx={{ fontWeight: 500 }}>
-            Date: {new Date(form.order_date).toLocaleDateString("en-GB")}
-          </Typography>
-        </Grid>
+      <Typography variant="h5" gutterBottom>
+        Create Order
+      </Typography>
+      <Grid item sx={{ width: 250, mt: 1 }}>
+        <Typography variant="body1" sx={{ fontWeight: 500 }}>
+          Date: {new Date(form.order_date).toLocaleDateString("en-GB")}
+        </Typography>
       </Grid>
+      <Divider sx={{ my: 2 }} />
       <form onSubmit={handleSubmit}>
         {/* Order Details */}
-        <Grid container spacing={3} gap={{ xs: 0, sm: 3, md: 3 }}>
-          <Grid item xs={12} sm={8}>
+        <Typography
+          variant="subtitle1"
+          sx={{ mb: 2, fontWeight: 500, color: "text.secondary" }}
+        >
+          Order Details
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6}>
             <TextFieldComponent
               label="Order Title"
               name="title"
               value={form.title}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340, sm: 705 } }}
+              sx={{ minWidth: { xs: 320, sm: "auto" } }}
               required
             />
           </Grid>
@@ -195,9 +191,9 @@ const CreateOrder = () => {
               name="description"
               value={form.description}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340, md: 360 } }}
               multiline
               rows={3}
+              sx={{ minWidth: { xs: 320 } }}
             />
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -206,9 +202,9 @@ const CreateOrder = () => {
               name="remarks"
               value={form.remarks}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340, md: 320 } }}
               multiline
               rows={3}
+              sx={{ minWidth: { xs: 320 } }}
             />
           </Grid>
         </Grid>
@@ -231,7 +227,7 @@ const CreateOrder = () => {
               value={form.delivery_date}
               onChange={handleDateChange}
               minDate={new Date()}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 320 } }}
               required
             />
           </Grid>
@@ -241,7 +237,7 @@ const CreateOrder = () => {
               name="delivery_time"
               value={form.delivery_time}
               onChange={(time) => handleTimeChange(time, "delivery_time")}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 320 } }}
               required
             />
           </Grid>
@@ -269,7 +265,7 @@ const CreateOrder = () => {
               name="customer_name"
               value={form.customer_name}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 320 } }}
               required
             />
           </Grid>
@@ -279,7 +275,7 @@ const CreateOrder = () => {
               name="customer_mobile"
               value={form.customer_mobile}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 320 } }}
               required
             />
           </Grid>
@@ -289,7 +285,7 @@ const CreateOrder = () => {
               name="customer_email"
               value={form.customer_email}
               onChange={handleChange}
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 320 } }}
               type="email"
             />
           </Grid>
@@ -383,7 +379,7 @@ const CreateOrder = () => {
               displayKey={(emp) => `${emp.employee_code} - ${emp.name}`}
               required
               fullWidth
-              sx={{ minWidth: { xs: 340 } }}
+              sx={{ minWidth: { xs: 320 } }}
             />
           </Grid>
         </Grid>

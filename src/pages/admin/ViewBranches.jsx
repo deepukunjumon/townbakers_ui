@@ -1,11 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  Divider,
-  Chip,
-} from "@mui/material";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { Box, Typography, Divider, Fab, CircularProgress } from "@mui/material";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import ModalComponent from "../../components/ModalComponent";
@@ -14,6 +8,8 @@ import { getToken, getRoleFromToken } from "../../utils/auth";
 import apiConfig from "../../config/apiConfig";
 import { ROUTES } from "../../constants/routes";
 import Loader from "../../components/Loader";
+import ChipComponent from "../../components/ChipComponent";
+import AddIcon from "@mui/icons-material/Add";
 
 const ViewBranches = () => {
   const navigate = useNavigate();
@@ -21,6 +17,7 @@ const ViewBranches = () => {
 
   const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
   const [pagination, setPagination] = useState({
     current_page: 1,
     per_page: 10,
@@ -34,6 +31,8 @@ const ViewBranches = () => {
     message: "",
   });
 
+  const controllerRef = useRef(null); // NEW: reference to cancel API call
+
   const fetchBranches = useCallback(async () => {
     setLoading(true);
     const token = getToken();
@@ -44,12 +43,9 @@ const ViewBranches = () => {
     });
 
     try {
-      const res = await fetch(
-        `${apiConfig.MINIMAL_BRANCHES}?${params}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await fetch(`${apiConfig.MINIMAL_BRANCHES}?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await res.json();
 
       if (data.success) {
@@ -91,34 +87,45 @@ const ViewBranches = () => {
   };
 
   const handleBranchClick = async (branchId) => {
-    const token = getToken();
-    setLoading(true);
+    setModalLoading(true);
+    setOpenModal(true);
+
+    const controller = new AbortController();
+    controllerRef.current = controller;
 
     try {
-      const res = await fetch(`${apiConfig.BRANCH_DETAILS.replace('{id}', branchId)}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const token = getToken();
+      const res = await fetch(
+        `${apiConfig.BRANCH_DETAILS.replace("{id}", branchId)}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
+        }
+      );
 
       const data = await res.json();
 
       if (data.success) {
         setSelectedBranch(data.branch_details);
-        setOpenModal(true);
       } else {
         setSnack({
           open: true,
           severity: "error",
           message: data.message || "Failed to load branch details",
         });
+        setOpenModal(false);
       }
     } catch (error) {
-      setSnack({
-        open: true,
-        severity: "error",
-        message: "Failed to load branch details",
-      });
+      if (error.name !== "AbortError") {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load branch details",
+        });
+        setOpenModal(false);
+      }
     } finally {
-      setLoading(false);
+      setModalLoading(false);
     }
   };
 
@@ -128,12 +135,11 @@ const ViewBranches = () => {
   ];
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 3 }}>
+    <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
       <Typography variant="h5" gutterBottom>
-        Branches List
+        Branches
       </Typography>
-
-      <Divider sx={{ mb: 3 }} />
+      <Divider sx={{ mb: 2 }} />
 
       <SnackbarAlert
         open={snack.open}
@@ -161,48 +167,68 @@ const ViewBranches = () => {
         onClose={() => {
           setOpenModal(false);
           setSelectedBranch(null);
+          setModalLoading(false);
+          controllerRef.current?.abort();
         }}
         title="Branch Details"
         content={
-          selectedBranch ? (
+          modalLoading ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: 150,
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          ) : selectedBranch ? (
             <Box>
-              <Typography><strong>Code:</strong> {selectedBranch.code}</Typography>
-              <Typography><strong>Name:</strong> {selectedBranch.name}</Typography>
-              <Typography><strong>Address:</strong> {selectedBranch.address}</Typography>
+              <Typography>
+                <strong>Code:</strong> {selectedBranch.code}
+              </Typography>
+              <Typography>
+                <strong>Name:</strong> {selectedBranch.name}
+              </Typography>
+              <Typography>
+                <strong>Address:</strong> {selectedBranch.address}
+              </Typography>
               <Divider sx={{ my: 2 }} />
-
-              <Typography><strong>Mobile:</strong> {selectedBranch.mobile}</Typography>
-              <Typography><strong>Email:</strong> {selectedBranch.email || "-"}</Typography>
-              <Typography><strong>Phone:</strong> {selectedBranch.phone || "-"}</Typography>
+              <Typography>
+                <strong>Mobile:</strong> {selectedBranch.mobile}
+              </Typography>
+              <Typography>
+                <strong>Email:</strong> {selectedBranch.email || "-"}
+              </Typography>
+              <Typography>
+                <strong>Phone:</strong> {selectedBranch.phone || "-"}
+              </Typography>
               <Divider sx={{ my: 2 }} />
-
               <Typography>
                 <strong>Status:</strong>{" "}
-                <Chip
+                <ChipComponent
                   size="small"
+                  variant="filled"
                   label={selectedBranch.status === 1 ? "Active" : "Inactive"}
                   color={selectedBranch.status === 1 ? "success" : "default"}
                 />
               </Typography>
-              <Typography><strong>Active Employees:</strong> {selectedBranch.active_employees_count}</Typography>
+              <Typography>
+                <strong>Active Employees:</strong>{" "}
+                {selectedBranch.active_employees_count}
+              </Typography>
             </Box>
-          ) : (
-            <Loader message="Loading..." />
-          )
+          ) : null
         }
       />
 
-      <Button
-        variant="contained"
+      <Fab
         color="primary"
         sx={{
           position: "fixed",
           bottom: 30,
           right: 30,
-          borderRadius: "50%",
-          fontSize: 35,
-          height: 56,
-          minWidth: 0,
           boxShadow: 3,
         }}
         onClick={() => {
@@ -214,8 +240,8 @@ const ViewBranches = () => {
           }
         }}
       >
-        +
-      </Button>
+        <AddIcon />
+      </Fab>
     </Box>
   );
 };

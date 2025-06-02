@@ -36,7 +36,7 @@ const CreateEmployee = () => {
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const res = await fetch(`${apiConfig.BASE_URL}/branches/minimal`, {
+        const res = await fetch(`${apiConfig.MINIMAL_BRANCHES}`, {
           headers: { Authorization: getToken() },
         });
         const data = await res.json();
@@ -53,7 +53,7 @@ const CreateEmployee = () => {
 
     const fetchDesignations = async () => {
       try {
-        const res = await fetch(`${apiConfig.BASE_URL}/designations`, {
+        const res = await fetch(`${apiConfig.ACTIVE_DESIGNATIONS}`, {
           headers: { Authorization: getToken() },
         });
         const data = await res.json();
@@ -188,7 +188,7 @@ const CreateEmployee = () => {
             </Button>
             <Box sx={{ mb: 2 }}>
               <a
-                href={`${apiConfig.BASE_URL}/../sample-files/employees.xlsx`}
+                href={`${apiConfig.SAMPLE_EMPLOYEES_IMPORT}`}
                 download
                 style={{ textDecoration: "underline", color: "#1976d2" }}
                 rel="noopener noreferrer"
@@ -259,6 +259,7 @@ const CreateEmployee = () => {
           />
           <TextFieldComponent
             name="mobile"
+            type="mobile"
             label="Mobile Number"
             value={form.mobile}
             onChange={handleChange}

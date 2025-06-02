@@ -8,6 +8,7 @@ import {
   FormControlLabel,
   Radio,
   Button,
+  Divider,
 } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TextFieldComponent from "../../components/TextFieldComponent";
@@ -22,7 +23,7 @@ const CreateUser = () => {
     username: "",
     mobile: "",
     email: "",
-    role: "branch",
+    role: "admin",
     code: "",
     name: "",
     address: "",
@@ -106,7 +107,7 @@ const CreateUser = () => {
         }),
       };
 
-      const res = await fetch(apiConfig.CREATE_USER, {
+      const res = await fetch(apiConfig.SUPER_ADMIN.CREATE_USER, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -132,6 +133,7 @@ const CreateUser = () => {
           username: "",
           name: "",
           mobile: "",
+          phone: "",
           email: "",
           role: "admin",
           code: "",
@@ -153,8 +155,8 @@ const CreateUser = () => {
   };
 
   return (
-    <Box sx={{ mx: "auto", my: 4, px: { xs: 2, md: 6 }, maxWidth: 600 }}>
-      {submitLoading && <Loader message="Creating user..." />}
+    <Box sx={{ mx: "auto", my: 3, px: { xs: 2, md: 6 }, maxWidth: 600 }}>
+      {submitLoading && <Loader message="Loading..." />}
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
@@ -165,6 +167,7 @@ const CreateUser = () => {
       <Typography variant="h5" fontWeight={600} sx={{ mb: 3 }}>
         Create New User
       </Typography>
+      <Divider sx={{ mb: 2 }} />
 
       <form onSubmit={handleSubmit}>
         <FormControl component="fieldset" sx={{ mb: 3, display: "block" }}>
@@ -229,11 +232,22 @@ const CreateUser = () => {
             </Box>
             <Box sx={{ mb: 3 }}>
               <TextFieldComponent
+                type="mobile"
                 name="mobile"
                 label="Mobile"
                 value={form.mobile}
                 onChange={handleChange}
                 required
+                fullWidth
+              />
+            </Box>
+            <Box sx={{ mb: 3 }}>
+              <TextFieldComponent
+                type="phone"
+                label="Phone"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
                 fullWidth
               />
             </Box>
@@ -245,6 +259,7 @@ const CreateUser = () => {
                 onChange={handleChange}
                 fullWidth
                 type="email"
+                required
               />
             </Box>
           </>
@@ -256,7 +271,7 @@ const CreateUser = () => {
             <Box sx={{ mb: 3 }}>
               <TextFieldComponent
                 name="name"
-                label={form.role === "employee" ? "Employee Name" : "Name"}
+                label="Name"
                 value={form.name}
                 onChange={handleChange}
                 required
@@ -265,10 +280,12 @@ const CreateUser = () => {
             </Box>
             <Box sx={{ mb: 3 }}>
               <TextFieldComponent
+                type="mobile"
                 name="mobile"
                 label="Mobile"
                 value={form.mobile}
                 onChange={handleChange}
+                inputProps={{ maxLength: 10 }}
                 required
                 fullWidth
               />
@@ -321,7 +338,9 @@ const CreateUser = () => {
                 name="branch_id"
                 label="Branch"
                 value={branches.find((b) => b.id === form.branch_id) || null}
-                onChange={(e) => setForm({ ...form, branch_id: e.target.value.id })}
+                onChange={(e) =>
+                  setForm({ ...form, branch_id: e.target.value.id })
+                }
                 options={branches}
                 valueKey="id"
                 displayKey={(b) => `${b.code} - ${b.name}`}
@@ -340,7 +359,7 @@ const CreateUser = () => {
             disabled={submitLoading}
             fullWidth
           >
-            {submitLoading ? "Creating..." : "Create User"}
+            {submitLoading ? "Submitting..." : "Submit"}
           </Button>
         </Box>
       </form>

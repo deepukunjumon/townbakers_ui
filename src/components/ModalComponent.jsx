@@ -8,6 +8,7 @@ const ModalComponent = ({
   title,
   content,
   hideCloseIcon = false,
+  maxWidth = 600,
 }) => {
   return (
     <Modal open={open} onClose={hideCloseIcon ? () => { } : onClose}>
@@ -21,7 +22,8 @@ const ModalComponent = ({
           boxShadow: 24,
           borderRadius: 2,
           p: 3,
-          width: { xs: "90%", sm: 600 },
+          width: { xs: "90%", sm: "80%", md: "70%" },
+          maxWidth: maxWidth,
           outline: "none",
           maxHeight: "90vh",
           overflowY: "auto",

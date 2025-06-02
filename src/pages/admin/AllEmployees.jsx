@@ -9,6 +9,8 @@ import {
   Button,
   Fab,
   CircularProgress,
+  Avatar,
+  Autocomplete,
 } from "@mui/material";
 import { getRoleFromToken } from "../../utils/auth";
 import AddIcon from "@mui/icons-material/Add";
@@ -20,8 +22,9 @@ import Loader from "../../components/Loader";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
 import ModalComponent from "../../components/ModalComponent";
 import apiConfig from "../../config/apiConfig";
-import { userStatusMap } from "../../constants/status";
+import { userStatusMap } from "../../constants/statuses";
 import ExportMenu from "../../components/ExportMenu";
+import { STRINGS } from "../../constants/strings";
 
 const statusOptions = [
   { name: "All", id: "" },
@@ -30,11 +33,24 @@ const statusOptions = [
   { name: "Deleted", id: "-1" },
 ];
 
+function stringToColor(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const h = Math.abs(hash) % 360;
+  const s = 70 + (Math.abs(hash >> 8) % 30);
+  const l = 45 + (Math.abs(hash >> 16) % 10);
+
+  return `hsl(${h}, ${s}%, ${l}%)`;
+}
+
 const AllEmployees = () => {
   const navigate = useNavigate();
   const role = getRoleFromToken();
   const [employees, setEmployees] = useState([]);
-  const [branches, setBranches] = useState([{ name: "All", id: "" }]);
+  const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingBranches, setLoadingBranches] = useState(true);
   const [snack, setSnack] = useState({
@@ -50,7 +66,7 @@ const AllEmployees = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
   const [statusFilter, setStatusFilter] = useState(statusOptions[0]);
-  const [branchFilter, setBranchFilter] = useState({ name: "All", id: "" });
+  const [branchFilter, setBranchFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimeout = useRef(null);
 
@@ -72,15 +88,11 @@ const AllEmployees = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && Array.isArray(data.branches)) {
-          const branchOpts = [
-            { name: "All", id: "" },
-            ...data.branches.map((b) => ({
-              name: b.code,
-              id: b.code,
-            })),
-          ];
-          setBranches(branchOpts);
+        if (data.success) {
+          setBranches([
+            { id: "", code: "All", name: "Branches" },
+            ...(data.branches || []),
+          ]);
           setLoadingBranches(false);
         } else {
           throw new Error("Invalid branches data");
@@ -105,7 +117,7 @@ const AllEmployees = () => {
     const params = new URLSearchParams();
 
     if (statusFilter.id) params.append("status", statusFilter.id);
-    if (branchFilter.id) params.append("branch_code", branchFilter.id);
+    if (branchFilter) params.append("branch_id", branchFilter);
     if (searchTerm.trim()) params.append("q", searchTerm.trim());
 
     url += `&${params.toString()}`;
@@ -171,7 +183,7 @@ const AllEmployees = () => {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to update status");
+        throw new Error(data.message || STRINGS.SOMETHING_WENT_WRONG);
       }
 
       setEmployees((prevEmployees) =>
@@ -183,7 +195,7 @@ const AllEmployees = () => {
       setSnack({
         open: true,
         severity: "success",
-        message: "Status updated successfully",
+        message: data.message,
       });
     } catch (error) {
       setSnack({
@@ -201,18 +213,16 @@ const AllEmployees = () => {
   };
 
   const confirmationModalContent = (
-    <Box sx={{ p: 2 }}>
-      <Typography variant="h6" gutterBottom>
-        {confirmPayload.currentStatus === 1
-          ? "Are you sure you want to disable this employee?"
-          : "Are you sure you want to enable this employee?"}
-      </Typography>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
+    <Box>
+      {confirmPayload.currentStatus === 1
+        ? STRINGS.DISABLE_EMPLOYEE_CONFIRMATION
+        : STRINGS.ENABLE_EMPLOYEE_CONFIRMATION}
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
         <Button variant="text" onClick={() => setConfirmModalOpen(false)}>
-          Cancel
+          {STRINGS.CANCEL}
         </Button>
         <Button variant="text" onClick={handleConfirmToggle} autoFocus>
-          Confirm
+          {STRINGS.CONFIRM}
         </Button>
       </Box>
     </Box>
@@ -220,6 +230,30 @@ const AllEmployees = () => {
 
   const columns = [
     { field: "employee_code", headerName: "Employee Code", flex: 1 },
+    {
+      field: "avatar",
+      headerName: "",
+      flex: 0.5,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => (
+        <Avatar
+          sx={{
+            bgcolor: stringToColor(params.row.name),
+            color: "#fff",
+            width: 32,
+            height: 32,
+            fontWeight: 600,
+            fontSize: 16,
+            mr: 1,
+            display: { xs: "none", sm: "flex" },
+          }}
+          alt={params.row.name}
+        >
+          {params.row.name ? params.row.name.charAt(0).toUpperCase() : "?"}
+        </Avatar>
+      ),
+    },
     { field: "name", headerName: "Name", flex: 1 },
     { field: "mobile", headerName: "Mobile", flex: 1 },
     { field: "designation", headerName: "Designation", flex: 1 },
@@ -314,7 +348,7 @@ const AllEmployees = () => {
     const token = localStorage.getItem("token");
     if (token) addField("token", token);
     addField("status", statusFilter.id || "");
-    addField("branch_code", branchFilter.id || "");
+    addField("branch_id", branchFilter || "");
     addField("q", searchTerm.trim() || "");
     addField("export", "true");
     addField("type", type);
@@ -342,15 +376,6 @@ const AllEmployees = () => {
     }));
   };
 
-  const handleBranchChange = (event) => {
-    const selectedBranch = event.target.value || branches[0];
-    setBranchFilter(selectedBranch);
-    setPagination((prev) => ({
-      ...prev,
-      current_page: 1,
-    }));
-  };
-
   const handleSearchChange = (event) => {
     const value = event.target.value;
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
@@ -361,36 +386,39 @@ const AllEmployees = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        All Employees
-      </Typography>
+    <Box sx={{ maxWidth: "auto", p: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Typography variant="h5">All Employees</Typography>
+        <ExportMenu
+          anchorEl={anchorEl}
+          open={menuOpen}
+          onClose={handleExportClose}
+          onExportClick={handleExportClick}
+          disabled={employees.length === 0}
+        />
+      </Box>
       <Divider sx={{ mb: 2 }} />
 
       <Box
         sx={{
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: {
+            xs: "flex-start",
+            md: "flex-end",
+          },
           gap: 2,
           flexWrap: "wrap",
           mb: 2,
         }}
       >
-        <Box sx={{ width: { xs: 163, md: 200 } }}>
-          <SelectFieldComponent
-            label="Branch"
-            name="branch_code"
-            value={branchFilter}
-            onChange={handleBranchChange}
-            options={branches}
-            valueKey="id"
-            displayKey="name"
-            fullWidth
-            disabled={loadingBranches}
-          />
-        </Box>
-
-        <Box sx={{ width: { xs: 100, md: 200 } }}>
+        <Box sx={{ width: { xs: 120, sm: 170, md: 200 } }}>
           <SelectFieldComponent
             label="Status"
             name="status"
@@ -403,7 +431,19 @@ const AllEmployees = () => {
           />
         </Box>
 
-        <Box sx={{ width: 300 }}>
+        <Box sx={{ width: { xs: 165, sm: 200, md: 250 } }}>
+          <Autocomplete
+            options={branches}
+            getOptionLabel={(o) => `${o.code} - ${o.name}`}
+            value={branches.find((b) => b.id === branchFilter) || null}
+            onChange={(e, newVal) => setBranchFilter(newVal?.id || "")}
+            sx={{ width: "100%" }}
+            renderInput={(params) => <TextField {...params} label="Branch" />}
+            disabled={loadingBranches}
+          />
+        </Box>
+
+        <Box sx={{ width: { xs: "100%", sm: 300 } }}>
           <TextField
             label="Search"
             variant="outlined"
@@ -412,14 +452,6 @@ const AllEmployees = () => {
             placeholder="Search employees..."
           />
         </Box>
-
-        <ExportMenu
-          anchorEl={anchorEl}
-          open={menuOpen}
-          onClose={handleExportClose}
-          onExportClick={handleExportClick}
-          disabled={employees.length === 0}
-        />
       </Box>
 
       <SnackbarAlert
@@ -465,11 +497,31 @@ const AllEmployees = () => {
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => { }}
+        onClose={() => {}}
         hideCloseIcon={true}
-        title="Confirm Action"
+        title={STRINGS.CONFIRM_ACTION}
         content={confirmationModalContent}
       />
+
+      <Fab
+        color="primary"
+        sx={{
+          position: "fixed",
+          bottom: 30,
+          right: 30,
+          boxShadow: 3,
+        }}
+        onClick={() => {
+          if (role === "admin") {
+            navigate(ROUTES.ADMIN.CREATE_EMPLOYEE);
+          }
+          if (role === "super_admin") {
+            navigate(ROUTES.SUPER_ADMIN.CREATE_EMPLOYEE);
+          }
+        }}
+      >
+        <AddIcon />
+      </Fab>
     </Box>
   );
 };
