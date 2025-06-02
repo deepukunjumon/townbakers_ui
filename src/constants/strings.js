@@ -15,6 +15,8 @@ export const STRINGS = {
   CONFIRM_GENERIC_CONTENT: "Do you want to proceed?",
   CONFIRM_GENERIC_DESCRIPTION: "",
 
+  SAVE_CHANGES: "Save Changes",
+  EDIT: "Edit",
   SUCCESS: "Success",
   ERROR: "Error",
   YES: "Yes",
