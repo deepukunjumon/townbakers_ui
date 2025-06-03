@@ -142,7 +142,7 @@ const CreateOrder = () => {
 
         try {
             const res = await axios.post(
-                `${apiConfig.CREATE_ORDER}`,
+                `${apiConfig.ADMIN_CREATE_ORDER}`,
                 payload,
                 {
                     headers: { Authorization: getToken() },
