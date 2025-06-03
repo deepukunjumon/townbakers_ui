@@ -81,6 +81,11 @@ const SuperAdminLayout = () => {
       children: [
         {
           icon: <Assignment />,
+          label: "Create Order",
+          onClick: () => navigate(ROUTES.SUPER_ADMIN.CREATE_ORDER),
+        },
+        {
+          icon: <Assignment />,
           label: "All Orders",
           onClick: () => navigate(ROUTES.SUPER_ADMIN.ALL_ORDERS),
         },

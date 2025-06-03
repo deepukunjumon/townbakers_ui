@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
-import { getToken, getBranchIdFromToken } from "../../utils/auth";
+import { getToken } from "../../utils/auth";
 import ButtonComponent from "../../components/ButtonComponent";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
 import TextFieldComponent from "../../components/TextFieldComponent";
@@ -32,12 +32,13 @@ const initialFormState = {
   customer_mobile: "",
   total_amount: "",
   advance_amount: "",
+  branch: "",
   employee: "",
 };
 
 const CreateOrder = () => {
-  const branchId = getBranchIdFromToken();
   const [employeeList, setEmployeeList] = useState([]);
+  const [branchList, setBranchList] = useState([]);
   const [form, setForm] = useState(initialFormState);
   const [paymentStatus, setPaymentStatus] = useState("0");
   const [snack, setSnack] = useState({
@@ -48,16 +49,32 @@ const CreateOrder = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const token = getToken();
+
     axios
       .get(`${apiConfig.MINIMAL_EMPLOYEES}`, {
         headers: { Authorization: getToken() },
       })
-      .then((res) => setEmployeeList(res.data.employees || []))
-      .catch(() =>
+      .then((res) => {
+        setEmployeeList(res.data.employees || []);
+      })
+      .catch((error) => {
         setSnack({
           open: true,
           severity: "error",
           message: "Failed to load employees",
+        });
+      });
+    axios
+      .get(`${apiConfig.MINIMAL_BRANCHES}`, {
+        headers: { Authorization: getToken() },
+      })
+      .then((res) => setBranchList(res.data.branches || []))
+      .catch(() =>
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load branches",
         })
       );
   }, []);
@@ -112,7 +129,7 @@ const CreateOrder = () => {
     const payload = {
       ...form,
       employee_id: form.employee?.id || null,
-      branch_id: branchId,
+      branch_id: form.branch?.id || null,
       delivery_date: form.delivery_date
         ? format(new Date(form.delivery_date), "yyyy-MM-dd")
         : "",
@@ -121,13 +138,9 @@ const CreateOrder = () => {
     };
 
     try {
-      const res = await axios.post(
-        `${apiConfig.CREATE_ORDER}`,
-        payload,
-        {
-          headers: { Authorization: getToken() },
-        }
-      );
+      const res = await axios.post(`${apiConfig.ADMIN_CREATE_ORDER}`, payload, {
+        headers: { Authorization: getToken() },
+      });
 
       setSnack({
         open: true,
@@ -355,15 +368,27 @@ const CreateOrder = () => {
 
         <Divider sx={{ my: 3 }} />
 
-        {/* Assigned Employee */}
         <Typography
           variant="subtitle1"
           sx={{ mb: 2, fontWeight: 500, color: "text.secondary" }}
         >
-          Assigned Employee
+          Branch Details
         </Typography>
 
         <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <SelectFieldComponent
+              label="Branch"
+              value={form.branch}
+              onChange={(e) => setForm({ ...form, branch: e.target.value })}
+              options={branchList}
+              valueKey="id"
+              displayKey={(b) => `${b.code} - ${b.name}`}
+              required
+              fullWidth
+              sx={{ minWidth: { xs: 320 } }}
+            />
+          </Grid>
           <Grid item xs={12}>
             <SelectFieldComponent
               label="Employee"

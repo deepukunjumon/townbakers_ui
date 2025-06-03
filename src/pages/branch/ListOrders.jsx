@@ -24,7 +24,7 @@ import Loader from "../../components/Loader";
 import { STRINGS } from "../../constants/strings";
 import TextFieldComponent from "../../components/TextFieldComponent";
 import ChipComponent from "../../components/ChipComponent";
-import { ORDER_STATUS_CONFIG } from "../../constants/statuses";
+import { ORDER_PAYMENT_STATUS_CONFIG, ORDER_STATUS_CONFIG } from "../../constants/statuses";
 import { useLocation } from "react-router-dom";
 
 const ListOrders = () => {
@@ -45,7 +45,7 @@ const ListOrders = () => {
   const [statusFilter, setStatusFilter] = useState(() => {
     const { status } = location.state || {};
     if (status === "pending") {
-      return "0"; // Pending status is "0" in the API
+      return "0";
     }
     return "";
   });
@@ -503,7 +503,7 @@ const ListOrders = () => {
               <Divider sx={{ mb: 2 }} />
               <Box mb={2}>
                 <Typography>
-                  <strong>Status:</strong>{" "}
+                  <strong>Order Status:</strong>{" "}
                   <ChipComponent
                     size="small"
                     variant="filled"
@@ -517,12 +517,30 @@ const ListOrders = () => {
                   />
                 </Typography>
                 <Typography>
+                  <strong>Payment Status:</strong>{" "}
+                  <ChipComponent
+                    size="small"
+                    variant="filled"
+                    label={
+                      ORDER_PAYMENT_STATUS_CONFIG[selectedOrder.payment_status]?.label ||
+                      "Unknown"
+                    }
+                    color={
+                      ORDER_PAYMENT_STATUS_CONFIG[selectedOrder.payment_status]?.color || "info"
+                    }
+                  />
+                </Typography>
+                <Typography>
                   <strong>Total Amount:</strong> {selectedOrder.total_amount}
                 </Typography>
                 <Typography>
                   <strong>Advance Amount:</strong>{" "}
-                  {selectedOrder.advance_amount}
+                  {selectedOrder.advance_amount ?? "N/A"}
                 </Typography>
+                {selectedOrder.advance_amount &&
+                  <Typography>
+                    <strong>Balance Amount:</strong> {selectedOrder.balance_amount}
+                  </Typography>}
               </Box>
               <Divider sx={{ mb: 2 }} />
               <Box>

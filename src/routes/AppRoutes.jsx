@@ -38,6 +38,7 @@ import Designations from "../pages/common/masters/Designations";
 import SuperAdminLayout from "../layouts/SuperAdminlayout";
 import CreateUser from "../pages/super-admin/CreateUser";
 import DeveloperTools from "../pages/super-admin/DeveloperTools";
+import AdminCreateOrder from "../pages/admin/AdminCreateOrder";
 import OrdersList from "../pages/admin/OrdersList";
 import AuditLogs from "../pages/super-admin/AuditLogs";
 
@@ -73,37 +74,17 @@ const AppRoutes = () => (
         </ProtectedRoute>
       }
     >
-      <Route
-        path={ROUTES.SUPER_ADMIN.DASHBOARD}
-        element={<SuperAdminDashboard />}
-      />
+      <Route path={ROUTES.SUPER_ADMIN.DASHBOARD} element={<SuperAdminDashboard />} />
       <Route path={ROUTES.SUPER_ADMIN.CREATE_USER} element={<CreateUser />} />
-      <Route
-        path={ROUTES.SUPER_ADMIN.CREATE_BRANCH}
-        element={<CreateBranch />}
-      />
+      <Route path={ROUTES.SUPER_ADMIN.CREATE_BRANCH} element={<CreateBranch />} />
       <Route path={ROUTES.SUPER_ADMIN.BRANCH_LIST} element={<ViewBranches />} />
-      <Route
-        path={ROUTES.SUPER_ADMIN.CREATE_EMPLOYEE}
-        element={<CreateEmployeeByAdmin />}
-      />
-      <Route
-        path={ROUTES.SUPER_ADMIN.EMPLOYEES_LIST}
-        element={<AllEmployees />}
-      />
-      <Route
-        path={ROUTES.SUPER_ADMIN.STOCK_SUMMARY}
-        element={<ViewBranchStockSummary />}
-      />
-      <Route
-        path={ROUTES.SUPER_ADMIN.DESIGNATIONS}
-        element={<Designations />}
-      />
+      <Route path={ROUTES.SUPER_ADMIN.CREATE_EMPLOYEE} element={<CreateEmployeeByAdmin />} />
+      <Route path={ROUTES.SUPER_ADMIN.EMPLOYEES_LIST} element={<AllEmployees />} />
+      <Route path={ROUTES.SUPER_ADMIN.STOCK_SUMMARY} element={<ViewBranchStockSummary />} />
+      <Route path={ROUTES.SUPER_ADMIN.DESIGNATIONS} element={<Designations />} />
+      <Route path={ROUTES.SUPER_ADMIN.CREATE_ORDER} element={<AdminCreateOrder />} />
       <Route path={ROUTES.SUPER_ADMIN.ALL_ORDERS} element={<OrdersList />} />
-      <Route
-        path={ROUTES.SUPER_ADMIN.DEVELOPER_TOOLS}
-        element={<DeveloperTools />}
-      />
+      <Route path={ROUTES.SUPER_ADMIN.DEVELOPER_TOOLS} element={<DeveloperTools />} />
       <Route path={ROUTES.SUPER_ADMIN.AUDIT_LOGS} element={<AuditLogs />} />
     </Route>
 
@@ -120,15 +101,10 @@ const AppRoutes = () => (
       <Route path={ROUTES.ADMIN.EMPLOYEES_LIST} element={<AllEmployees />} />
       <Route path={ROUTES.ADMIN.CREATE_BRANCH} element={<CreateBranch />} />
       <Route path={ROUTES.ADMIN.BRANCH_LIST} element={<ViewBranches />} />
-      <Route
-        path={ROUTES.ADMIN.CREATE_EMPLOYEE}
-        element={<CreateEmployeeByAdmin />}
-      />
-      <Route
-        path={ROUTES.ADMIN.STOCK_SUMMARY}
-        element={<ViewBranchStockSummary />}
-      />
+      <Route path={ROUTES.ADMIN.CREATE_EMPLOYEE} element={<CreateEmployeeByAdmin />} />
+      <Route path={ROUTES.ADMIN.STOCK_SUMMARY} element={<ViewBranchStockSummary />} />
       <Route path={ROUTES.ADMIN.DESIGNATIONS} element={<Designations />} />
+      <Route path={ROUTES.ADMIN.CREATE_ORDER} element={<AdminCreateOrder />} />
       <Route path={ROUTES.ADMIN.ALL_ORDERS} element={<OrdersList />} />
     </Route>
 
@@ -142,14 +118,8 @@ const AppRoutes = () => (
       }
     >
       <Route path={ROUTES.BRANCH.DASHBOARD} element={<BranchDashboard />} />
-      <Route
-        path={ROUTES.BRANCH.CREATE_EMPLOYEE}
-        element={<CreateEmployee />}
-      />
-      <Route
-        path={ROUTES.BRANCH.LIST_EMPLOYEES}
-        element={<BranchEmployees />}
-      />
+      <Route path={ROUTES.BRANCH.CREATE_EMPLOYEE} element={<CreateEmployee />} />
+      <Route path={ROUTES.BRANCH.LIST_EMPLOYEES} element={<BranchEmployees />} />
       <Route path={ROUTES.BRANCH.ADD_STOCK} element={<AddStock />} />
       <Route path={ROUTES.BRANCH.VIEW_STOCKS} element={<ViewStocks />} />
       <Route path={ROUTES.BRANCH.CREATE_ORDER} element={<CreateOrder />} />

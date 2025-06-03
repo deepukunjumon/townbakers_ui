@@ -26,7 +26,7 @@ const ButtonComponent = ({
         minWidth: "auto",
         height: "auto",
         fontSize: { xs: "0.875rem", md: "1rem" },
-        color: variant === "text" ? "primary" : "white",
+        color: variant === "primary",
         ...sx,
       }}
       {...props}

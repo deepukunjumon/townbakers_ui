@@ -198,7 +198,7 @@ const ViewProfile = () => {
         };
       }
       const response = await axios.post(
-        `${apiConfig.BASE_URL}/update/profile`,
+        `${apiConfig.UPDATE_PROFILE}`,
         payload,
         {
           headers: { Authorization: `Bearer ${token}` },

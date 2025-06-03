@@ -205,6 +205,7 @@ const OrdersList = () => {
     title: order.title,
     delivery_date: order.delivery_date,
     total_amount: order.total_amount,
+    branch_name: order.branch.name,
     customer_name: order.customer_name,
     customer_mobile: order.customer_mobile,
     status: (
@@ -229,7 +230,7 @@ const OrdersList = () => {
       type: "date",
       flex: 1,
     },
-    { field: "total_amount", headerName: "Total Amount", flex: 1 },
+    { field: "branch_name", headerName: "Branch", flex: 1 },
     { field: "customer_name", headerName: "Customer Name", flex: 1 },
     { field: "customer_mobile", headerName: "Customer Mobile", flex: 1 },
     { field: "status", headerName: "Status", flex: 1 },

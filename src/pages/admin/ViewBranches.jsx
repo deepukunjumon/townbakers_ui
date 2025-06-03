@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Box, Typography, Divider, Fab, CircularProgress } from "@mui/material";
+import { Box, Typography, Divider, Fab, CircularProgress, IconButton } from "@mui/material";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import ModalComponent from "../../components/ModalComponent";
@@ -10,6 +10,10 @@ import { ROUTES } from "../../constants/routes";
 import Loader from "../../components/Loader";
 import ChipComponent from "../../components/ChipComponent";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import { STRINGS } from "../../constants/strings";
+import TextFieldComponent from "../../components/TextFieldComponent";
+import ButtonComponent from "../../components/ButtonComponent";
 
 const ViewBranches = () => {
   const navigate = useNavigate();
@@ -18,6 +22,7 @@ const ViewBranches = () => {
   const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
   const [pagination, setPagination] = useState({
     current_page: 1,
     per_page: 10,
@@ -25,13 +30,15 @@ const ViewBranches = () => {
   });
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
   const [snack, setSnack] = useState({
     open: false,
     severity: "error",
     message: "",
   });
 
-  const controllerRef = useRef(null); // NEW: reference to cancel API call
+  const controllerRef = useRef(null);
 
   const fetchBranches = useCallback(async () => {
     setLoading(true);
@@ -43,7 +50,7 @@ const ViewBranches = () => {
     });
 
     try {
-      const res = await fetch(`${apiConfig.MINIMAL_BRANCHES}?${params}`, {
+      const res = await fetch(`${apiConfig.BRANCH_LIST}?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -111,7 +118,7 @@ const ViewBranches = () => {
         setSnack({
           open: true,
           severity: "error",
-          message: data.message || "Failed to load branch details",
+          message: data.message || STRINGS.FAILED_TO_LOAD,
         });
         setOpenModal(false);
       }
@@ -120,7 +127,7 @@ const ViewBranches = () => {
         setSnack({
           open: true,
           severity: "error",
-          message: "Failed to load branch details",
+          message: STRINGS.FAILED_TO_LOAD,
         });
         setOpenModal(false);
       }
@@ -129,10 +136,181 @@ const ViewBranches = () => {
     }
   };
 
+  const handleEditClick = async (branch) => {
+    setEditLoading(true);
+    setEditModalOpen(true);
+    try {
+      const token = getToken();
+      const res = await fetch(
+        `${apiConfig.BRANCH_DETAILS.replace("{id}", branch.id)}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || STRINGS.SOMETHING_WENT_WRONG);
+      setSelectedBranch(data.branch_details);
+      setEditFormData(data.branch_details);
+    } catch (error) {
+      setSnack({ open: true, severity: "error", message: error.message || STRINGS.FAILED_TO_LOAD });
+      setEditModalOpen(false);
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleEditSubmit = async () => {
+    if (!selectedBranch) return;
+    setEditLoading(true);
+    try {
+      const token = getToken();
+
+      const modifiedData = Object.keys(editFormData).reduce((acc, key) => {
+        if (editFormData[key] !== selectedBranch[key]) {
+          acc[key] = editFormData[key];
+        }
+        return acc;
+      }, {});
+
+      if (Object.keys(modifiedData).length === 0) {
+        setSnack({ open: true, severity: "info", message: "No changes to update" });
+        setEditModalOpen(false);
+        return;
+      }
+
+      const res = await fetch(apiConfig.UPDATE_BRANCH_DETAILS(selectedBranch.id), {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(modifiedData),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.message || STRINGS.SOMETHING_WENT_WRONG);
+
+      setBranches((prev) =>
+        prev.map((branch) => (branch.id === selectedBranch.id ? { ...branch, ...modifiedData } : branch))
+      );
+      setSnack({ open: true, severity: "success", message: data.message || STRINGS.SUCCESS });
+      setEditModalOpen(false);
+    } catch (error) {
+      setSnack({ open: true, severity: "error", message: error.message || STRINGS.FAILED_TO_UPDATE });
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
   const columns = [
     { field: "code", headerName: "Code", flex: 1 },
     { field: "name", headerName: "Branch Name", flex: 1 },
+    { field: "mobile", headerName: "Mobile", flex: 1 },
+    { field: "email", headerName: "Email", flex: 1 },
+    {
+      field: "actions",
+      headerName: "Actions",
+      flex: 1,
+      sortable: false,
+      filterable: false,
+      headerAlign: "center",
+      renderCell: (params) => (
+        <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEditClick(params.row);
+            }}
+            color="primary"
+            sx={{
+              padding: 0.5,
+              "& .MuiSvgIcon-root": { fontSize: "1.3rem" },
+            }}
+          >
+            <EditIcon />
+          </IconButton>
+        </Box>
+      ),
+    },
   ];
+
+  const editModalContent = (
+    <Box sx={{ p: 2 }}>
+      {editLoading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
+          <CircularProgress />
+        </Box>
+      ) : selectedBranch ? (
+        <>
+          <Box>
+            <TextFieldComponent
+              fullWidth
+              label="Code"
+              value={editFormData.code}
+              onChange={(e) => setEditFormData(prev => ({ ...prev, code: e.target.value }))}
+              margin="normal"
+            />
+            <TextFieldComponent
+              fullWidth
+              label="Name"
+              value={editFormData.name}
+              onChange={(e) => setEditFormData(prev => ({ ...prev, name: e.target.value }))}
+              margin="normal"
+            />
+            <TextFieldComponent
+              fullWidth
+              label="Address"
+              value={editFormData.address}
+              onChange={(e) => setEditFormData(prev => ({ ...prev, address: e.target.value }))}
+              margin="normal"
+              multiline
+              rows={2}
+            />
+          </Box>
+          <Divider sx={{ my: 2 }} />
+          <Box>
+            <TextFieldComponent
+              fullWidth
+              label="Mobile"
+              value={editFormData.mobile}
+              onChange={(e) => setEditFormData(prev => ({ ...prev, mobile: e.target.value }))}
+              margin="normal"
+            />
+            <TextFieldComponent
+              fullWidth
+              label="Email"
+              value={editFormData.email || ""}
+              onChange={(e) => setEditFormData(prev => ({ ...prev, email: e.target.value }))}
+              margin="normal"
+            />
+            <TextFieldComponent
+              fullWidth
+              label="Phone"
+              value={editFormData.phone || ""}
+              onChange={(e) => setEditFormData(prev => ({ ...prev, phone: e.target.value }))}
+              margin="normal"
+            />
+          </Box>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2, gap: 1 }}>
+            <ButtonComponent
+              variant="outlined"
+              onClick={() => setEditModalOpen(false)}
+              disabled={editLoading}
+            >
+              {STRINGS.CANCEL}
+            </ButtonComponent>
+            <ButtonComponent
+              variant="contained"
+              onClick={handleEditSubmit}
+              disabled={editLoading}
+            >
+              {editLoading ? <CircularProgress size={24} /> : STRINGS.SAVE_CHANGES}
+            </ButtonComponent>
+          </Box>
+        </>
+      ) : null}
+    </Box>
+  );
 
   return (
     <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
@@ -221,6 +399,13 @@ const ViewBranches = () => {
             </Box>
           ) : null
         }
+      />
+
+      <ModalComponent
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        title="Edit Branch"
+        content={editModalContent}
       />
 
       <Fab

@@ -15,6 +15,8 @@ export const STRINGS = {
   CONFIRM_GENERIC_CONTENT: "Do you want to proceed?",
   CONFIRM_GENERIC_DESCRIPTION: "",
 
+  SAVE_CHANGES: "Save Changes",
+  EDIT: "Edit",
   SUCCESS: "Success",
   ERROR: "Error",
   YES: "Yes",
@@ -34,10 +36,15 @@ export const STRINGS = {
   TOTAL_LIKES: (count) => `${count} Like${count === 1 ? "" : "s"}`,
 
   LOGIN_SUCCESS: "Login successful",
+
+  FAILED_TO_LOAD: "Failed to load data",
+  FAILED_TO_UPDATE: "Failed to update",
   FAILED_TO_COMPLETE_ACTION: "Failed to complete the action",
   SOMETHING_WENT_WRONG: "Something went wrong. Please try again later.",
 
   //All Employees
+  DELETE_EMPLOYEE_CONFIRMATION:
+    "Are you sure you want to delete this employee ?",
   DISABLE_EMPLOYEE_CONFIRMATION:
     "Are you sure you want to disable this employee ?",
   ENABLE_EMPLOYEE_CONFIRMATION:

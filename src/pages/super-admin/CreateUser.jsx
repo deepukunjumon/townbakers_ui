@@ -176,16 +176,8 @@ const CreateUser = () => {
           </FormLabel>
           <RadioGroup row name="role" value={form.role} onChange={handleChange}>
             <FormControlLabel value="admin" control={<Radio />} label="Admin" />
-            <FormControlLabel
-              value="branch"
-              control={<Radio />}
-              label="Branch"
-            />
-            <FormControlLabel
-              value="employee"
-              control={<Radio />}
-              label="Employee"
-            />
+            <FormControlLabel value="branch" control={<Radio />} label="Branch" />
+            <FormControlLabel value="employee" control={<Radio />} label="Employee" />
           </RadioGroup>
         </FormControl>
 
@@ -377,9 +369,7 @@ const CreateUser = () => {
         onClose={() => setInfoModalOpen(false)}
         title="User Credentials"
         content={
-          <Box sx={{ whiteSpace: "pre-wrap", fontSize: 15 }}>
-            {additionalInfo}
-          </Box>
+          <Box sx={{ whiteSpace: "pre-wrap", fontSize: 15 }}>{additionalInfo}</Box>
         }
         hideClose
       />
