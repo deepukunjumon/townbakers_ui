@@ -6,13 +6,12 @@ import {
   Divider,
   TextField,
   Switch,
-  Button,
   Fab,
   CircularProgress,
   Avatar,
   Autocomplete,
-  IconButton,
 } from "@mui/material";
+import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -26,6 +25,7 @@ import SelectFieldComponent from "../../components/SelectFieldComponent";
 import ModalComponent from "../../components/ModalComponent";
 import ExportMenu from "../../components/ExportMenu";
 import ButtonComponent from "../../components/ButtonComponent";
+import IconButtonComponent from "../../components/IconButtonComponent";
 
 import { getRoleFromToken } from "../../utils/auth";
 import apiConfig from "../../config/apiConfig";
@@ -213,19 +213,32 @@ const AllEmployees = () => {
     if (!selectedEmployee) return;
     setEditLoading(true);
     try {
+      const modifiedData = Object.keys(editFormData).reduce((acc, key) => {
+        if (editFormData[key] !== selectedEmployee[key]) {
+          acc[key] = editFormData[key];
+        }
+        return acc;
+      }, {});
+
+      if (Object.keys(modifiedData).length === 0) {
+        setSnack({ open: true, severity: "info", message: "No changes to update" });
+        setEditModalOpen(false);
+        return;
+      }
+
       const res = await fetch(apiConfig.UPDATE_EMPLOYEE_DETAILS(selectedEmployee.id), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token.current}`,
         },
-        body: JSON.stringify(editFormData),
+        body: JSON.stringify(modifiedData),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || STRINGS.SOMETHING_WENT_WRONG);
 
       setEmployees((prev) =>
-        prev.map((emp) => (emp.id === selectedEmployee.id ? { ...emp, ...editFormData } : emp))
+        prev.map((emp) => (emp.id === selectedEmployee.id ? { ...emp, ...modifiedData } : emp))
       );
       setSnack({ open: true, severity: "success", message: data.message || STRINGS.SUCCESS });
       setEditModalOpen(false);
@@ -441,13 +454,26 @@ const AllEmployees = () => {
       sortable: false,
       filterable: false,
       headerAlign: "center",
+      align: "center",
       renderCell: (params) => {
         const statusNum = Number(params.row.status);
         const isLoading = !!loadingSwitches[params.row.id];
-        if (statusNum === -1) return null;
+        
+        if (statusNum === -1) {
+          return role === "super_admin" ? (
+            <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", justifyContent: "center", width: "100%" }}>
+              <IconButtonComponent
+                icon={ArrowCircleLeftIcon}
+                onClick={() => handleToggleStatus(params.row.id, statusNum)}
+                loading={isLoading}
+                title="Re-enable"
+              />
+            </Box>
+          ) : null;
+        }
 
         return (
-          <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
+          <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", justifyContent: "center", width: "100%" }}>
             <Switch
               checked={statusNum === 1}
               onChange={() => !isLoading && handleToggleStatus(params.row.id, statusNum)}
@@ -455,28 +481,17 @@ const AllEmployees = () => {
               color="primary"
               disabled={isLoading}
             />
-            <IconButton
-              size="small"
+            <IconButtonComponent
+              icon={EditIcon}
               onClick={() => handleEditClick(params.row)}
-              color="primary"
-              sx={{
-                padding: 0.5,
-                "& .MuiSvgIcon-root": { fontSize: "1.3rem" },
-              }}
-            >
-              <EditIcon />
-            </IconButton>
-            <IconButton
-              size="small"
+              title="Edit"
+            />
+            <IconButtonComponent
+              icon={DeleteIcon}
               onClick={() => handleDeleteClick(params.row.id)}
               color="error"
-              sx={{
-                padding: 0.5,
-                "& .MuiSvgIcon-root": { fontSize: "1.3rem" },
-              }}
-            >
-              <DeleteIcon />
-            </IconButton>
+              title="Delete"
+            />
           </Box>
         );
       },
