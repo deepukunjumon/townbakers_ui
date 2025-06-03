@@ -21,6 +21,7 @@ export const ROUTES = {
 
     STOCK_SUMMARY: "/super-admin/stocks/summary",
 
+    CREATE_ORDER: "/super-admin/create/order",
     ALL_ORDERS: "/super-admin/orders",
 
     DEVELOPER_TOOLS: "/super-admin/tools",
@@ -41,6 +42,7 @@ export const ROUTES = {
 
     STOCK_SUMMARY: "/admin/stocks/summary",
 
+    CREATE_ORDER: "/admin/create/order",
     ALL_ORDERS: "/admin/orders",
   },
 

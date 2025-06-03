@@ -23,6 +23,36 @@ export const ORDER_STATUS_CONFIG = {
   },
 };
 
+export const ORDER_PAYMENT_STATUS = {
+  FULL_PAID: 2,
+  ADV_PAID: 1,
+  UNPAID: 0,
+  REFUNDED: -1,
+};
+
+export const ORDER_PAYMENT_STATUS_CONFIG = {
+  [ORDER_PAYMENT_STATUS.FULL_PAID]: {
+    label: "Full Paid",
+    color: "success",
+  },
+  [ORDER_PAYMENT_STATUS.ADV_PAID]: {
+    label: "Advance Paid",
+    color: "info",
+  },
+  [ORDER_PAYMENT_STATUS.UNPAID]: {
+    label: "Unpaid",
+    color: "error",
+  },
+  [ORDER_PAYMENT_STATUS.REFUNDED]: {
+    label: "Refunded",
+    color: "warning",
+  },
+  default: {
+    label: "Unknown",
+    color: "info",
+  },
+};
+
 export const USER_STATUS = {
   ACTIVE: 1,
   DISABLED: 0,

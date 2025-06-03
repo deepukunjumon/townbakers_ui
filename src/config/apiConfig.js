@@ -56,6 +56,7 @@ const apiConfig = {
 
   BRANCHWISE_STOCK_SUMMARY: `${API_BASE_URL}/admin/branchwise/stock/summary`,
 
+  ADMIN_CREATE_ORDER: `${API_BASE_URL}/admin/create/order`,
   ALL_ORDERS: `${API_BASE_URL}/admin/orders`,
 
   USERS_COUNTS: `${API_BASE_URL}/admin/users/status/counts`,
