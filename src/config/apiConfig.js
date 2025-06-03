@@ -17,7 +17,7 @@ const apiConfig = {
   ACTIVE_DESIGNATIONS: `${API_BASE_URL}/designations/active`,
 
   EMPLOYEE_DETAILS: (id) => `${API_BASE_URL}/employee/${id}`,
-  UPDATE_EMPLOYEE_DETAILS: (id) => `${API_BASE_URL}/employee/${id}`,
+  UPDATE_EMPLOYEE_DETAILS: (id) => `${API_BASE_URL}/employee/update/${id}`,
   UPDATE_EMPLOYEE_STATUS: `${API_BASE_URL}/employee/update-status`,
 
   CREATE_ITEM: `${API_BASE_URL}/create/item`,
@@ -47,6 +47,7 @@ const apiConfig = {
   CREATE_BRANCH: `${API_BASE_URL}/admin/create/branch`,
   BRANCH_LIST: `${API_BASE_URL}/admin/branches`,
   BRANCH_DETAILS: `${API_BASE_URL}/admin/branch/{id}`,
+  UPDATE_BRANCH_DETAILS: (id) => `${API_BASE_URL}/admin/branch/update/${id}`,
 
   ALL_EMPLOYEES_LIST: `${API_BASE_URL}/admin/all-employees`,
   CREATE_EMPLOYEE: `${API_BASE_URL}/admin/create/employee`,

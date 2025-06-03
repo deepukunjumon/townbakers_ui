@@ -287,7 +287,7 @@ const AllEmployees = () => {
   const confirmationModalContent = (
     <Box>
       {confirmPayload.action === "delete"
-        ? "Are you sure you want to delete this employee?"
+        ? STRINGS.DELETE_EMPLOYEE_CONFIRMATION
         : confirmPayload.currentStatus === 1
           ? STRINGS.DISABLE_EMPLOYEE_CONFIRMATION
           : STRINGS.ENABLE_EMPLOYEE_CONFIRMATION}
@@ -447,7 +447,7 @@ const AllEmployees = () => {
         if (statusNum === -1) return null;
 
         return (
-          <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
+          <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
             <Switch
               checked={statusNum === 1}
               onChange={() => !isLoading && handleToggleStatus(params.row.id, statusNum)}
@@ -461,7 +461,7 @@ const AllEmployees = () => {
               color="primary"
               sx={{
                 padding: 0.5,
-                "& .MuiSvgIcon-root": { fontSize: "1.1rem" },
+                "& .MuiSvgIcon-root": { fontSize: "1.3rem" },
               }}
             >
               <EditIcon />
@@ -472,7 +472,7 @@ const AllEmployees = () => {
               color="error"
               sx={{
                 padding: 0.5,
-                "& .MuiSvgIcon-root": { fontSize: "1.1rem" },
+                "& .MuiSvgIcon-root": { fontSize: "1.3rem" },
               }}
             >
               <DeleteIcon />
