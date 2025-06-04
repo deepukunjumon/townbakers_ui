@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Box, Typography, Divider, Switch, Fab, Button } from "@mui/material";
+import { Box, Typography, Divider, Switch, Fab, Button, IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
 import TableComponent from "../../../components/TableComponent";
 import Loader from "../../../components/Loader";
 import SnackbarAlert from "../../../components/SnackbarAlert";
@@ -11,6 +12,7 @@ import TextFieldComponent from "../../../components/TextFieldComponent";
 import SelectFieldComponent from "../../../components/SelectFieldComponent";
 import ImportMenuComponent from "../../../components/ImportMenuComponent";
 import ButtonComponent from "../../../components/ButtonComponent";
+import IconButtonComponent from "../../../components/IconButtonComponent";
 import { STRINGS } from "../../../constants/strings";
 
 const categoryOptions = [
@@ -42,6 +44,7 @@ const ItemsList = () => {
   const [newItemDescription, setNewItemDescription] = useState("");
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [file, setFile] = useState(null);
@@ -194,6 +197,15 @@ const ItemsList = () => {
     }
   };
 
+  const handleEditClick = (item) => {
+    setNewItemName(item.name);
+    setNewItemCategory({ value: item.category, label: item.category });
+    setNewItemDescription(item.description || "");
+    setSelectedItem(item);
+    setIsEditMode(true);
+    setModalOpen(true);
+  };
+
   const handleCreateItem = async () => {
     if (!newItemName.trim() || !newItemCategory) {
       setSnack({
@@ -208,8 +220,12 @@ const ItemsList = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(apiConfig.CREATE_ITEM, {
-        method: "POST",
+      const url = isEditMode
+        ? apiConfig.UPDATE_ITEM(selectedItem.id)
+        : apiConfig.CREATE_ITEM;
+
+      const res = await fetch(url, {
+        method: isEditMode ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -224,13 +240,13 @@ const ItemsList = () => {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to create item");
+        throw new Error(data.error || `Failed to ${isEditMode ? 'update' : 'create'} item`);
       }
 
       setSnack({
         open: true,
         severity: "success",
-        message: "Item created successfully",
+        message: `Item ${isEditMode ? 'updated' : 'created'} successfully`,
       });
       setModalOpen(false);
       setPagination((prev) => ({ ...prev, current_page: 1 }));
@@ -239,11 +255,20 @@ const ItemsList = () => {
       setSnack({
         open: true,
         severity: "error",
-        message: error.message || "Failed to create item",
+        message: error.message || `Failed to ${isEditMode ? 'update' : 'create'} item`,
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setNewItemName("");
+    setNewItemCategory(null);
+    setNewItemDescription("");
+    setSelectedItem(null);
+    setIsEditMode(false);
   };
 
   const handleImportClick = () => {
@@ -314,20 +339,32 @@ const ItemsList = () => {
       align: "left",
     },
     {
-      field: "status",
-      headerName: "Status",
+      field: "actions",
+      headerName: "Actions",
       width: 150,
-      headerAlign: "right",
-      align: "right",
+      headerAlign: "center",
+      align: "center",
       renderCell: (params) => (
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Box sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 1
+        }}>
           <Switch
+            size="small"
             checked={params.row.status === 1}
             onChange={() =>
               handleToggleStatus(params.row.id, params.row.status)
             }
             color="primary"
             inputProps={{ "aria-label": "status toggle" }}
+          />
+
+          <IconButtonComponent
+            icon={EditIcon}
+            onClick={() => handleEditClick(params.row)}
+            title="Edit"
           />
         </Box>
       ),
@@ -364,11 +401,11 @@ const ItemsList = () => {
         placeholder="Add a description for the item"
       />
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <Button onClick={() => setModalOpen(false)} sx={{ mr: 1 }}>
+        <Button onClick={handleModalClose} sx={{ mr: 1 }}>
           Cancel
         </Button>
         <Button variant="text" onClick={handleCreateItem}>
-          Create
+          {isEditMode ? 'Update' : 'Create'}
         </Button>
       </Box>
     </Box>
@@ -485,8 +522,8 @@ const ItemsList = () => {
 
       <ModalComponent
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="Create New Item"
+        onClose={handleModalClose}
+        title={isEditMode ? "Edit Item" : "Create New Item"}
         content={modalContent}
       />
 

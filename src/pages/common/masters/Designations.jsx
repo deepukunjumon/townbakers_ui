@@ -275,7 +275,7 @@ const Designations = () => {
                   handleToggleStatus(params.row.id, statusNum);
                 }
               }}
-              size="medium"
+              size="small"
               color="primary"
               disabled={isLoading}
             />
@@ -495,7 +495,7 @@ const Designations = () => {
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => {}}
+        onClose={() => { }}
         hideCloseIcon={true}
         title={STRINGS.CONFIRM_ACTION}
         content={confirmationModalContent}
