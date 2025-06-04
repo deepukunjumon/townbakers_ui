@@ -63,12 +63,11 @@ const AllEmployees = () => {
   const [designations, setDesignations] = useState([]);
 
   // Loading states
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [loadingBranches, setLoadingBranches] = useState(true);
   const [loadingDesignations, setLoadingDesignations] = useState(true);
   const [loadingSwitches, setLoadingSwitches] = useState({});
   const [editLoading, setEditLoading] = useState(false);
-  const [loadingDetails, setLoadingDetails] = useState(false);
 
   // Pagination & filters
   const [pagination, setPagination] = useState({
@@ -82,7 +81,7 @@ const AllEmployees = () => {
   const searchTimeout = useRef(null);
 
   // Snack alert
-  const [snack, setSnack] = useState({ open: false, severity: "error", message: "" });
+  const [snack, setSnack] = useState({ open: false, severity: "info", message: "" });
 
   // Export menu
   const [anchorEl, setAnchorEl] = useState(null);
@@ -96,11 +95,8 @@ const AllEmployees = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
-  // Edit form data state (you need to update this as per your form fields)
+  // Edit form data state
   const [editFormData, setEditFormData] = useState({});
-
-  // View modal
-  const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
 
   // Fetch branches on mount
   useEffect(() => {

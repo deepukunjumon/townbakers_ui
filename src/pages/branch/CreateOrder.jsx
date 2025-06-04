@@ -160,11 +160,6 @@ const CreateOrder = () => {
       <Typography variant="h5" gutterBottom>
         Create Order
       </Typography>
-      <Grid item sx={{ width: 250, mt: 1 }}>
-        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-          Date: {new Date(form.order_date).toLocaleDateString("en-GB")}
-        </Typography>
-      </Grid>
       <Divider sx={{ my: 2 }} />
       <form onSubmit={handleSubmit}>
         {/* Order Details */}
