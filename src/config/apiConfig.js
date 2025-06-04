@@ -10,6 +10,7 @@ const apiConfig = {
   LOGIN_URL: `${API_BASE_URL}/login`,
   RESET_PASSWORD_URL: `${API_BASE_URL}/password/reset`,
   PROFILE: `${API_BASE_URL}/profile`,
+  UPDATE_PROFILE: `${API_BASE_URL}/update/profile`,
   LOGOUT_URL: `${API_BASE_URL}/logout`,
   MINIMAL_BRANCHES: `${API_BASE_URL}/branches/minimal`,
   MINIMAL_EMPLOYEES: `${API_BASE_URL}/employees/minimal`,
