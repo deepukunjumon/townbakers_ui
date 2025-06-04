@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Box, Typography, Divider, Switch, Fab, Button, IconButton } from "@mui/material";
+import { Box, Typography, Divider, Switch, Fab, Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import TableComponent from "../../../components/TableComponent";
@@ -221,7 +221,7 @@ const ItemsList = () => {
 
     try {
       const url = isEditMode
-        ? apiConfig.UPDATE_ITEM(selectedItem.id)
+        ? apiConfig.UPDATE_ITEM_DETAILS(selectedItem.id)
         : apiConfig.CREATE_ITEM;
 
       const res = await fetch(url, {

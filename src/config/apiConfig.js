@@ -21,7 +21,7 @@ const apiConfig = {
   UPDATE_EMPLOYEE_STATUS: `${API_BASE_URL}/employee/update-status`,
 
   CREATE_ITEM: `${API_BASE_URL}/create/item`,
-  UPDATE_ITEM: (id) => `${API_BASE_URL}/item/update/${id}`,
+  UPDATE_ITEM_DETAILS: (id) => `${API_BASE_URL}/item/update/${id}`,
   IMPORT_ITEMS: `${API_BASE_URL}/import/items`,
   ITEMS_LIST: `${API_BASE_URL}/items`,
   MINIMAL_ITEMS: `${API_BASE_URL}/items/minimal`,
@@ -30,6 +30,7 @@ const apiConfig = {
   ORDER_DETAILS: (id) => `${API_BASE_URL}/order/${id}`,
 
   CREATE_DESIGNATION: `${API_BASE_URL}/create/designation`,
+  UPDATE_DESIGNATION_DETAILS: (id) => `${API_BASE_URL}/designation/update/${id}`,
   UPDATE_DESIGNATION_STATUS: `${API_BASE_URL}/designation/update-status`,
 
   //Sample Files

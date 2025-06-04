@@ -49,8 +49,6 @@ const CreateOrder = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const token = getToken();
-
     axios
       .get(`${apiConfig.MINIMAL_EMPLOYEES}`, {
         headers: { Authorization: getToken() },
