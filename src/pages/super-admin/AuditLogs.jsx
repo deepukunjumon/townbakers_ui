@@ -184,11 +184,13 @@ const AuditLogs = () => {
         const value = params.value?.toLowerCase();
         const colorMap = {
           create: "success",
-          update: "warning",
+          update: "info",
           delete: "error",
           import: "info",
           enable: "success",
           disable: "warning",
+          complete: "success",
+          cancel: "error"
         };
 
         const properCase = value
