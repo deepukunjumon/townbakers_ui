@@ -41,6 +41,7 @@ const apiConfig = {
     CREATE_USER: `${API_BASE_URL}/super-admin/create/user`,
     MAIL_TEST: `${API_BASE_URL}/super-admin/test-mail`,
     AUDIT_LOGS: `${API_BASE_URL}/super-admin/logs/audit-logs`,
+    AUDIT_LOG_ACTIONS: `${API_BASE_URL}/super-admin/audit-log/actions`,
     TABLES_LIST: `${API_BASE_URL}/super-admin/list/tables`,
   },
 
