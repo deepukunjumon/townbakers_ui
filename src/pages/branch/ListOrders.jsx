@@ -330,7 +330,7 @@ const ListOrders = () => {
     id: order.id,
     title: order.title,
     delivery_date: order.delivery_date,
-    total_amount: order.total_amount,
+    total_amount: `₹${order.total_amount}`,
     customer_name: order.customer_name,
     customer_mobile: order.customer_mobile,
     status: (
@@ -531,15 +531,15 @@ const ListOrders = () => {
                   />
                 </Typography>
                 <Typography>
-                  <strong>Total Amount:</strong> {selectedOrder.total_amount}
+                  <strong>Total Amount:</strong> ₹{selectedOrder.total_amount}
                 </Typography>
                 <Typography>
                   <strong>Advance Amount:</strong>{" "}
-                  {selectedOrder.advance_amount ?? "N/A"}
+                  {selectedOrder.advance_amount ? `₹${selectedOrder.advance_amount}` : "N/A"}
                 </Typography>
                 {selectedOrder.advance_amount &&
                   <Typography>
-                    <strong>Balance Amount:</strong> {selectedOrder.balance_amount}
+                    <strong>Balance Amount:</strong> ₹{selectedOrder.balance_amount}
                   </Typography>}
               </Box>
               <Divider sx={{ mb: 2 }} />
