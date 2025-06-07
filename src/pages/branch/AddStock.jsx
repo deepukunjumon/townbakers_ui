@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Box,
   Typography,
@@ -54,8 +54,8 @@ const AddStock = () => {
   const debouncedSearchEmployeesRef = useRef();
   const debouncedSearchItemsRef = useRef();
 
-  const fetchEmployees = useCallback(
-    async (searchTerm) => {
+  useEffect(() => {
+    const fetchEmployees = async (searchTerm) => {
       try {
         const url = searchTerm.trim()
           ? `${apiConfig.MINIMAL_EMPLOYEES}?q=${encodeURIComponent(searchTerm)}`
@@ -77,12 +77,9 @@ const AddStock = () => {
         });
         return false;
       }
-    },
-    [token, setEmployeeList, setSnack]
-  );
+    };
 
-  const fetchItems = useCallback(
-    async (searchTerm) => {
+    const fetchItems = async (searchTerm) => {
       setItemList([]);
       try {
         const url = searchTerm.trim()
@@ -110,11 +107,8 @@ const AddStock = () => {
         });
         return false;
       }
-    },
-    [token, setItemList, setSnack]
-  );
+    };
 
-  useEffect(() => {
     debouncedSearchEmployeesRef.current = debounce(fetchEmployees, 300);
     debouncedSearchItemsRef.current = debounce(fetchItems, 300);
 
@@ -152,14 +146,7 @@ const AddStock = () => {
         debouncedSearchItemsRef.current.cancel();
       }
     };
-  }, [
-    token,
-    fetchEmployees,
-    fetchItems,
-    setEmployeeList,
-    setItemList,
-    setSnack,
-  ]);
+  }, [token, setEmployeeList, setItemList, setSnack]);
 
   const handleAddItem = () => {
     if (!selectedItem || !quantity || Number(quantity) <= 0) {

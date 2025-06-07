@@ -14,6 +14,7 @@ import ImportMenuComponent from "../../../components/ImportMenuComponent";
 import ButtonComponent from "../../../components/ButtonComponent";
 import IconButtonComponent from "../../../components/IconButtonComponent";
 import { STRINGS } from "../../../constants/strings";
+import { debounce } from "lodash";
 
 const categoryOptions = [
   { label: "Snacks", value: "snacks" },
@@ -51,7 +52,8 @@ const ItemsList = () => {
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
 
-  // Update ref when pagination changes
+  const debouncedFetchItemsRef = useRef();
+
   useEffect(() => {
     paginationRef.current = pagination;
   }, [pagination]);
@@ -110,21 +112,35 @@ const ItemsList = () => {
         setLoading(false);
       }
     },
-    []
+    [setItems, setPagination, setSnack, controllerRef]
   );
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchItems(searchTerm, pagination.current_page, pagination.per_page);
-    }, 0);
+    debouncedFetchItemsRef.current = debounce(fetchItems, 300);
+
+    debouncedFetchItemsRef.current(
+      "",
+      pagination.current_page,
+      pagination.per_page
+    );
 
     return () => {
-      clearTimeout(timeoutId);
+      if (debouncedFetchItemsRef.current) {
+        debouncedFetchItemsRef.current.cancel();
+      }
       if (controllerRef.current) {
         controllerRef.current.abort();
       }
     };
-  }, [searchTerm, pagination.current_page, pagination.per_page, fetchItems]);
+  }, [fetchItems, pagination.current_page, pagination.per_page]);
+
+  useEffect(() => {
+    debouncedFetchItemsRef.current(
+      searchTerm,
+      pagination.current_page,
+      pagination.per_page
+    );
+  }, [searchTerm, pagination.current_page, pagination.per_page]);
 
   const handleSearch = (value) => {
     setSearchTerm(value);
@@ -137,6 +153,7 @@ const ItemsList = () => {
       current_page: page,
       per_page: rowsPerPage,
     }));
+    fetchItems(searchTerm, page, rowsPerPage);
   };
 
   const handleToggleStatus = async (id, currentStatus) => {
@@ -240,22 +257,25 @@ const ItemsList = () => {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.error || `Failed to ${isEditMode ? 'update' : 'create'} item`);
+        throw new Error(
+          data.error || `Failed to ${isEditMode ? "update" : "create"} item`
+        );
       }
 
       setSnack({
         open: true,
         severity: "success",
-        message: `Item ${isEditMode ? 'updated' : 'created'} successfully`,
+        message: `Item ${isEditMode ? "updated" : "created"} successfully`,
       });
       setModalOpen(false);
       setPagination((prev) => ({ ...prev, current_page: 1 }));
-      fetchItems(searchTerm, 1, pagination.per_page);
+      await fetchItems(searchTerm, 1, pagination.per_page);
     } catch (error) {
       setSnack({
         open: true,
         severity: "error",
-        message: error.message || `Failed to ${isEditMode ? 'update' : 'create'} item`,
+        message:
+          error.message || `Failed to ${isEditMode ? "update" : "create"} item`,
       });
     } finally {
       setLoading(false);
@@ -311,7 +331,7 @@ const ItemsList = () => {
         errors: data.errors || [],
       });
 
-      fetchItems(searchTerm, 1, pagination.per_page);
+      await fetchItems(searchTerm, 1, pagination.per_page);
     } catch (error) {
       setImportResult({
         success: false,
@@ -345,12 +365,14 @@ const ItemsList = () => {
       headerAlign: "center",
       align: "center",
       renderCell: (params) => (
-        <Box sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 1
-        }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
           <Switch
             size="small"
             checked={params.row.status === 1}
@@ -405,7 +427,7 @@ const ItemsList = () => {
           Cancel
         </Button>
         <Button variant="text" onClick={handleCreateItem}>
-          {isEditMode ? 'Update' : 'Create'}
+          {isEditMode ? "Update" : "Create"}
         </Button>
       </Box>
     </Box>
