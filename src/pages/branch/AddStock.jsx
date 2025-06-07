@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -9,17 +9,19 @@ import {
   ListItemText,
   Grid,
   Button,
+  Autocomplete,
+  TextField,
+  CircularProgress,
 } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import SnackbarAlert from "../../components/SnackbarAlert";
-import TextFieldComponent from "../../components/TextFieldComponent";
-import SelectFieldComponent from "../../components/SelectFieldComponent";
 import apiConfig from "../../config/apiConfig";
 import { getToken, getBranchIdFromToken } from "../../utils/auth";
 import ButtonComponent from "../../components/ButtonComponent";
 import Loader from "../../components/Loader";
 import ModalComponent from "../../components/ModalComponent";
 import { STRINGS } from "../../constants/strings";
+import { debounce } from "lodash";
 
 const AddStock = () => {
   const [employeeId, setEmployeeId] = useState(null);
@@ -35,38 +37,102 @@ const AddStock = () => {
   });
   const [loading, setLoading] = useState(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [employeeLoading, setEmployeeLoading] = useState(false);
+  const [itemLoading, setItemLoading] = useState(false);
+  const [employeeInputValue, setEmployeeInputValue] = useState("");
+  const [itemInputValue, setItemInputValue] = useState("");
 
   const branchId = getBranchIdFromToken();
+  const token = getToken();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
+  const titleCase = (str) => {
+    if (!str) return "";
+    return String(str)
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
 
-    fetch(`${apiConfig.MINIMAL_EMPLOYEES}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => setEmployeeList(data.employees || []))
-      .catch(() =>
+  const searchEmployees = useCallback(
+    debounce(async (searchTerm) => {
+      setEmployeeLoading(true);
+      try {
+        const url = searchTerm.trim()
+          ? `${apiConfig.MINIMAL_EMPLOYEES}?q=${encodeURIComponent(searchTerm)}`
+          : `${apiConfig.MINIMAL_EMPLOYEES}`;
+
+        const response = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await response.json();
+        setEmployeeList(data?.employees || []);
+      } catch (error) {
+        console.error("Failed to fetch employees:", error);
         setSnack({
           open: true,
           severity: "error",
           message: "Failed to load employees",
-        })
-      );
+        });
+      } finally {
+        setEmployeeLoading(false);
+      }
+    }, 10),
+    [token]
+  );
 
-    fetch(`${apiConfig.MINIMAL_ITEMS}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => setItemList(data.items || []))
-      .catch(() =>
+  const searchItems = useCallback(
+    debounce(async (searchTerm) => {
+      setItemLoading(true);
+      try {
+        const url = searchTerm.trim()
+          ? `${apiConfig.MINIMAL_ITEMS}?q=${encodeURIComponent(searchTerm)}`
+          : `${apiConfig.MINIMAL_ITEMS}`;
+
+        const response = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await response.json();
+
+        const uniqueItems = [];
+        const itemIds = new Set();
+        if (data.items && Array.isArray(data.items)) {
+          data.items.forEach((item) => {
+            const matchesSearch =
+              searchTerm.trim() === "" ||
+              item.name.toLowerCase().includes(searchTerm.toLowerCase());
+            if (!itemIds.has(item.id) && matchesSearch) {
+              itemIds.add(item.id);
+              uniqueItems.push(item);
+            }
+          });
+        }
+        setItemList(uniqueItems);
+      } catch (error) {
+        console.error("Failed to fetch items:", error);
         setSnack({
           open: true,
           severity: "error",
           message: "Failed to load items",
-        })
-      );
-  }, []);
+        });
+      } finally {
+        setItemLoading(false);
+      }
+    }, 10),
+    [token]
+  );
+
+  useEffect(() => {
+    searchEmployees("");
+    searchItems("");
+
+    return () => {
+      searchEmployees.cancel();
+      searchItems.cancel();
+    };
+  }, [searchEmployees, searchItems]);
 
   const handleAddItem = () => {
     if (!selectedItem || !quantity || Number(quantity) <= 0) {
@@ -77,27 +143,30 @@ const AddStock = () => {
       });
       return;
     }
-    const alreadyAdded = addedItems.find(
-      (i) => i.item_id.id === selectedItem.id
+
+    const existingIndex = addedItems.findIndex(
+      (item) => item.id === selectedItem.id
     );
-    if (alreadyAdded) {
-      setSnack({
-        open: true,
-        severity: "warning",
-        message: "Item already added",
-      });
-      return;
+
+    if (existingIndex !== -1) {
+      const updatedItems = [...addedItems];
+      updatedItems[existingIndex].quantity =
+        Number(updatedItems[existingIndex].quantity) + Number(quantity);
+      setAddedItems(updatedItems);
+    } else {
+      setAddedItems([
+        ...addedItems,
+        { ...selectedItem, quantity: Number(quantity) },
+      ]);
     }
-    setAddedItems([
-      ...addedItems,
-      { item_id: selectedItem, quantity: Number(quantity) },
-    ]);
+
     setSelectedItem(null);
+    setItemInputValue("");
     setQuantity("");
   };
 
   const handleRemoveItem = (id) => {
-    setAddedItems((prev) => prev.filter((i) => i.item_id.id !== id));
+    setAddedItems((prev) => prev.filter((i) => i.id !== id));
   };
 
   const handleSubmit = async (e) => {
@@ -109,19 +178,7 @@ const AddStock = () => {
     setConfirmModalOpen(false);
     setLoading(true);
 
-    let updatedItems = [...addedItems];
-
-    if (selectedItem && quantity && Number(quantity) > 0) {
-      const alreadyAdded = updatedItems.find(
-        (i) => i.item_id.id === selectedItem.id
-      );
-      if (!alreadyAdded) {
-        updatedItems.push({
-          item_id: selectedItem,
-          quantity: Number(quantity),
-        });
-      }
-    }
+    let itemsToSubmit = [...addedItems];
 
     if (!employeeId) {
       setSnack({
@@ -133,7 +190,7 @@ const AddStock = () => {
       return;
     }
 
-    if (updatedItems.length === 0) {
+    if (itemsToSubmit.length === 0) {
       setSnack({
         open: true,
         severity: "warning",
@@ -146,8 +203,8 @@ const AddStock = () => {
     const payload = {
       branch_id: branchId,
       employee_id: employeeId.id,
-      items: updatedItems.map(({ item_id, quantity }) => ({
-        item_id: item_id.id,
+      items: itemsToSubmit.map(({ id, quantity }) => ({
+        item_id: id,
         quantity,
       })),
     };
@@ -173,9 +230,11 @@ const AddStock = () => {
         setEmployeeId(null);
         setAddedItems([]);
         setSelectedItem(null);
+        setItemInputValue("");
         setQuantity("");
       }
-    } catch {
+    } catch (error) {
+      console.error("Network error during submission:", error);
       setSnack({ open: true, severity: "error", message: "Network error" });
     } finally {
       setLoading(false);
@@ -233,22 +292,67 @@ const AddStock = () => {
               py: 2,
             }}
           >
-            <SelectFieldComponent
-              label="Select Employee"
-              value={employeeId}
-              onChange={(e) => {
-                const emp = employeeList.find(
-                  (item) =>
-                    item.id === (e?.target?.value?.id ?? e?.target?.value) ||
-                    null
-                );
-                setEmployeeId(emp || null);
-              }}
+            <Autocomplete
               options={employeeList}
-              valueKey="id"
-              displayKey={(emp) => `${emp.employee_code} - ${emp.name}`}
-              required
-              sx={{ mb: 2, width: { xs: "100%", sm: 260 } }}
+              getOptionLabel={(option) =>
+                option
+                  ? `${option.employee_code} - ${titleCase(option.name)}`
+                  : ""
+              }
+              value={employeeId}
+              onChange={(event, newValue) => {
+                setEmployeeId(newValue);
+              }}
+              inputValue={employeeInputValue}
+              onInputChange={(event, newInputValue) => {
+                setEmployeeInputValue(newInputValue);
+                searchEmployees(newInputValue);
+              }}
+              loading={employeeLoading}
+              filterOptions={(options) => options}
+              isOptionEqualToValue={(option, value) =>
+                value && option.id === value.id
+              }
+              renderOption={(props, option) => (
+                <Box
+                  component="li"
+                  sx={{ "& > div": { mr: 2, flexShrink: 0 } }}
+                  {...props}
+                  key={option.id}
+                >
+                  <Grid
+                    container
+                    sx={{
+                      alignItems: "center",
+                    }}
+                  >
+                    <Grid item xs>
+                      <span style={{ fontWeight: 400 }}>
+                        {titleCase(option.name)} (Code: {option.employee_code})
+                      </span>
+                    </Grid>
+                  </Grid>
+                </Box>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select Employee"
+                  required
+                  sx={{ mb: 2, width: { xs: "100%", sm: 260 } }}
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <>
+                        {employeeLoading ? (
+                          <CircularProgress color="inherit" size={20} />
+                        ) : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
+                  }}
+                />
+              )}
             />
 
             <Typography variant="subtitle1" sx={{ mt: 3, mb: 1 }}>
@@ -256,23 +360,45 @@ const AddStock = () => {
             </Typography>
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} sm={7}>
-                <SelectFieldComponent
-                  label="Item"
-                  value={selectedItem}
-                  onChange={(e) => {
-                    const val = e?.target?.value;
-                    const item =
-                      itemList.find((i) => i.id === (val?.id ?? val)) || null;
-                    setSelectedItem(item);
-                  }}
+                <Autocomplete
                   options={itemList}
-                  valueKey="id"
-                  displayKey="name"
-                  sx={{ width: { xs: 150, sm: 260 } }}
+                  getOptionLabel={(option) => option.name || ""}
+                  value={selectedItem}
+                  onChange={(event, newValue) => {
+                    setSelectedItem(newValue);
+                  }}
+                  inputValue={itemInputValue}
+                  onInputChange={(event, newInputValue) => {
+                    setItemInputValue(newInputValue);
+                    searchItems(newInputValue);
+                  }}
+                  loading={itemLoading}
+                  filterOptions={(options) => options}
+                  isOptionEqualToValue={(option, value) =>
+                    value && option.id === value.id
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Item"
+                      sx={{ width: { xs: 150, sm: 260 } }}
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {itemLoading ? (
+                              <CircularProgress color="inherit" size={20} />
+                            ) : null}
+                            {params.InputProps.endAdornment}
+                          </>
+                        ),
+                      }}
+                    />
+                  )}
                 />
               </Grid>
               <Grid item xs={8} sm={3} sx={{ mt: 1 }}>
-                <TextFieldComponent
+                <TextField
                   label="Quantity"
                   type="number"
                   value={quantity}
@@ -336,19 +462,19 @@ const AddStock = () => {
               <List dense>
                 {addedItems.map((item) => (
                   <ListItem
-                    key={item.item_id.id}
+                    key={item.id}
                     secondaryAction={
                       <IconButton
                         edge="end"
                         color="error"
-                        onClick={() => handleRemoveItem(item.item_id.id)}
+                        onClick={() => handleRemoveItem(item.id)}
                       >
                         <DeleteOutlineIcon />
                       </IconButton>
                     }
                   >
                     <ListItemText
-                      primary={item.item_id.name}
+                      primary={item.name}
                       secondary={`Quantity: ${item.quantity}`}
                     />
                   </ListItem>
