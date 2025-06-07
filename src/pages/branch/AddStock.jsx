@@ -35,10 +35,8 @@ const AddStock = () => {
     severity: "info",
     message: "",
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [employeeLoading, setEmployeeLoading] = useState(false);
-  const [itemLoading, setItemLoading] = useState(false);
   const [employeeInputValue, setEmployeeInputValue] = useState("");
   const [itemInputValue, setItemInputValue] = useState("");
 
@@ -54,9 +52,57 @@ const AddStock = () => {
       .join(" ");
   };
 
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        const [employeesResponse, itemsResponse] = await Promise.all([
+          fetch(`${apiConfig.MINIMAL_EMPLOYEES}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${apiConfig.MINIMAL_ITEMS}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        const [employeesData, itemsData] = await Promise.all([
+          employeesResponse.json(),
+          itemsResponse.json(),
+        ]);
+
+        if (employeesData?.employees) {
+          setEmployeeList(employeesData.employees);
+        }
+        if (itemsData?.items) {
+          setItemList(itemsData.items);
+        }
+
+        // Only hide loader if both APIs returned successfully
+        if (employeesData?.employees && itemsData?.items) {
+          setLoading(false);
+        } else {
+          throw new Error("Failed to load initial data");
+        }
+      } catch (error) {
+        console.error("Failed to load initial data:", error);
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load initial data",
+        });
+        setLoading(false);
+      }
+    };
+
+    loadInitialData();
+
+    return () => {
+      searchEmployees.cancel();
+      searchItems.cancel();
+    };
+  }, [token]);
+
   const searchEmployees = useCallback(
     debounce(async (searchTerm) => {
-      setEmployeeLoading(true);
       try {
         const url = searchTerm.trim()
           ? `${apiConfig.MINIMAL_EMPLOYEES}?q=${encodeURIComponent(searchTerm)}`
@@ -75,8 +121,6 @@ const AddStock = () => {
           severity: "error",
           message: "Failed to load employees",
         });
-      } finally {
-        setEmployeeLoading(false);
       }
     }, 10),
     [token]
@@ -84,7 +128,8 @@ const AddStock = () => {
 
   const searchItems = useCallback(
     debounce(async (searchTerm) => {
-      setItemLoading(true);
+      setItemList([]);
+
       try {
         const url = searchTerm.trim()
           ? `${apiConfig.MINIMAL_ITEMS}?q=${encodeURIComponent(searchTerm)}`
@@ -96,20 +141,11 @@ const AddStock = () => {
 
         const data = await response.json();
 
-        const uniqueItems = [];
-        const itemIds = new Set();
-        if (data.items && Array.isArray(data.items)) {
-          data.items.forEach((item) => {
-            const matchesSearch =
-              searchTerm.trim() === "" ||
-              item.name.toLowerCase().includes(searchTerm.toLowerCase());
-            if (!itemIds.has(item.id) && matchesSearch) {
-              itemIds.add(item.id);
-              uniqueItems.push(item);
-            }
-          });
-        }
-        setItemList(uniqueItems);
+        const filteredItems = data.items.filter((item) =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        setItemList(filteredItems || []);
       } catch (error) {
         console.error("Failed to fetch items:", error);
         setSnack({
@@ -117,22 +153,10 @@ const AddStock = () => {
           severity: "error",
           message: "Failed to load items",
         });
-      } finally {
-        setItemLoading(false);
       }
     }, 10),
     [token]
   );
-
-  useEffect(() => {
-    searchEmployees("");
-    searchItems("");
-
-    return () => {
-      searchEmployees.cancel();
-      searchItems.cancel();
-    };
-  }, [searchEmployees, searchItems]);
 
   const handleAddItem = () => {
     if (!selectedItem || !quantity || Number(quantity) <= 0) {
@@ -259,239 +283,221 @@ const AddStock = () => {
 
   return (
     <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
-      {loading && <Loader message="Submitting stock..." />}
-      <SnackbarAlert
-        open={snack.open}
-        onClose={() => setSnack((s) => ({ ...s, open: false }))}
-        severity={snack.severity}
-        message={snack.message}
-      />
-      <Typography variant="h5" gutterBottom>
-        Add Stock Entry
-      </Typography>
-      <Divider sx={{ my: 2 }} />
-      <form onSubmit={handleSubmit}>
-        <Box
-          sx={{
-            width: "100%",
-            minHeight: "70vh",
-            display: "flex",
-            gap: 4,
-            flexDirection: { xs: "column", md: "row" },
-          }}
-        >
-          {/* Left: Form */}
-          <Box
-            sx={{
-              flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-start",
-              maxWidth: 600,
-              px: { xs: 0, md: 4 },
-              py: 2,
-            }}
-          >
-            <Autocomplete
-              options={employeeList}
-              getOptionLabel={(option) =>
-                option
-                  ? `${option.employee_code} - ${titleCase(option.name)}`
-                  : ""
-              }
-              value={employeeId}
-              onChange={(event, newValue) => {
-                setEmployeeId(newValue);
-              }}
-              inputValue={employeeInputValue}
-              onInputChange={(event, newInputValue) => {
-                setEmployeeInputValue(newInputValue);
-                searchEmployees(newInputValue);
-              }}
-              loading={employeeLoading}
-              filterOptions={(options) => options}
-              isOptionEqualToValue={(option, value) =>
-                value && option.id === value.id
-              }
-              renderOption={(props, option) => (
-                <Box
-                  component="li"
-                  sx={{ "& > div": { mr: 2, flexShrink: 0 } }}
-                  {...props}
-                  key={option.id}
-                >
-                  <Grid
-                    container
-                    sx={{
-                      alignItems: "center",
-                    }}
-                  >
-                    <Grid item xs>
-                      <span style={{ fontWeight: 400 }}>
-                        {titleCase(option.name)} (Code: {option.employee_code})
-                      </span>
-                    </Grid>
-                  </Grid>
-                </Box>
-              )}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Select Employee"
-                  required
-                  sx={{ mb: 2, width: { xs: "100%", sm: 260 } }}
-                  InputProps={{
-                    ...params.InputProps,
-                    endAdornment: (
-                      <>
-                        {employeeLoading ? (
-                          <CircularProgress color="inherit" size={20} />
-                        ) : null}
-                        {params.InputProps.endAdornment}
-                      </>
-                    ),
-                  }}
-                />
-              )}
-            />
+      {loading && <Loader message="Loading..." />}
 
-            <Typography variant="subtitle1" sx={{ mt: 3, mb: 1 }}>
-              Add Item
-            </Typography>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} sm={7}>
+      {!loading && (
+        <>
+          <SnackbarAlert
+            open={snack.open}
+            onClose={() => setSnack((s) => ({ ...s, open: false }))}
+            severity={snack.severity}
+            message={snack.message}
+          />
+          <Typography variant="h5" gutterBottom>
+            Add Stock Entry
+          </Typography>
+          <Divider sx={{ my: 2 }} />
+          <form onSubmit={handleSubmit}>
+            <Box
+              sx={{
+                width: "100%",
+                minHeight: "70vh",
+                display: "flex",
+                gap: 4,
+                flexDirection: { xs: "column", md: "row" },
+              }}
+            >
+              {/* Left: Form */}
+              <Box
+                sx={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-start",
+                  maxWidth: 600,
+                  px: { xs: 0, md: 4 },
+                  py: 2,
+                }}
+              >
                 <Autocomplete
-                  options={itemList}
-                  getOptionLabel={(option) => option.name || ""}
-                  value={selectedItem}
+                  options={employeeList}
+                  getOptionLabel={(option) =>
+                    option
+                      ? `${option.employee_code} - ${titleCase(option.name)}`
+                      : ""
+                  }
+                  value={employeeId}
                   onChange={(event, newValue) => {
-                    setSelectedItem(newValue);
+                    setEmployeeId(newValue);
                   }}
-                  inputValue={itemInputValue}
+                  inputValue={employeeInputValue}
                   onInputChange={(event, newInputValue) => {
-                    setItemInputValue(newInputValue);
-                    searchItems(newInputValue);
+                    setEmployeeInputValue(newInputValue);
+                    searchEmployees(newInputValue);
                   }}
-                  loading={itemLoading}
                   filterOptions={(options) => options}
                   isOptionEqualToValue={(option, value) =>
                     value && option.id === value.id
                   }
+                  renderOption={(props, option) => (
+                    <Box
+                      component="li"
+                      sx={{ "& > div": { mr: 2, flexShrink: 0 } }}
+                      {...props}
+                      key={option.id}
+                    >
+                      <Grid
+                        container
+                        sx={{
+                          alignItems: "center",
+                        }}
+                      >
+                        <Grid item xs>
+                          <span style={{ fontWeight: 400 }}>
+                            {titleCase(option.name)} (Code:{" "}
+                            {option.employee_code})
+                          </span>
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  )}
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Item"
-                      sx={{ width: { xs: 150, sm: 260 } }}
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <>
-                            {itemLoading ? (
-                              <CircularProgress color="inherit" size={20} />
-                            ) : null}
-                            {params.InputProps.endAdornment}
-                          </>
-                        ),
-                      }}
+                      label="Select Employee"
+                      required
+                      sx={{ mb: 2, width: { xs: "100%", sm: 260 } }}
                     />
                   )}
                 />
-              </Grid>
-              <Grid item xs={8} sm={3} sx={{ mt: 1 }}>
-                <TextField
-                  label="Quantity"
-                  type="number"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  inputProps={{ min: 0.1 }}
-                  sx={{ width: { xs: 80, sm: 100 } }}
-                />
-              </Grid>
-              <Grid item xs={4} sm={2}>
-                <ButtonComponent
-                  onClick={handleAddItem}
-                  sx={{ height: 50, minWidth: 0 }}
-                  size="medium"
-                  variant="contained"
-                  color="primary"
-                  type="button"
-                >
-                  Add
-                </ButtonComponent>
-              </Grid>
-            </Grid>
-            <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-              <ButtonComponent
-                type="submit"
-                size="medium"
-                disabled={addedItems.length === 0}
-                variant="contained"
-                color="primary"
-                sx={{ mt: 4, height: 50, minWidth: 180 }}
-              >
-                Submit
-              </ButtonComponent>
-            </Box>
-          </Box>
-          {/* Right: Live Preview */}
-          <Box
-            sx={{
-              flex: 1,
-              bgcolor: "#f5f5f5",
-              borderRadius: 2,
-              border: "1px solid",
-              borderColor: "primary.main",
-              p: 3,
-              minHeight: 400,
-              maxWidth: 600,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-start",
-              overflowY: "auto",
-              maxHeight: { xs: 300, md: 500 },
-            }}
-          >
-            <Typography variant="subtitle1" sx={{ mb: 2 }}>
-              Items Preview
-            </Typography>
-            {addedItems.length === 0 ? (
-              <Typography color="text.secondary" sx={{ mt: 2 }}>
-                No items added yet.
-              </Typography>
-            ) : (
-              <List dense>
-                {addedItems.map((item) => (
-                  <ListItem
-                    key={item.id}
-                    secondaryAction={
-                      <IconButton
-                        edge="end"
-                        color="error"
-                        onClick={() => handleRemoveItem(item.id)}
-                      >
-                        <DeleteOutlineIcon />
-                      </IconButton>
-                    }
-                  >
-                    <ListItemText
-                      primary={item.name}
-                      secondary={`Quantity: ${item.quantity}`}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            )}
-          </Box>
-        </Box>
-      </form>
 
-      <ModalComponent
-        open={confirmModalOpen}
-        hideCloseIcon={true}
-        onClose={() => setConfirmModalOpen(false)}
-        title="Confirm Submission"
-        content={confirmationModalContent}
-      />
+                <Typography variant="subtitle1" sx={{ mt: 3, mb: 1 }}>
+                  Add Item
+                </Typography>
+                <Grid container spacing={2} alignItems="center">
+                  <Grid item xs={12} sm={7}>
+                    <Autocomplete
+                      options={itemList}
+                      getOptionLabel={(option) => option.name || ""}
+                      value={selectedItem}
+                      onChange={(event, newValue) => {
+                        setSelectedItem(newValue);
+                      }}
+                      inputValue={itemInputValue}
+                      onInputChange={(event, newInputValue) => {
+                        setItemInputValue(newInputValue);
+                        searchItems(newInputValue);
+                      }}
+                      filterOptions={(options) => options}
+                      isOptionEqualToValue={(option, value) =>
+                        value && option.id === value.id
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Item"
+                          sx={{ width: { xs: 150, sm: 260 } }}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={8} sm={3} sx={{ mt: 1 }}>
+                    <TextField
+                      label="Quantity"
+                      type="number"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                      inputProps={{ min: 0.1 }}
+                      sx={{ width: { xs: 80, sm: 100 } }}
+                    />
+                  </Grid>
+                  <Grid item xs={4} sm={2}>
+                    <ButtonComponent
+                      onClick={handleAddItem}
+                      sx={{ height: 50, minWidth: 0 }}
+                      size="medium"
+                      variant="contained"
+                      color="primary"
+                      type="button"
+                    >
+                      Add
+                    </ButtonComponent>
+                  </Grid>
+                </Grid>
+                <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+                  <ButtonComponent
+                    type="submit"
+                    size="medium"
+                    disabled={addedItems.length === 0}
+                    variant="contained"
+                    color="primary"
+                    sx={{ mt: 4, height: 50, minWidth: 180 }}
+                  >
+                    Submit
+                  </ButtonComponent>
+                </Box>
+              </Box>
+              {/* Right: Live Preview */}
+              <Box
+                sx={{
+                  flex: 1,
+                  bgcolor: "#f5f5f5",
+                  borderRadius: 2,
+                  border: "1px solid",
+                  borderColor: "primary.main",
+                  p: 3,
+                  minHeight: 400,
+                  maxWidth: 600,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-start",
+                  overflowY: "auto",
+                  maxHeight: { xs: 300, md: 500 },
+                }}
+              >
+                <Typography variant="subtitle1" sx={{ mb: 2 }}>
+                  Items Preview
+                </Typography>
+                {addedItems.length === 0 ? (
+                  <Typography color="text.secondary" sx={{ mt: 2 }}>
+                    No items added yet.
+                  </Typography>
+                ) : (
+                  <List dense>
+                    {addedItems.map((item) => (
+                      <ListItem
+                        key={item.id}
+                        secondaryAction={
+                          <IconButton
+                            edge="end"
+                            color="error"
+                            onClick={() => handleRemoveItem(item.id)}
+                          >
+                            <DeleteOutlineIcon />
+                          </IconButton>
+                        }
+                      >
+                        <ListItemText
+                          primary={item.name}
+                          secondary={`Quantity: ${item.quantity}`}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </Box>
+            </Box>
+          </form>
+
+          <ModalComponent
+            open={confirmModalOpen}
+            hideCloseIcon={true}
+            onClose={() => setConfirmModalOpen(false)}
+            title="Confirm Submission"
+            content={confirmationModalContent}
+          />
+        </>
+      )}
     </Box>
   );
 };
