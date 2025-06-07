@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -11,7 +11,6 @@ import {
   Button,
   Autocomplete,
   TextField,
-  CircularProgress,
 } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import SnackbarAlert from "../../components/SnackbarAlert";
@@ -52,32 +51,82 @@ const AddStock = () => {
       .join(" ");
   };
 
+  const debouncedSearchEmployeesRef = useRef();
+  const debouncedSearchItemsRef = useRef();
+
+  const fetchEmployees = useCallback(
+    async (searchTerm) => {
+      try {
+        const url = searchTerm.trim()
+          ? `${apiConfig.MINIMAL_EMPLOYEES}?q=${encodeURIComponent(searchTerm)}`
+          : `${apiConfig.MINIMAL_EMPLOYEES}`;
+
+        const response = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await response.json();
+        setEmployeeList(data?.employees || []);
+        return true;
+      } catch (error) {
+        console.error("Failed to fetch employees:", error);
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load employees",
+        });
+        return false;
+      }
+    },
+    [token, setEmployeeList, setSnack]
+  );
+
+  const fetchItems = useCallback(
+    async (searchTerm) => {
+      setItemList([]);
+      try {
+        const url = searchTerm.trim()
+          ? `${apiConfig.MINIMAL_ITEMS}?q=${encodeURIComponent(searchTerm)}`
+          : `${apiConfig.MINIMAL_ITEMS}`;
+
+        const response = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await response.json();
+
+        const filteredItems = data.items.filter((item) =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        setItemList(filteredItems || []);
+        return true;
+      } catch (error) {
+        console.error("Failed to fetch items:", error);
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load items",
+        });
+        return false;
+      }
+    },
+    [token, setItemList, setSnack]
+  );
+
   useEffect(() => {
+    debouncedSearchEmployeesRef.current = debounce(fetchEmployees, 300);
+    debouncedSearchItemsRef.current = debounce(fetchItems, 300);
+
     const loadInitialData = async () => {
       try {
-        const [employeesResponse, itemsResponse] = await Promise.all([
-          fetch(`${apiConfig.MINIMAL_EMPLOYEES}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch(`${apiConfig.MINIMAL_ITEMS}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+        setLoading(true);
+        const [employeesSuccess, itemsSuccess] = await Promise.all([
+          fetchEmployees(""),
+          fetchItems(""),
         ]);
 
-        const [employeesData, itemsData] = await Promise.all([
-          employeesResponse.json(),
-          itemsResponse.json(),
-        ]);
-
-        if (employeesData?.employees) {
-          setEmployeeList(employeesData.employees);
-        }
-        if (itemsData?.items) {
-          setItemList(itemsData.items);
-        }
-
-        // Only hide loader if both APIs returned successfully
-        if (employeesData?.employees && itemsData?.items) {
+        if (employeesSuccess && itemsSuccess) {
           setLoading(false);
         } else {
           throw new Error("Failed to load initial data");
@@ -96,67 +145,21 @@ const AddStock = () => {
     loadInitialData();
 
     return () => {
-      searchEmployees.cancel();
-      searchItems.cancel();
+      if (debouncedSearchEmployeesRef.current) {
+        debouncedSearchEmployeesRef.current.cancel();
+      }
+      if (debouncedSearchItemsRef.current) {
+        debouncedSearchItemsRef.current.cancel();
+      }
     };
-  }, [token]);
-
-  const searchEmployees = useCallback(
-    debounce(async (searchTerm) => {
-      try {
-        const url = searchTerm.trim()
-          ? `${apiConfig.MINIMAL_EMPLOYEES}?q=${encodeURIComponent(searchTerm)}`
-          : `${apiConfig.MINIMAL_EMPLOYEES}`;
-
-        const response = await fetch(url, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const data = await response.json();
-        setEmployeeList(data?.employees || []);
-      } catch (error) {
-        console.error("Failed to fetch employees:", error);
-        setSnack({
-          open: true,
-          severity: "error",
-          message: "Failed to load employees",
-        });
-      }
-    }, 10),
-    [token]
-  );
-
-  const searchItems = useCallback(
-    debounce(async (searchTerm) => {
-      setItemList([]);
-
-      try {
-        const url = searchTerm.trim()
-          ? `${apiConfig.MINIMAL_ITEMS}?q=${encodeURIComponent(searchTerm)}`
-          : `${apiConfig.MINIMAL_ITEMS}`;
-
-        const response = await fetch(url, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const data = await response.json();
-
-        const filteredItems = data.items.filter((item) =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-
-        setItemList(filteredItems || []);
-      } catch (error) {
-        console.error("Failed to fetch items:", error);
-        setSnack({
-          open: true,
-          severity: "error",
-          message: "Failed to load items",
-        });
-      }
-    }, 10),
-    [token]
-  );
+  }, [
+    token,
+    fetchEmployees,
+    fetchItems,
+    setEmployeeList,
+    setItemList,
+    setSnack,
+  ]);
 
   const handleAddItem = () => {
     if (!selectedItem || !quantity || Number(quantity) <= 0) {
@@ -333,7 +336,7 @@ const AddStock = () => {
                   inputValue={employeeInputValue}
                   onInputChange={(event, newInputValue) => {
                     setEmployeeInputValue(newInputValue);
-                    searchEmployees(newInputValue);
+                    debouncedSearchEmployeesRef.current(newInputValue);
                   }}
                   filterOptions={(options) => options}
                   isOptionEqualToValue={(option, value) =>
@@ -386,7 +389,7 @@ const AddStock = () => {
                       inputValue={itemInputValue}
                       onInputChange={(event, newInputValue) => {
                         setItemInputValue(newInputValue);
-                        searchItems(newInputValue);
+                        debouncedSearchItemsRef.current(newInputValue);
                       }}
                       filterOptions={(options) => options}
                       isOptionEqualToValue={(option, value) =>
