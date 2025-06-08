@@ -1,9 +1,10 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Box, Typography } from "@mui/material";
-import { AppInfoContext } from "../context/AppInfoContext";
+const packageJson = require("../../package.json");
 
 const FooterComponent = () => {
-  const { version, copyright } = useContext(AppInfoContext);
+  const APP_NAME = "TBMS";
+  const currentYear = new Date().getFullYear();
 
   return (
     <Box
@@ -19,14 +20,7 @@ const FooterComponent = () => {
         color="textSecondary"
         sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
       >
-        Version: {version}
-      </Typography>
-      <Typography
-        variant="body2"
-        color="textSecondary"
-        sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-      >
-        {copyright}
+        © {currentYear} {APP_NAME} v{packageJson.version}
       </Typography>
     </Box>
   );
