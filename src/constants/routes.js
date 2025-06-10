@@ -13,6 +13,7 @@ export const ROUTES = {
     DESIGNATIONS: "/super-admin/designations",
 
     CREATE_USER: "/super-admin/create/user",
+    USERS_LIST: "/super-admin/users-list",
     CREATE_BRANCH: "/super-admin/create/branch",
     BRANCH_LIST: "/super-admin/view/branches",
 
