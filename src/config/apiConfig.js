@@ -39,6 +39,7 @@ const apiConfig = {
 
   //Super Admin APIs
   SUPER_ADMIN: {
+    DASHBOARD_STATS: `${API_BASE_URL}/super-admin/dashboard/stats`,
     CREATE_USER: `${API_BASE_URL}/super-admin/create/user`,
     MAIL_TEST: `${API_BASE_URL}/super-admin/test-mail`,
     AUDIT_LOGS: `${API_BASE_URL}/super-admin/logs/audit-logs`,

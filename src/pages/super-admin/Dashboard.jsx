@@ -31,31 +31,10 @@ const SuperAdminDashboard = () => {
       onClick: () => navigate(`${ROUTES.SUPER_ADMIN.EMPLOYEES_LIST}`),
     },
     {
-      title: "Pending Orders",
-      subtitle: "Pending orders count",
+      title: "Upcoming Orders",
+      subtitle: "Total upcoming orders count",
       loading: true,
       color: "warning",
-      icon: <AssignmentIcon />,
-    },
-    {
-      title: "Completed Orders",
-      subtitle: "Completed orders count",
-      loading: true,
-      color: "success",
-      icon: <AssignmentIcon />,
-    },
-    {
-      title: "Cancelled Orders",
-      subtitle: "Cancelled orders count",
-      loading: true,
-      color: "error",
-      icon: <AssignmentIcon />,
-    },
-    {
-      title: "Cancelled Orders",
-      subtitle: "Cancelled orders count",
-      loading: true,
-      color: "error",
       icon: <AssignmentIcon />,
     },
   ]);
@@ -68,7 +47,7 @@ const SuperAdminDashboard = () => {
       }))
     );
     axios
-      .get(apiConfig.ADMIN_DASHBOARD_STATS, {
+      .get(apiConfig.SUPER_ADMIN.DASHBOARD_STATS, {
         headers: {
           Authorization: getToken(),
         },
@@ -93,24 +72,10 @@ const SuperAdminDashboard = () => {
                   loading: false,
                 };
               }
-              if (stat.title === "Pending Orders") {
+              if (stat.title === "Upcoming Orders") {
                 return {
                   ...stat,
-                  value: data.pending_orders_count,
-                  loading: false,
-                };
-              }
-              if (stat.title === "Completed Orders") {
-                return {
-                  ...stat,
-                  value: 0,
-                  loading: false,
-                };
-              }
-              if (stat.title === "Cancelled Orders") {
-                return {
-                  ...stat,
-                  value: 0,
+                  value: data.upcoming_orders_count,
                   loading: false,
                 };
               }

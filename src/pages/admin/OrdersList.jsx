@@ -286,7 +286,7 @@ const OrdersList = () => {
                 if (selected === "") return "All";
                 const selectedOption = [
                   { value: "0", label: "Pending" },
-                  { value: "1", label: "Completed" },
+                  { value: "1", label: "Delivered" },
                   { value: "-1", label: "Cancelled" },
                 ].find((opt) => opt.value === selected);
                 return selectedOption?.label || selected;
@@ -294,7 +294,7 @@ const OrdersList = () => {
             >
               <MenuItem value="">All</MenuItem>
               <MenuItem value="0">Pending</MenuItem>
-              <MenuItem value="1">Completed</MenuItem>
+              <MenuItem value="1">Delivered</MenuItem>
               <MenuItem value="-1">Cancelled</MenuItem>
             </Select>
           </FormControl>

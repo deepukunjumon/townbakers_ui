@@ -263,7 +263,7 @@ const ListOrders = () => {
     }
   };
 
-  const handleMarkAsCompleted = async () => {
+  const handleMarkAsDelivered = async () => {
     if (!selectedOrder || !selectedEmployee) return;
     setModalLoading(true);
     try {
@@ -284,7 +284,7 @@ const ListOrders = () => {
         setSnack({
           open: true,
           severity: "success",
-          message: "Order marked as completed",
+          message: "Order marked as delivered",
         });
         const orderRes = await fetch(
           apiConfig.ORDER_DETAILS(selectedOrder.id),
@@ -419,7 +419,7 @@ const ListOrders = () => {
             >
               <MenuItem value="">All</MenuItem>
               <MenuItem value="0">Pending</MenuItem>
-              <MenuItem value="1">Completed</MenuItem>
+              <MenuItem value="1">Delivered</MenuItem>
               <MenuItem value="-1">Cancelled</MenuItem>
             </Select>
           </FormControl>
@@ -595,9 +595,9 @@ const ListOrders = () => {
                           variant="contained"
                           color="success"
                           disabled={!selectedEmployee}
-                          onClick={handleMarkAsCompleted}
+                          onClick={handleMarkAsDelivered}
                         >
-                          Completed
+                          Delivered
                         </ButtonComponent>
                         <ButtonComponent
                           variant="outlined"
@@ -619,7 +619,7 @@ const ListOrders = () => {
                         onClick={handleShowEmployeeSelect}
                         sx={{ minWidth: { xs: 20, md: 120 } }}
                       >
-                        Completed
+                        Delivered
                       </ButtonComponent>
                       <ButtonComponent
                         variant="contained"
