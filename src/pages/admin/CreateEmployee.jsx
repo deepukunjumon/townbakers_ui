@@ -229,7 +229,7 @@ const CreateEmployee = () => {
           message={snack.message}
         />
 
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center"}}>
           <Typography variant="h5" sx={{ flexGrow: 1 }}>
             Create Employee
           </Typography>

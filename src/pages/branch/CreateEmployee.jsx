@@ -111,9 +111,22 @@ const CreateEmployee = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 600 }}>
+    <Box sx={{ 
+      maxWidth: 600,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      mx: 'auto'
+    }}>
       {loading && <Loader message="Creating employee..." />}
-      <Typography variant="h5" gutterBottom>
+      <Typography 
+        variant="h5" 
+        gutterBottom
+        sx={{
+          alignSelf: { xs: 'flex-start', sm: 'center' },
+          width: '100%'
+        }}
+      >
         Add Employee
       </Typography>
       <SnackbarAlert
@@ -123,7 +136,13 @@ const CreateEmployee = () => {
         message={snack.message}
       />
 
-      <Divider sx={{ mb: 3 }} />
+      <Divider 
+        sx={{ 
+          mb: 3,
+          width: '100%',
+          borderColor: 'rgba(0, 0, 0, 0.12)'
+        }} 
+      />
 
       <form onSubmit={handleSubmit}>
         <TextFieldComponent
@@ -164,14 +183,30 @@ const CreateEmployee = () => {
           required
         />
 
-        <ButtonComponent
-          type="submit"
-          variant="contained"
-          color="primary"
-          sx={{ mt: 3 }}
-        >
-          Create Employee
-        </ButtonComponent>
+        <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
+          <ButtonComponent
+            type="button"
+            variant="outlined"
+            color="primary"
+            sx={{ flex: 1 }}
+            onClick={() => setForm({
+              employee_code: "",
+              name: "",
+              mobile: "",
+              designation_id: "",
+            })}
+          >
+            Clear
+          </ButtonComponent>
+          <ButtonComponent
+            type="submit"
+            variant="contained"
+            color="primary"
+            sx={{ flex: 1 }}
+          >
+            Create Employee
+          </ButtonComponent>
+        </Box>
       </form>
     </Box>
   );

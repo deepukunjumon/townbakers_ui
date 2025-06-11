@@ -13,6 +13,7 @@ import {
   TextField,
 } from "@mui/material";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import AddIcon from "@mui/icons-material/Add";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
 import { getToken, getBranchIdFromToken } from "../../utils/auth";
@@ -356,7 +357,7 @@ const AddStock = () => {
                       {...params}
                       label="Select Employee"
                       required
-                      sx={{ mb: 2, width: { xs: "100%", sm: 260 } }}
+                      sx={{ mb: 2, width: "100%" }}
                     />
                   )}
                 />
@@ -386,46 +387,34 @@ const AddStock = () => {
                         <TextField
                           {...params}
                           label="Item"
-                          sx={{ width: { xs: 150, sm: 260 } }}
+                          sx={{ width: { xs: 150, sm: 348 } }}
                         />
                       )}
                     />
                   </Grid>
-                  <Grid item xs={8} sm={3} sx={{ mt: 1 }}>
+                  <Grid item xs={8} sm={3}>
                     <TextField
                       label="Quantity"
                       type="number"
                       value={quantity}
                       onChange={(e) => setQuantity(e.target.value)}
                       inputProps={{ min: 0.1 }}
-                      sx={{ width: { xs: 80, sm: 100 } }}
+                      sx={{ width: { xs: 90, sm: 250 } }}
                     />
                   </Grid>
                   <Grid item xs={4} sm={2}>
                     <ButtonComponent
                       onClick={handleAddItem}
-                      sx={{ height: 50, minWidth: 0 }}
                       size="medium"
                       variant="contained"
                       color="primary"
                       type="button"
+                      endIcon={<AddIcon />}
                     >
                       Add
                     </ButtonComponent>
                   </Grid>
                 </Grid>
-                <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
-                  <ButtonComponent
-                    type="submit"
-                    size="medium"
-                    disabled={addedItems.length === 0}
-                    variant="contained"
-                    color="primary"
-                    sx={{ mt: 4, height: 50, minWidth: 180 }}
-                  >
-                    Submit
-                  </ButtonComponent>
-                </Box>
               </Box>
               {/* Right: Live Preview */}
               <Box
@@ -476,6 +465,42 @@ const AddStock = () => {
                   </List>
                 )}
               </Box>
+            </Box>
+
+            <Box sx={{ 
+              display: "flex", 
+              gap: 2, 
+              mt: 4,
+              justifyContent: "center",
+              maxWidth: 400,
+              mx: "auto"
+            }}>
+              <ButtonComponent
+                type="button"
+                size="medium"
+                variant="outlined"
+                color="primary"
+                sx={{ 
+                  minWidth: 120,
+                  px: 3
+                }}
+                onClick={() => setAddedItems([])}
+              >
+                Clear
+              </ButtonComponent>
+              <ButtonComponent
+                type="submit"
+                size="medium"
+                disabled={addedItems.length === 0}
+                variant="contained"
+                color="primary"
+                sx={{ 
+                  minWidth: 120,
+                  px: 3
+                }}
+              >
+                Submit
+              </ButtonComponent>
             </Box>
           </form>
 
