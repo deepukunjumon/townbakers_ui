@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Box, Typography, Divider } from "@mui/material";
+import { Box, Typography, Divider, Button } from "@mui/material";
 import format from "date-fns/format";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import Loader from "../../components/Loader";
@@ -116,12 +116,13 @@ const ViewStocks = () => {
   }, [date, pagination.current_page, pagination.per_page]);
 
   useEffect(() => {
-    fetchStocks();
-  }, [fetchStocks]);
+    setLoading(false);
+  }, []);
 
   const handleDateChange = (newDate) => {
     setDate(newDate);
     setPagination((prev) => ({ ...prev, current_page: 1 }));
+    setStockData([]);
   };
 
   const handlePaginationChange = ({ page, rowsPerPage }) => {
@@ -138,14 +139,34 @@ const ViewStocks = () => {
 
   const columns = [
     { field: "item_name", headerName: "Item", flex: 2 },
-    { field: "total_quantity", headerName: "Total Quantity", flex: 1 },
+    { 
+      field: "total_quantity", 
+      headerName: "Total Quantity", 
+      flex: 1,
+      align: 'right',
+      headerAlign: 'right'
+    },
   ];
 
   return (
     <Box sx={{ maxWidth: "auto" }}>
-      <Typography variant="h5" gutterBottom>
-        Stock Summary
-      </Typography>
+      <Box sx={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center",
+        mb: 2
+      }}>
+        <Typography variant="h5">
+          Stock Summary
+        </Typography>
+        <ExportMenu
+          anchorEl={anchorEl}
+          open={menuOpen}
+          onClose={handleExportClose}
+          onExportClick={handleExportClick}
+          disabled={stockData.length === 0}
+        />
+      </Box>
 
       <Divider sx={{ mb: 3 }} />
 
@@ -158,21 +179,21 @@ const ViewStocks = () => {
 
       <Box display="flex" gap={2} my={2} alignItems="center">
         <DateSelectorComponent
-          sx={{ width: { xs: 200 } }}
+          sx={{ width: { xs: 200, sm: "100%" } }}
           value={date}
           maxDate={new Date()}
           onChange={handleDateChange}
         />
-        <RefreshIcon
-          sx={{ cursor: "pointer", color: "primary.main" }}
+        <Button
+          variant="contained"
+          color="primary"
           onClick={handleRefresh}
-        />
-        <ExportMenu
-          anchorEl={anchorEl}
-          open={menuOpen}
-          onClose={handleExportClose}
-          onExportClick={handleExportClick}
-        />
+          sx={{ 
+            minWidth: 120,
+          }}
+        >
+          Generate
+        </Button>
       </Box>
 
       {loading && <Loader message="Loading..." />}
