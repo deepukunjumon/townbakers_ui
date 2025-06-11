@@ -242,7 +242,7 @@ const ViewProfile = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}

@@ -111,7 +111,7 @@ const CreateEmployee = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 600, mx: "auto", px: 2, py: 4 }}>
+    <Box sx={{ maxWidth: 600 }}>
       {loading && <Loader message="Creating employee..." />}
       <Typography variant="h5" gutterBottom>
         Add Employee

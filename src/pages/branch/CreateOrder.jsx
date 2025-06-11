@@ -200,7 +200,7 @@ const CreateOrder = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       {loading && <Loader />}
       <SnackbarAlert
         open={snack.open}

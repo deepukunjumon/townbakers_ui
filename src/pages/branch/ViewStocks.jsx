@@ -142,7 +142,7 @@ const ViewStocks = () => {
   ];
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       <Typography variant="h5" gutterBottom>
         Stock Summary
       </Typography>

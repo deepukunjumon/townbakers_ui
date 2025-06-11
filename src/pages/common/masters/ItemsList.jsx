@@ -471,7 +471,7 @@ const ItemsList = () => {
   );
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2, position: "relative" }}>
+    <Box sx={{ maxWidth: "auto" }}>
       <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
           Items List

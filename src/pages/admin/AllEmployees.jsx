@@ -454,7 +454,7 @@ const AllEmployees = () => {
       renderCell: (params) => {
         const statusNum = Number(params.row.status);
         const isLoading = !!loadingSwitches[params.row.id];
-        
+
         if (statusNum === -1) {
           return role === "super_admin" ? (
             <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", justifyContent: "center", width: "100%" }}>
@@ -555,7 +555,7 @@ const AllEmployees = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "auto", p: 3 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <Typography variant="h5">All Employees</Typography>
         <ExportMenu

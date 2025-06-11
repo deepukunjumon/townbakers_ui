@@ -235,7 +235,7 @@ const AuditLogs = () => {
   ];
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", py: 3, px: { xs: 1, sm: 2 } }}>
+    <Box sx={{ maxWidth: "auto" }} >
       <Typography variant="h5">Audit Logs</Typography>
       <Divider sx={{ mb: 2 }} />
 
@@ -343,7 +343,7 @@ const AuditLogs = () => {
           onPaginationChange={handlePaginationChange}
         />
       )}
-    </Box>
+    </Box >
   );
 };
 

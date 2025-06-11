@@ -375,7 +375,7 @@ const ListOrders = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       {loading && <Loader message="Loading..." />}
       <Typography variant="h5" gutterBottom>
         Orders List

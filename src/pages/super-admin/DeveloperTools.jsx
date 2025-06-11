@@ -277,7 +277,7 @@ const DeveloperTools = () => {
   );
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       <Typography variant="h6" gutterBottom>
         Developer Tools
       </Typography>

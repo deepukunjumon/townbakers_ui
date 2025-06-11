@@ -94,7 +94,7 @@ const SuperAdminDashboard = () => {
   }, [fetchStats]);
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       <Box
         sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}
       >

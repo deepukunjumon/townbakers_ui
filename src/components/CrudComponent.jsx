@@ -94,7 +94,7 @@ const CrudComponent = ({
   ];
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", p: 3 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       <Box
         sx={{
           display: "flex",

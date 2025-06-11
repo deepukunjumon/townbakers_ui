@@ -313,7 +313,7 @@ const BranchEmployees = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       <Typography variant="h5" gutterBottom>
         Branch Employees
       </Typography>
@@ -376,7 +376,7 @@ const BranchEmployees = () => {
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => {}}
+        onClose={() => { }}
         hideCloseIcon={true}
         title={STRINGS.CONFIRM_ACTION}
         content={confirmationModalContent}

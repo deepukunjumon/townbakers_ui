@@ -74,7 +74,7 @@ const CreateBranch = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       {loading && <Loader message="Creating branch..." />}
       <Typography variant="h5" gutterBottom>
         Create Branch

@@ -270,7 +270,7 @@ const Users = () => {
   );
 
   return (
-    <Box sx={{ maxWidth: "auto", p: 3 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <Typography variant="h5">All Users</Typography>
       </Box>
