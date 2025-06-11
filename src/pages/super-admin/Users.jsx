@@ -7,6 +7,7 @@ import {
   Divider,
   TextField,
   Fab,
+  Switch,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -33,14 +34,6 @@ const statusOptions = [
   { name: "Active", id: "1" },
   { name: "Disabled", id: "0" },
   { name: "Deleted", id: "-1" },
-];
-
-const roleOptions = [
-  { name: "All", value: "" },
-  { name: "Admin", value: "admin" },
-  { name: "Super Admin", value: "super_admin" },
-  { name: "Branch", value: "branch" },
-  { name: "Employee", value: "employee" },
 ];
 
 const Users = () => {
@@ -82,6 +75,13 @@ const Users = () => {
   // Edit form data state
   const [editFormData, setEditFormData] = useState({});
 
+  // Add confirmation modal state
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmPayload, setConfirmPayload] = useState({ id: null, currentStatus: null });
+
+  // For the role filter in the search/filter bar, add an 'All' option dynamically to the roles from API
+  const roleFilterOptions = [{ label: 'All', value: '' }, ...roles];
+
   // Fetch roles on mount
   useEffect(() => {
     const fetchRoles = async () => {
@@ -106,54 +106,53 @@ const Users = () => {
     fetchRoles();
   }, []);
 
+  // Fetch users logic as a useCallback
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      params.append("page", pagination.current_page);
+      params.append("per_page", pagination.per_page);
+      if (statusFilter.id) params.append("status", statusFilter.id);
+      if (roleFilter) params.append("role", roleFilter);
+      if (searchTerm.trim()) params.append("q", searchTerm.trim());
+
+      const url = `${apiConfig.SUPER_ADMIN.USERS_LIST}?${params.toString()}`;
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token.current}` },
+      });
+      const data = await res.json();
+      setUsers(data.users || []);
+      setPagination((prev) => ({
+        ...prev,
+        total: data.pagination?.total || 0,
+        current_page: data.pagination?.current_page || 1,
+        per_page: data.pagination?.per_page || 10,
+      }));
+    } catch {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to load user data",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [pagination.current_page, pagination.per_page, statusFilter, roleFilter, searchTerm, token]);
+
   // Fetch users when filters or pagination changes
   useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        const params = new URLSearchParams();
-        params.append("page", pagination.current_page);
-        params.append("per_page", pagination.per_page);
-        if (statusFilter.id) params.append("status", statusFilter.id);
-        if (roleFilter) params.append("role", roleFilter); // Apply role filter
-        if (searchTerm.trim()) params.append("q", searchTerm.trim());
-
-        const url = `${apiConfig.SUPER_ADMIN.USERS_LIST}?${params.toString()}`;
-        const res = await fetch(url, {
-          headers: { Authorization: `Bearer ${token.current}` },
-        });
-        const data = await res.json();
-        setUsers(data.users || []);
-        setPagination((prev) => ({
-          ...prev,
-          total: data.pagination?.total || 0,
-          current_page: data.pagination?.current_page || 1,
-          per_page: data.pagination?.per_page || 10,
-        }));
-      } catch {
-        setSnack({
-          open: true,
-          severity: "error",
-          message: "Failed to load user data",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchUsers();
-  }, [
-    pagination.current_page,
-    pagination.per_page,
-    statusFilter,
-    roleFilter,
-    searchTerm,
-  ]);
+  }, [fetchUsers]);
 
   // Edit user click
   const handleEditClick = useCallback(async (user) => {
     setEditModalOpen(true);
-    setEditFormData({ ...user }); // Copy the user data to the form state
-    setSelectedUser(user); // Set the selected user for editing
+    setEditFormData({
+      ...user,
+      role: user.role // This should be a string like 'admin', 'super_admin', etc.
+    });
+    setSelectedUser(user);
   }, []);
 
   // Submit edited user details
@@ -178,7 +177,7 @@ const Users = () => {
         return;
       }
 
-      const res = await fetch(apiConfig.UPDATE_USER_DETAILS(selectedUser.id), {
+      const res = await fetch(apiConfig.SUPER_ADMIN.UPDATE_USER_DETAILS(selectedUser.id), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -190,11 +189,9 @@ const Users = () => {
       if (!res.ok || !data.success)
         throw new Error(data.message || STRINGS.SOMETHING_WENT_WRONG);
 
-      setUsers((prev) =>
-        prev.map((usr) =>
-          usr.id === selectedUser.id ? { ...usr, ...modifiedData } : usr
-        )
-      );
+      // Always re-fetch users after update to ensure all fields are up-to-date
+      await fetchUsers();
+
       setSnack({
         open: true,
         severity: "success",
@@ -210,12 +207,91 @@ const Users = () => {
     }
   }, [selectedUser, editFormData]);
 
+  // Add toggle status handler
+  const handleToggleStatus = useCallback((id, currentStatus) => {
+    setConfirmPayload({ id, currentStatus });
+    setConfirmModalOpen(true);
+  }, []);
+
+  // Add confirm toggle handler
+  const handleConfirmToggle = useCallback(async () => {
+    const { id, currentStatus } = confirmPayload;
+    if (!id) {
+      setConfirmModalOpen(false);
+      return;
+    }
+
+    setConfirmModalOpen(false);
+    const newStatus = currentStatus === 1 ? 0 : 1;
+    setLoadingSwitches((prev) => ({ ...prev, [id]: true }));
+
+    try {
+      const res = await fetch(apiConfig.SUPER_ADMIN.UPDATE_USER_STATUS, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token.current}`,
+        },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.success) throw new Error(data.message || STRINGS.SOMETHING_WENT_WRONG);
+
+      setUsers((prev) =>
+        prev.map((user) => (user.id === id ? { ...user, status: newStatus } : user))
+      );
+
+      setSnack({
+        open: true,
+        severity: "success",
+        message: data.message,
+      });
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: error.message || "Failed to update status",
+      });
+    } finally {
+      setLoadingSwitches((prev) => {
+        const copy = { ...prev };
+        delete copy[id];
+        return copy;
+      });
+    }
+  }, [confirmPayload]);
+
+  // Add confirmation modal content
+  const confirmationModalContent = (
+    <Box>
+      {confirmPayload.currentStatus === 1
+        ? STRINGS.CONFIRM_DISABLE_USER_CONTENT(users.find(u => u.id === confirmPayload.id)?.name)
+        : STRINGS.CONFIRM_ENABLE_USER_CONTENT(users.find(u => u.id === confirmPayload.id)?.name)}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+        <ButtonComponent
+          variant="text"
+          onClick={() => setConfirmModalOpen(false)}
+        >
+          {STRINGS.CANCEL}
+        </ButtonComponent>
+        <ButtonComponent
+          variant="text"
+          onClick={handleConfirmToggle}
+          autoFocus
+        >
+          {STRINGS.CONFIRM}
+        </ButtonComponent>
+      </Box>
+    </Box>
+  );
+
   const columns = [
     { field: "username", headerName: "Username", flex: 1 },
     { field: "name", headerName: "Name", flex: 1 },
     { field: "mobile", headerName: "Mobile", flex: 1 },
     { field: "email", headerName: "Email", flex: 1 },
-    { field: "role", headerName: "Role", flex: 1 },
+    { field: "role_label", headerName: "Role", flex: 1 },
     {
       field: "status",
       headerName: "Status",
@@ -246,6 +322,9 @@ const Users = () => {
       headerAlign: "center",
       align: "center",
       renderCell: (params) => {
+        const statusNum = Number(params.row.status);
+        const isLoading = !!loadingSwitches[params.row.id];
+
         return (
           <Box
             sx={{
@@ -256,6 +335,15 @@ const Users = () => {
               width: "100%",
             }}
           >
+            {statusNum !== -1 && (
+              <Switch
+                checked={statusNum === 1}
+                onChange={() => !isLoading && handleToggleStatus(params.row.id, statusNum)}
+                size="small"
+                color="primary"
+                disabled={isLoading}
+              />
+            )}
             <IconButtonComponent
               icon={EditIcon}
               onClick={() => handleEditClick(params.row)}
@@ -296,6 +384,99 @@ const Users = () => {
     }, 300);
   };
 
+  // Edit modal content
+  const editModalContent = (
+    <Box sx={{ p: 2 }}>
+      {selectedUser ? (
+        <>
+          <TextFieldComponent
+            fullWidth
+            label="Username"
+            value={selectedUser.username}
+            margin="normal"
+            disabled={true}
+          />
+          <TextFieldComponent
+            fullWidth
+            label="Name"
+            value={editFormData.name}
+            onChange={(e) =>
+              setEditFormData((prev) => ({
+                ...prev,
+                name: e.target.value,
+              }))
+            }
+            margin="normal"
+          />
+          <TextFieldComponent
+            fullWidth
+            label="Mobile"
+            value={editFormData.mobile}
+            onChange={(e) =>
+              setEditFormData((prev) => ({
+                ...prev,
+                mobile: e.target.value,
+              }))
+            }
+            margin="normal"
+          />
+          <TextFieldComponent
+            fullWidth
+            label="Email"
+            value={editFormData.email}
+            onChange={(e) =>
+              setEditFormData((prev) => ({
+                ...prev,
+                email: e.target.value,
+              }))
+            }
+            margin="normal"
+          />
+          <SelectFieldComponent
+            label="Role"
+            name="role"
+            value={roles.find((roleOption) => roleOption.value === editFormData.role) || null}
+            onChange={(e) => {
+              if (e.target.value) {
+                setEditFormData((prev) => ({
+                  ...prev,
+                  role: e.target.value.value,
+                }));
+              }
+            }}
+            options={roles}
+            valueKey="value"
+            displayKey="label"
+            fullWidth
+            margin="normal"
+            disabled={loadingRoles}
+          />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              mt: 2,
+              gap: 1,
+            }}
+          >
+            <ButtonComponent
+              variant="outlined"
+              onClick={() => setEditModalOpen(false)}
+            >
+              {STRINGS.CANCEL}
+            </ButtonComponent>
+            <ButtonComponent
+              variant="contained"
+              onClick={handleEditSubmit}
+            >
+              {STRINGS.SAVE_CHANGES}
+            </ButtonComponent>
+          </Box>
+        </>
+      ) : null}
+    </Box>
+  );
+
   return (
     <Box sx={{ maxWidth: "auto", p: 3 }}>
       <Box
@@ -334,14 +515,15 @@ const Users = () => {
 
         <Box sx={{ width: { xs: 165, sm: 200, md: 250 } }}>
           <Autocomplete
-            options={roleOptions}
-            getOptionLabel={(role) => role.name}
-            value={roleOptions.find((r) => r.value === roleFilter) || null}
+            options={roleFilterOptions}
+            getOptionLabel={(role) => role.label}
+            value={roleFilterOptions.find((r) => r.value === roleFilter) || null}
             onChange={(e, newVal) => setRoleFilter(newVal?.value || "")}
             sx={{ width: "100%" }}
             renderInput={(params) => <TextField {...params} label="Role" />}
-            isOptionEqualToValue={(option, value) => option.value === value}
+            isOptionEqualToValue={(option, value) => option.value === value.value}
             noOptionsText="No roles found"
+            disabled={loadingRoles}
           />
         </Box>
 
@@ -400,87 +582,14 @@ const Users = () => {
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         title="User Details"
-        content={
-          <Box sx={{ p: 2 }}>
-            {selectedUser ? (
-              <>
-                <TextFieldComponent
-                  fullWidth
-                  label="Username"
-                  value={selectedUser.username}
-                  margin="normal"
-                  disabled={true}
-                />
-                <TextFieldComponent
-                  fullWidth
-                  label="Name"
-                  value={editFormData.name}
-                  onChange={(e) =>
-                    setEditFormData((prev) => ({
-                      ...prev,
-                      name: e.target.value,
-                    }))
-                  }
-                  margin="normal"
-                />
-                <TextFieldComponent
-                  fullWidth
-                  label="Mobile"
-                  value={editFormData.mobile}
-                  onChange={(e) =>
-                    setEditFormData((prev) => ({
-                      ...prev,
-                      mobile: e.target.value,
-                    }))
-                  }
-                  margin="normal"
-                />
-                <SelectFieldComponent
-                  label="Role"
-                  name="role"
-                  value={
-                    roles.find((b) => b.id === editFormData.role_value) || null
-                  }
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      setEditFormData((prev) => ({
-                        ...prev,
-                        role_value: e.target.value.id,
-                      }));
-                    }
-                  }}
-                  options={roles}
-                  valueKey="value"
-                  displayKey="label"
-                  fullWidth
-                  margin="normal"
-                  disabled={loadingRoles}
-                />
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    mt: 2,
-                    gap: 1,
-                  }}
-                >
-                  <ButtonComponent
-                    variant="outlined"
-                    onClick={() => setEditModalOpen(false)}
-                  >
-                    {STRINGS.CANCEL}
-                  </ButtonComponent>
-                  <ButtonComponent
-                    variant="contained"
-                    onClick={handleEditSubmit}
-                  >
-                    {STRINGS.SAVE_CHANGES}
-                  </ButtonComponent>
-                </Box>
-              </>
-            ) : null}
-          </Box>
-        }
+        content={editModalContent}
+      />
+
+      <ModalComponent
+        open={confirmModalOpen}
+        hideCloseIcon={true}
+        title={confirmPayload.currentStatus === 1 ? STRINGS.CONFIRM_DISABLE_USER_TITLE : STRINGS.ENABLE}
+        content={confirmationModalContent}
       />
     </Box>
   );
