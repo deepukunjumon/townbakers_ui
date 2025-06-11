@@ -249,7 +249,7 @@ const AuditLogs = () => {
         }}
       >
         <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-          <Box sx={{ width: { xs: 159, sm: 200 } }}>
+          <Box sx={{ width: { xs: 166, sm: 200 } }}>
             <SelectFieldComponent
               label="Table"
               value={tableFilter}
@@ -266,7 +266,7 @@ const AuditLogs = () => {
             />
           </Box>
 
-          <Box sx={{ width: { xs: 159, sm: 200 } }}>
+          <Box sx={{ width: { xs: 166, sm: 200 } }}>
             <SelectFieldComponent
               label="Action"
               value={actionFilter}
@@ -292,7 +292,7 @@ const AuditLogs = () => {
                   setStartDate(date);
                   setPagination((prev) => ({ ...prev, current_page: 1 }));
                 }}
-                sx={{ width: { xs: 159, md: 180 } }}
+                sx={{ width: { xs: 166, sm: 177, md: 180 } }}
                 maxDate={endDate || new Date()}
               />
             </Grid>
@@ -304,7 +304,7 @@ const AuditLogs = () => {
                   setEndDate(date);
                   setPagination((prev) => ({ ...prev, current_page: 1 }));
                 }}
-                sx={{ width: { xs: 159, md: 180 } }}
+                sx={{ width: { xs: 166, sm: 177, md: 180 } }}
                 minDate={startDate}
                 maxDate={new Date()}
               />
@@ -312,7 +312,7 @@ const AuditLogs = () => {
           </Grid>
         </Box>
 
-        <Box sx={{ width: { xs: "100%", sm: 300 } }}>
+        <Box sx={{ width: { xs: "100%", md: 300 } }}>
           <TextFieldComponent
             label="Search"
             variant="outlined"

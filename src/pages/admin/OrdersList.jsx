@@ -260,7 +260,7 @@ const OrdersList = () => {
               setStartDate(d);
               if (d > endDate) setEndDate(d);
             }}
-            sx={{ width: { xs: 150, md: 180 } }}
+            sx={{ width: { xs: 166, md: 180 } }}
           />
         </Grid>
         <Grid item xs={6} md={3}>
@@ -269,7 +269,7 @@ const OrdersList = () => {
             value={endDate}
             onChange={setEndDate}
             minDate={startDate}
-            sx={{ width: { xs: 150, md: 180 } }}
+            sx={{ width: { xs: 166, md: 180 } }}
           />
         </Grid>
 
@@ -281,7 +281,7 @@ const OrdersList = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               label="Status"
               displayEmpty
-              sx={{ width: { xs: 150, md: 160 } }}
+              sx={{ width: { xs: 166, md: 160 } }}
               renderValue={(selected) => {
                 if (selected === "") return "All";
                 const selectedOption = [
@@ -306,17 +306,16 @@ const OrdersList = () => {
             getOptionLabel={(o) => `${o.code} - ${o.name}`}
             value={branches.find((b) => b.id === branchFilter) || null}
             onChange={(e, newVal) => setBranchFilter(newVal?.id || "")}
-            sx={{ width: { xs: 150, md: 200 } }}
+            sx={{ width: { xs: 166, md: 200 } }}
             renderInput={(params) => <TextField {...params} label="Branch" />}
           />
         </Grid>
 
-        <Grid item xs={12} md={2} lg={2} sx={{ ml: { md: "auto" } }}>
+        <Grid item xs={12} md={2} lg={2} sx={{ ml: { md: "auto" }, width: { xs: "100%", md: 280 } }}>
           <TextField
             fullWidth
             label="Search Orders"
             value={search}
-            sx={{ width: 320 }}
             onChange={(e) => setSearch(e.target.value)}
           />
         </Grid>

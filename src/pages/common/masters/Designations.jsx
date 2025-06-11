@@ -469,13 +469,13 @@ const Designations = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: { xs: "flex-start", md: "flex-end" },
           gap: 2,
           flexWrap: "wrap",
           mb: 2,
         }}
       >
-        <Box sx={{ width: { xs: 100, md: 200 } }}>
+        <Box sx={{ width: { xs: 120, md: 200 } }}>
           <SelectFieldComponent
             label="Status"
             name="status"
@@ -488,7 +488,7 @@ const Designations = () => {
           />
         </Box>
 
-        <Box sx={{ width: { xs: "100%", sm: 300 } }}>
+        <Box sx={{ width: { xs: 214, sm: 300 } }}>
           <TextField
             label="Search"
             variant="outlined"

@@ -276,10 +276,10 @@ const Users = () => {
       </Box>
       <Divider sx={{ mb: 2 }} />
       <Box sx={{ display: "flex", justifyContent: { xs: "flex-start", md: "flex-end" }, gap: 2, flexWrap: "wrap", mb: 2 }}>
-        <Box sx={{ width: { xs: 120, sm: 170, md: 200 } }}>
+        <Box sx={{ width: { xs: 133, sm: 170, md: 200 } }}>
           <SelectFieldComponent label="Status" name="status" value={statusFilter} onChange={handleStatusChange} options={statusOptions} valueKey="id" displayKey="name" fullWidth />
         </Box>
-        <Box sx={{ width: { xs: 165, sm: 200, md: 250 } }}>
+        <Box sx={{ width: { xs: 200, sm: 200, md: 250 } }}>
           <Autocomplete
             options={roleFilterOptions}
             getOptionLabel={role => role.label}
@@ -292,7 +292,7 @@ const Users = () => {
             disabled={loadingRoles}
           />
         </Box>
-        <Box sx={{ width: { xs: "100%", sm: 300 } }}>
+        <Box sx={{ width: { xs: "100%", sm: 300, md: 360 } }}>
           <TextField label="Search" variant="outlined" fullWidth onChange={handleSearchChange} placeholder="Search users..." />
         </Box>
       </Box>

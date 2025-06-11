@@ -485,7 +485,6 @@ const ItemsList = () => {
           mb: 2,
           display: "flex",
           justifyContent: "flex-end",
-          maxWidth: 1200,
           width: "100%",
         }}
       >
