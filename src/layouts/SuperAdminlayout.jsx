@@ -16,6 +16,7 @@ import {
   LogoDev,
   Assignment,
   MultipleStop,
+  Groups,
 } from "@mui/icons-material";
 
 const SuperAdminLayout = () => {
@@ -99,6 +100,11 @@ const SuperAdminLayout = () => {
           label: "Developer Tools",
           icon: <LogoDev />,
           onClick: () => navigate(ROUTES.SUPER_ADMIN.DEVELOPER_TOOLS),
+        },
+        {
+          label: "Manage Users",
+          icon: <Groups />,
+          onClick: () => navigate(ROUTES.SUPER_ADMIN.USERS_LIST),
         },
         {
           label: "Logs",
