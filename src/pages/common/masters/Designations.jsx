@@ -541,7 +541,7 @@ const Designations = () => {
         color="primary"
         aria-label="add"
         onClick={() => setModalOpen(true)}
-        sx={{ position: "fixed", bottom: 16, right: 16 }}
+        sx={{ position: "fixed", bottom: 32, right: 32 }}
       >
         <AddIcon />
       </Fab>
