@@ -96,7 +96,7 @@ const SuperAdminDashboard = () => {
   return (
     <Box sx={{ maxWidth: "auto" }}>
       <Box
-        sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}
+        sx={{ display: "flex", alignItems: "center", mb: 2 }}
       >
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
           Dashboard
