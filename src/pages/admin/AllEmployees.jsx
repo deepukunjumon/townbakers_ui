@@ -11,7 +11,7 @@ import {
   Avatar,
   Autocomplete,
 } from "@mui/material";
-import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
+import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -81,7 +81,11 @@ const AllEmployees = () => {
   const searchTimeout = useRef(null);
 
   // Snack alert
-  const [snack, setSnack] = useState({ open: false, severity: "info", message: "" });
+  const [snack, setSnack] = useState({
+    open: false,
+    severity: "info",
+    message: "",
+  });
 
   // Export menu
   const [anchorEl, setAnchorEl] = useState(null);
@@ -89,7 +93,11 @@ const AllEmployees = () => {
 
   // Confirmation modal
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [confirmPayload, setConfirmPayload] = useState({ id: null, currentStatus: null, action: null });
+  const [confirmPayload, setConfirmPayload] = useState({
+    id: null,
+    currentStatus: null,
+    action: null,
+  });
 
   // Edit modal
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -110,7 +118,11 @@ const AllEmployees = () => {
         if (!data.success) throw new Error("Invalid branches data");
         setBranches(data.branches || []);
       } catch {
-        setSnack({ open: true, severity: "error", message: "Failed to load branches data" });
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load branches data",
+        });
       } finally {
         setLoadingBranches(false);
       }
@@ -127,17 +139,22 @@ const AllEmployees = () => {
           headers: { Authorization: `Bearer ${token.current}` },
         });
         const data = await res.json();
-        if (!data.success) throw new Error(data.message || "Invalid designations data");
+        if (!data.success)
+          throw new Error(data.message || "Invalid designations data");
 
         const designationsList = Array.isArray(data.designations)
           ? data.designations
           : Array.isArray(data.data)
-            ? data.data
-            : [];
+          ? data.data
+          : [];
         setDesignations(designationsList);
       } catch (error) {
         console.error("Error fetching designations:", error);
-        setSnack({ open: true, severity: "error", message: "Failed to load designations data" });
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load designations data",
+        });
       } finally {
         setLoadingDesignations(false);
       }
@@ -170,13 +187,23 @@ const AllEmployees = () => {
           per_page: data.pagination?.per_page || 10,
         }));
       } catch {
-        setSnack({ open: true, severity: "error", message: "Failed to load employee data" });
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load employee data",
+        });
       } finally {
         setLoading(false);
       }
     };
     fetchEmployees();
-  }, [pagination.current_page, pagination.per_page, statusFilter, branchFilter, searchTerm]);
+  }, [
+    pagination.current_page,
+    pagination.per_page,
+    statusFilter,
+    branchFilter,
+    searchTerm,
+  ]);
 
   // Toggle status confirmation
   const handleToggleStatus = useCallback((id, currentStatus) => {
@@ -193,11 +220,16 @@ const AllEmployees = () => {
         headers: { Authorization: `Bearer ${token.current}` },
       });
       const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.message || STRINGS.SOMETHING_WENT_WRONG);
+      if (!res.ok || !data.success)
+        throw new Error(data.message || STRINGS.SOMETHING_WENT_WRONG);
       setSelectedEmployee(data.employee);
       setEditFormData(data.employee);
     } catch (error) {
-      setSnack({ open: true, severity: "error", message: error.message || "Failed to load employee details" });
+      setSnack({
+        open: true,
+        severity: "error",
+        message: error.message || "Failed to load employee details",
+      });
       setEditModalOpen(false);
     } finally {
       setEditLoading(false);
@@ -217,29 +249,47 @@ const AllEmployees = () => {
       }, {});
 
       if (Object.keys(modifiedData).length === 0) {
-        setSnack({ open: true, severity: "info", message: "No changes to update" });
+        setSnack({
+          open: true,
+          severity: "info",
+          message: "No changes to update",
+        });
         setEditModalOpen(false);
         return;
       }
 
-      const res = await fetch(apiConfig.UPDATE_EMPLOYEE_DETAILS(selectedEmployee.id), {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token.current}`,
-        },
-        body: JSON.stringify(modifiedData),
-      });
+      const res = await fetch(
+        apiConfig.UPDATE_EMPLOYEE_DETAILS(selectedEmployee.id),
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token.current}`,
+          },
+          body: JSON.stringify(modifiedData),
+        }
+      );
       const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.message || STRINGS.SOMETHING_WENT_WRONG);
+      if (!res.ok || !data.success)
+        throw new Error(data.message || STRINGS.SOMETHING_WENT_WRONG);
 
       setEmployees((prev) =>
-        prev.map((emp) => (emp.id === selectedEmployee.id ? { ...emp, ...modifiedData } : emp))
+        prev.map((emp) =>
+          emp.id === selectedEmployee.id ? { ...emp, ...modifiedData } : emp
+        )
       );
-      setSnack({ open: true, severity: "success", message: data.message || STRINGS.SUCCESS });
+      setSnack({
+        open: true,
+        severity: "success",
+        message: data.message || STRINGS.SUCCESS,
+      });
       setEditModalOpen(false);
     } catch (error) {
-      setSnack({ open: true, severity: "error", message: error.message || "Failed to update employee details" });
+      setSnack({
+        open: true,
+        severity: "error",
+        message: error.message || "Failed to update employee details",
+      });
     } finally {
       setEditLoading(false);
     }
@@ -274,7 +324,8 @@ const AllEmployees = () => {
       });
       const data = await res.json();
 
-      if (!res.ok || !data.success) throw new Error(data.message || STRINGS.SOMETHING_WENT_WRONG);
+      if (!res.ok || !data.success)
+        throw new Error(data.message || STRINGS.SOMETHING_WENT_WRONG);
 
       setEmployees((prev) =>
         prev.map((emp) => (emp.id === id ? { ...emp, status: newStatus } : emp))
@@ -282,7 +333,11 @@ const AllEmployees = () => {
 
       setSnack({ open: true, severity: "success", message: data.message });
     } catch (error) {
-      setSnack({ open: true, severity: "error", message: error.message || "Failed to update status" });
+      setSnack({
+        open: true,
+        severity: "error",
+        message: error.message || "Failed to update status",
+      });
     } finally {
       setLoadingSwitches((prev) => {
         const copy = { ...prev };
@@ -298,10 +353,13 @@ const AllEmployees = () => {
       {confirmPayload.action === "delete"
         ? STRINGS.DELETE_EMPLOYEE_CONFIRMATION
         : confirmPayload.currentStatus === 1
-          ? STRINGS.DISABLE_EMPLOYEE_CONFIRMATION
-          : STRINGS.ENABLE_EMPLOYEE_CONFIRMATION}
+        ? STRINGS.DISABLE_EMPLOYEE_CONFIRMATION
+        : STRINGS.ENABLE_EMPLOYEE_CONFIRMATION}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <ButtonComponent variant="text" onClick={() => setConfirmModalOpen(false)}>
+        <ButtonComponent
+          variant="text"
+          onClick={() => setConfirmModalOpen(false)}
+        >
           {STRINGS.CANCEL}
         </ButtonComponent>
         <ButtonComponent variant="text" onClick={handleConfirmToggle} autoFocus>
@@ -331,23 +389,32 @@ const AllEmployees = () => {
             fullWidth
             label="Name"
             value={editFormData.name}
-            onChange={(e) => setEditFormData(prev => ({ ...prev, name: e.target.value }))}
+            onChange={(e) =>
+              setEditFormData((prev) => ({ ...prev, name: e.target.value }))
+            }
             margin="normal"
           />
           <TextFieldComponent
             fullWidth
             label="Mobile"
             value={editFormData.mobile}
-            onChange={(e) => setEditFormData(prev => ({ ...prev, mobile: e.target.value }))}
+            onChange={(e) =>
+              setEditFormData((prev) => ({ ...prev, mobile: e.target.value }))
+            }
             margin="normal"
           />
           <SelectFieldComponent
             label="Branch"
             name="branch"
-            value={branches.find(b => b.id === editFormData.branch_id) || null}
+            value={
+              branches.find((b) => b.id === editFormData.branch_id) || null
+            }
             onChange={(e) => {
               if (e.target.value) {
-                setEditFormData(prev => ({ ...prev, branch_id: e.target.value.id }));
+                setEditFormData((prev) => ({
+                  ...prev,
+                  branch_id: e.target.value.id,
+                }));
               }
             }}
             options={branches}
@@ -360,10 +427,16 @@ const AllEmployees = () => {
           <SelectFieldComponent
             label="Designation"
             name="designation"
-            value={designations.find(d => d.id === editFormData.designation_id) || null}
+            value={
+              designations.find((d) => d.id === editFormData.designation_id) ||
+              null
+            }
             onChange={(e) => {
               if (e.target.value) {
-                setEditFormData(prev => ({ ...prev, designation_id: e.target.value.id }));
+                setEditFormData((prev) => ({
+                  ...prev,
+                  designation_id: e.target.value.id,
+                }));
               }
             }}
             options={designations}
@@ -373,7 +446,9 @@ const AllEmployees = () => {
             margin="normal"
             disabled={loadingDesignations}
           />
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2, gap: 1 }}>
+          <Box
+            sx={{ display: "flex", justifyContent: "flex-end", mt: 2, gap: 1 }}
+          >
             <ButtonComponent
               variant="outlined"
               onClick={() => setEditModalOpen(false)}
@@ -386,7 +461,11 @@ const AllEmployees = () => {
               onClick={handleEditSubmit}
               disabled={editLoading || loadingDesignations}
             >
-              {editLoading ? <CircularProgress size={24} /> : STRINGS.SAVE_CHANGES}
+              {editLoading ? (
+                <CircularProgress size={24} />
+              ) : (
+                STRINGS.SAVE_CHANGES
+              )}
             </ButtonComponent>
           </Box>
         </>
@@ -431,7 +510,10 @@ const AllEmployees = () => {
       flex: 1,
       renderCell: (params) => {
         const key = String(params.value);
-        const status = userStatusMap[key] || { label: "Unknown", color: "default" };
+        const status = userStatusMap[key] || {
+          label: "Unknown",
+          color: "default",
+        };
         return (
           <Chip
             label={status.label}
@@ -457,7 +539,15 @@ const AllEmployees = () => {
 
         if (statusNum === -1) {
           return role === "super_admin" ? (
-            <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", justifyContent: "center", width: "100%" }}>
+            <Box
+              sx={{
+                display: "flex",
+                gap: 1.5,
+                alignItems: "center",
+                justifyContent: "center",
+                width: "100%",
+              }}
+            >
               <IconButtonComponent
                 icon={ArrowCircleLeftIcon}
                 onClick={() => handleToggleStatus(params.row.id, statusNum)}
@@ -469,10 +559,20 @@ const AllEmployees = () => {
         }
 
         return (
-          <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", justifyContent: "center", width: "100%" }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1.5,
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+            }}
+          >
             <Switch
               checked={statusNum === 1}
-              onChange={() => !isLoading && handleToggleStatus(params.row.id, statusNum)}
+              onChange={() =>
+                !isLoading && handleToggleStatus(params.row.id, statusNum)
+              }
               size="small"
               color="primary"
               disabled={isLoading}
@@ -556,7 +656,14 @@ const AllEmployees = () => {
 
   return (
     <Box sx={{ maxWidth: "auto" }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
         <Typography variant="h5">All Employees</Typography>
         <ExportMenu
           anchorEl={anchorEl}
@@ -577,7 +684,7 @@ const AllEmployees = () => {
           mb: 2,
         }}
       >
-        <Box sx={{ width: { xs: 120, sm: 170, md: 200 } }}>
+        <Box sx={{ width: { xs: "35%", md: 200 } }}>
           <SelectFieldComponent
             label="Status"
             name="status"
@@ -590,7 +697,7 @@ const AllEmployees = () => {
           />
         </Box>
 
-        <Box sx={{ width: { xs: 165, sm: 200, md: 250 } }}>
+        <Box sx={{ width: { xs: "60%", md: 250 } }}>
           <Autocomplete
             options={branches}
             getOptionLabel={(o) => `${o.code} - ${o.name}`}
@@ -604,7 +711,7 @@ const AllEmployees = () => {
           />
         </Box>
 
-        <Box sx={{ width: { xs: "100%", sm: 300 } }}>
+        <Box sx={{ width: { xs: "100%", md: 300 } }}>
           <TextField
             label="Search"
             variant="outlined"
@@ -664,7 +771,7 @@ const AllEmployees = () => {
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => { }}
+        onClose={() => {}}
         hideCloseIcon
         title={STRINGS.CONFIRM_ACTION}
         content={confirmationModalContent}
