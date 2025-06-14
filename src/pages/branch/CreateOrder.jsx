@@ -472,7 +472,21 @@ const CreateOrder = () => {
         <Divider sx={{ my: 3 }} />
 
         {/* Submit */}
-        <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-start", gap: 2 }}>
+          <ButtonComponent
+            type="button"
+            variant="outlined"
+            color="primary"
+            size="large"
+            onClick={() => {
+              setForm(initialFormState);
+              setPaymentStatus("2");
+              setEmployeeInputValue("");
+            }}
+            sx={{ fontSize: "0.9rem" }}
+          >
+            Clear
+          </ButtonComponent>
           <ButtonComponent
             type="submit"
             variant="contained"

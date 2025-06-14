@@ -22,7 +22,6 @@ import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ModalComponent from "../../components/ModalComponent";
 import Loader from "../../components/Loader";
 import { STRINGS } from "../../constants/strings";
-import TextFieldComponent from "../../components/TextFieldComponent";
 import ChipComponent from "../../components/ChipComponent";
 import { ORDER_PAYMENT_STATUS_CONFIG, ORDER_STATUS_CONFIG } from "../../constants/statuses";
 import { useLocation } from "react-router-dom";
@@ -396,7 +395,7 @@ const ListOrders = () => {
             label="Start Date"
             value={startDate}
             onChange={handleStartDateChange}
-            sx={{ width: { xs: 151, md: "auto" } }}
+            sx={{ width: { xs: 166, md: "auto" } }}
           />
         </Grid>
         <Grid item xs={6} md={3} lg={3}>
@@ -405,12 +404,12 @@ const ListOrders = () => {
             value={endDate}
             onChange={handleEndDateChange}
             minDate={startDate}
-            sx={{ width: { xs: 151, md: "auto" } }}
+            sx={{ width: { xs: 166, md: "auto" } }}
           />
         </Grid>
 
         <Grid item xs={12} md={2.5} lg={2.5}>
-          <FormControl sx={{ width: { xs: 320, md: 150 } }} variant="outlined">
+          <FormControl sx={{ width: { xs: 150, md: 160 } }} variant="outlined">
             <InputLabel>Status</InputLabel>
             <Select
               value={statusFilter}
@@ -425,13 +424,13 @@ const ListOrders = () => {
           </FormControl>
         </Grid>
 
-        <Grid item xs={12} md={2} lg={2} sx={{ ml: "auto" }}>
-          <TextFieldComponent
+        <Grid item xs={12} md={2} lg={2} sx={{ ml: { xs: 0, md: "auto" } }}>
+          <TextField
             label="Search Orders"
             value={search}
             onChange={handleSearchChange}
             variant="outlined"
-            sx={{ width: { xs: 320, md: 200 } }}
+            sx={{ width: { xs: 182, md: 300 } }}
           />
         </Grid>
       </Grid>
@@ -522,11 +521,12 @@ const ListOrders = () => {
                     size="small"
                     variant="filled"
                     label={
-                      ORDER_PAYMENT_STATUS_CONFIG[selectedOrder.payment_status]?.label ||
-                      "Unknown"
+                      ORDER_PAYMENT_STATUS_CONFIG[selectedOrder.payment_status]
+                        ?.label || "Unknown"
                     }
                     color={
-                      ORDER_PAYMENT_STATUS_CONFIG[selectedOrder.payment_status]?.color || "info"
+                      ORDER_PAYMENT_STATUS_CONFIG[selectedOrder.payment_status]
+                        ?.color || "info"
                     }
                   />
                 </Typography>
@@ -535,12 +535,16 @@ const ListOrders = () => {
                 </Typography>
                 <Typography>
                   <strong>Advance Amount:</strong>{" "}
-                  {selectedOrder.advance_amount ? `₹${selectedOrder.advance_amount}` : "N/A"}
+                  {selectedOrder.advance_amount
+                    ? `₹${selectedOrder.advance_amount}`
+                    : "N/A"}
                 </Typography>
-                {selectedOrder.advance_amount &&
+                {selectedOrder.advance_amount && (
                   <Typography>
-                    <strong>Balance Amount:</strong> ₹{selectedOrder.balance_amount}
-                  </Typography>}
+                    <strong>Balance Amount:</strong> ₹
+                    {selectedOrder.balance_amount}
+                  </Typography>
+                )}
               </Box>
               <Divider sx={{ mb: 2 }} />
               <Box>

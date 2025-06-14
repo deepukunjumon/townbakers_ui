@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Box, Grid, Typography, IconButton } from "@mui/material";
+import { Box, Grid, Typography, IconButton, Divider } from "@mui/material";
 import StatCard from "../../components/StatCard";
 import PeopleIcon from "@mui/icons-material/People";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -31,10 +31,17 @@ const SuperAdminDashboard = () => {
       onClick: () => navigate(`${ROUTES.SUPER_ADMIN.EMPLOYEES_LIST}`),
     },
     {
-      title: "Upcoming Orders",
-      subtitle: "Total upcoming orders count",
+      title: "Today's Pending Orders",
+      subtitle: "Count of orders pending for today",
       loading: true,
       color: "warning",
+      icon: <AssignmentIcon />,
+    },
+    {
+      title: "Today's Completed Orders",
+      subtitle: "Count of orders completed today",
+      loading: true,
+      color: "success",
       icon: <AssignmentIcon />,
     },
   ]);
@@ -72,14 +79,21 @@ const SuperAdminDashboard = () => {
                   loading: false,
                 };
               }
-              if (stat.title === "Upcoming Orders") {
+              if (stat.title === "Today's Pending Orders") {
                 return {
                   ...stat,
-                  value: data.upcoming_orders_count,
+                  value: data.todays_pending_orders_count,
                   loading: false,
                 };
               }
-              return stat;
+              if (stat.title === "Today's Completed Orders") {
+                return {
+                  ...stat,
+                  value: data.todays_completed_orders_count,
+                  loading: false,
+                };
+              }
+            return stat;
             })
           );
         }
@@ -105,6 +119,7 @@ const SuperAdminDashboard = () => {
           <RefreshIcon />
         </IconButton>
       </Box>
+      <Divider sx={{ mb: 2 }} />
       <Grid container spacing={2}>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={index}>

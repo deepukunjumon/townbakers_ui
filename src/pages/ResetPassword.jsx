@@ -186,7 +186,7 @@ const ResetPassword = () => {
             <ButtonComponent
               type="button"
               variant="outlined"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate(-1, { replace: true })}
               sx={{
                 flex: 1
               }}

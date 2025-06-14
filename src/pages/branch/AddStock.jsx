@@ -442,27 +442,46 @@ const AddStock = () => {
                     No items added yet.
                   </Typography>
                 ) : (
-                  <List dense>
-                    {addedItems.map((item) => (
-                      <ListItem
-                        key={item.id}
-                        secondaryAction={
-                          <IconButton
-                            edge="end"
-                            color="error"
-                            onClick={() => handleRemoveItem(item.id)}
-                          >
-                            <DeleteOutlineIcon />
-                          </IconButton>
-                        }
-                      >
-                        <ListItemText
-                          primary={item.name}
-                          secondary={`Quantity: ${item.quantity}`}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
+                  <>
+                    <List dense>
+                      {addedItems.map((item) => (
+                        <ListItem
+                          key={item.id}
+                          secondaryAction={
+                            <IconButton
+                              edge="end"
+                              color="error"
+                              onClick={() => handleRemoveItem(item.id)}
+                            >
+                              <DeleteOutlineIcon />
+                            </IconButton>
+                          }
+                        >
+                          <ListItemText
+                            primary={item.name}
+                            secondary={`Quantity: ${item.quantity}`}
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                    <Divider sx={{ my: 1.5 }} />
+                    <Box 
+                      sx={{ 
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        px: 2,
+                        color: 'text.secondary'
+                      }}
+                    >
+                      <Typography variant="subtitle2">
+                        Total Items
+                      </Typography>
+                      <Typography variant="subtitle2">
+                        {addedItems.length}
+                      </Typography>
+                    </Box>
+                  </>
                 )}
               </Box>
             </Box>

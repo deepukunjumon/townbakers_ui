@@ -13,23 +13,26 @@ const Dashboard = () => {
   const [stats, setStats] = useState([
     {
       title: "Total Branches",
-      subtitle: "Active branches count",
       loading: true,
       color: "info",
       icon: <BusinessIcon />,
     },
     {
       title: "Total Employees",
-      subtitle: "Active employees count",
       loading: true,
       color: "primary",
       icon: <PeopleIcon />,
     },
     {
-      title: "Pending Orders",
-      subtitle: "Pending orders count",
+      title: "Today's Pending Orders",
       loading: true,
       color: "warning",
+      icon: <AssignmentIcon />,
+    },
+    {
+      title: "Today's Delivered Orders",
+      loading: true,
+      color: "success",
       icon: <AssignmentIcon />,
     },
   ]);
@@ -67,13 +70,20 @@ const Dashboard = () => {
                   loading: false,
                 };
               }
-              if (stat.title === "Pending Orders") {
-                return {
-                  ...stat,
-                  value: data.pending_orders_count,
-                  loading: false,
-                };
-              }
+                if (stat.title === "Today's Pending Orders") {
+                  return {
+                    ...stat,
+                    value: data.todays_pending_orders_count,
+                    loading: false,
+                  };
+                }
+                if (stat.title === "Today's Delivered Orders") {
+                  return {
+                    ...stat,
+                    value: data.todays_delivered_orders_count,
+                    loading: false,
+                  };
+                }
               return stat;
             })
           );
@@ -91,7 +101,7 @@ const Dashboard = () => {
   return (
     <Box sx={{ maxWidth: "auto" }}>
       <Box
-        sx={{ display: "flex", alignItems: "center", mb: 2 }}
+        sx={{ display: "flex", alignItems: "center"}}
       >
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
           Dashboard
