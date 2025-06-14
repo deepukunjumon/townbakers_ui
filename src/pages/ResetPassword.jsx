@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography} from "@mui/material";
 import TextFieldComponent from "../components/TextFieldComponent";
 import SnackbarAlert from "../components/SnackbarAlert";
 import apiConfig from "../config/apiConfig";
 import { ROUTES } from "../constants/routes";
+import ButtonComponent from "../components/ButtonComponent";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -112,80 +113,98 @@ const ResetPassword = () => {
   return (
     <Box
       sx={{
+        minHeight: '70vh',
         display: "flex",
         flexDirection: "column",
-        bgcolor: "background.default",
+        alignItems: "center",
+        justifyContent: "center",
+        py: 4,
+        px: 2
       }}
     >
       <Box
         sx={{
-          flex: 1,
+          width: "100%",
+          maxWidth: 400,
           display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          flexDirection: "column",
+          alignItems: "center"
         }}
       >
-        <Box
-          sx={{
-            width: "100%",
-            maxWidth: 400,
-            px: { xs: 2, sm: 4 },
-            py: 4,
-            mx: "auto",
-            borderRadius: 2,
-            boxShadow: 0,
-            bgcolor: "background.default",
+        <Typography 
+          variant="h5" 
+          sx={{ 
+            mb: 4,
+            fontWeight: 500,
+            textAlign: "center"
           }}
         >
-          <SnackbarAlert {...snack} onClose={handleClose} />
-          <Typography variant="h5" mb={3} textAlign="center">
-            Reset Your Password
-          </Typography>
-          <form onSubmit={handleSubmit}>
-            <TextFieldComponent
-              label="Current Password"
-              name="current_password"
-              type={showPasswords.current_password ? "text" : "password"}
-              value={form.current_password}
-              onChange={handleChange}
-              required
-              showPassword={showPasswords.current_password}
-              setShowPassword={() => toggleShowPassword("current_password")}
-              sx={{ mb: 2 }}
-            />
-            <TextFieldComponent
-              label="New Password"
-              name="new_password"
-              type={showPasswords.new_password ? "text" : "password"}
-              value={form.new_password}
-              onChange={handleChange}
-              required
-              showPassword={showPasswords.new_password}
-              setShowPassword={() => toggleShowPassword("new_password")}
-              sx={{ mb: 2 }}
-            />
-            <TextFieldComponent
-              label="Confirm New Password"
-              name="new_password_confirmation"
-              type={showPasswords.new_password_confirmation ? "text" : "password"}
-              value={form.new_password_confirmation}
-              onChange={handleChange}
-              required
-              showPassword={showPasswords.new_password_confirmation}
-              setShowPassword={() => toggleShowPassword("new_password_confirmation")}
-              sx={{ mb: 2 }}
-            />
-            <Button
+          Reset Your Password
+        </Typography>
+
+        <SnackbarAlert {...snack} onClose={handleClose} />
+
+        <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+          <TextFieldComponent
+            label="Current Password"
+            name="current_password"
+            type={showPasswords.current_password ? "text" : "password"}
+            value={form.current_password}
+            onChange={handleChange}
+            required
+            showPassword={showPasswords.current_password}
+            setShowPassword={() => toggleShowPassword("current_password")}
+            sx={{ mb: 2.5 }}
+          />
+          <TextFieldComponent
+            label="New Password"
+            name="new_password"
+            type={showPasswords.new_password ? "text" : "password"}
+            value={form.new_password}
+            onChange={handleChange}
+            required
+            showPassword={showPasswords.new_password}
+            setShowPassword={() => toggleShowPassword("new_password")}
+            sx={{ mb: 2.5 }}
+          />
+          <TextFieldComponent
+            label="Confirm New Password"
+            name="new_password_confirmation"
+            type={showPasswords.new_password_confirmation ? "text" : "password"}
+            value={form.new_password_confirmation}
+            onChange={handleChange}
+            required
+            showPassword={showPasswords.new_password_confirmation}
+            setShowPassword={() => toggleShowPassword("new_password_confirmation")}
+            sx={{ mb: 3 }}
+          />
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 2,
+            width: '100%'
+          }}>
+            <ButtonComponent
+              type="button"
+              variant="outlined"
+              onClick={() => navigate(-1)}
+              sx={{
+                flex: 1
+              }}
+            >
+              Cancel
+            </ButtonComponent>
+            <ButtonComponent
               type="submit"
               variant="contained"
-              fullWidth
-              sx={{ mt: 1 }}
               disabled={loading}
+              sx={{
+                flex: 1
+              }}
             >
               {loading ? "Updating..." : "Update Password"}
-            </Button>
-          </form>
-        </Box>
+            </ButtonComponent>
+          </Box>
+        </form>
       </Box>
     </Box>
   );

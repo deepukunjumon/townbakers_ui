@@ -384,11 +384,13 @@ const Designations = () => {
               </Box>
             ) : null}
 
-            <IconButtonComponent
-              icon={EditIcon}
-              onClick={() => handleEditClick(params.row)}
-              title="Edit"
-            />
+            {statusNum === 1 && (
+              <IconButtonComponent
+                icon={EditIcon}
+                onClick={() => handleEditClick(params.row)}
+                title="Edit"
+              />
+            )}
           </Box>
         );
       },

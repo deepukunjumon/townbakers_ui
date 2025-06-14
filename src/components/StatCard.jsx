@@ -47,7 +47,7 @@ const StatCard = ({
         borderRadius: 2,
         width: "100%",
         minWidth: { xs: 120, sm: 140, md: 160 },
-        maxWidth: { xs: 140, sm: 160, md: 225 },
+        maxWidth: { xs: 160, sm: 160, md: 225 },
         height: "auto",
         p: 2,
         display: "flex",

@@ -22,11 +22,14 @@ const ButtonComponent = ({
       endIcon={endIcon}
       onClick={onClick}
       sx={{
-        p: 1.5,
-        minWidth: "auto",
-        height: "auto",
-        fontSize: { xs: "0.875rem", md: "1rem" },
-        color: variant === "primary",
+        px: { xs: 2, sm: 3 },
+        py: { xs: 1, sm: 1.5 },
+        minWidth: { xs: 100, sm: 120 },
+        height: { xs: 36, sm: 40 },
+        fontSize: { xs: "0.875rem", sm: "0.9375rem", md: "1rem" },
+        fontWeight: 500,
+        textTransform: "none",
+        borderRadius: 1,
         ...sx,
       }}
       {...props}
