@@ -86,7 +86,7 @@ const DeveloperTools = () => {
     mailState.setResponse(null);
 
     try {
-      const res = await fetch(apiConfig.MAIL_TEST, {
+      const res = await fetch(apiConfig.SUPER_ADMIN.MAIL_TEST, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
