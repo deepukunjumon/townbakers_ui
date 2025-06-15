@@ -16,7 +16,6 @@ const SuperAdminDashboard = () => {
   const [stats, setStats] = useState([
     {
       title: "Total Branches",
-      subtitle: "Active branches count",
       loading: true,
       color: "info",
       icon: <BusinessIcon />,
@@ -24,7 +23,6 @@ const SuperAdminDashboard = () => {
     },
     {
       title: "Total Employees",
-      subtitle: "Active employees count",
       loading: true,
       color: "primary",
       icon: <PeopleIcon />,
@@ -32,14 +30,12 @@ const SuperAdminDashboard = () => {
     },
     {
       title: "Today's Pending Orders",
-      subtitle: "Count of orders pending for today",
       loading: true,
       color: "warning",
       icon: <AssignmentIcon />,
     },
     {
-      title: "Today's Completed Orders",
-      subtitle: "Count of orders completed today",
+      title: "Today's Delivered Orders",
       loading: true,
       color: "success",
       icon: <AssignmentIcon />,
@@ -55,6 +51,9 @@ const SuperAdminDashboard = () => {
     );
     axios
       .get(apiConfig.SUPER_ADMIN.DASHBOARD_STATS, {
+        params: {
+          orders : true
+        },
         headers: {
           Authorization: getToken(),
         },
@@ -82,14 +81,14 @@ const SuperAdminDashboard = () => {
               if (stat.title === "Today's Pending Orders") {
                 return {
                   ...stat,
-                  value: data.todays_pending_orders_count,
+                  value: data.todays_orders.pending,
                   loading: false,
                 };
               }
-              if (stat.title === "Today's Completed Orders") {
+              if (stat.title === "Today's Delivered Orders") {
                 return {
                   ...stat,
-                  value: data.todays_completed_orders_count,
+                  value: data.todays_orders.delivered,
                   loading: false,
                 };
               }
