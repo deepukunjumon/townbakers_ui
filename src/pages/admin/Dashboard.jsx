@@ -8,32 +8,45 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import axios from "axios";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../constants/routes";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState([
     {
       title: "Total Branches",
       loading: true,
       color: "info",
       icon: <BusinessIcon />,
+      onClick: () => navigate(ROUTES.ADMIN.BRANCH_LIST),
     },
     {
       title: "Total Employees",
       loading: true,
       color: "primary",
       icon: <PeopleIcon />,
+      onClick: () => navigate(`${ROUTES.ADMIN.EMPLOYEES_LIST}`),
     },
     {
       title: "Today's Pending Orders",
       loading: true,
       color: "warning",
       icon: <AssignmentIcon />,
+      onClick: () =>
+        navigate(ROUTES.ADMIN.ALL_ORDERS, {
+          state: { status: "pending", todayOnly: true },
+        }),
     },
     {
       title: "Today's Delivered Orders",
       loading: true,
       color: "success",
       icon: <AssignmentIcon />,
+      onClick: () =>
+        navigate(ROUTES.ADMIN.ALL_ORDERS, {
+          state: { status: "delivered", todayOnly: true },
+        }),
     },
   ]);
 

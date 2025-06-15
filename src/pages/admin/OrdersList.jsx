@@ -22,8 +22,10 @@ import ModalComponent from "../../components/ModalComponent";
 import Loader from "../../components/Loader";
 import ChipComponent from "../../components/ChipComponent";
 import { ORDER_STATUS_CONFIG } from "../../constants/statuses";
+import { useLocation } from "react-router-dom";
 
 const OrdersList = () => {
+  const location = useLocation();
   const currentDate = new Date();
 
   const [orders, setOrders] = useState([]);
@@ -34,10 +36,21 @@ const OrdersList = () => {
     per_page: 10,
     total: 0,
   });
-  const [startDate, setStartDate] = useState(currentDate);
-  const [endDate, setEndDate] = useState(currentDate);
+  const [startDate, setStartDate] = useState(() => {
+    const { todayOnly } = location.state || {};
+    return todayOnly ? currentDate : currentDate;
+  });
+  const [endDate, setEndDate] = useState(() => {
+    const { todayOnly } = location.state || {};
+    return todayOnly ? currentDate : currentDate;
+  });
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState(() => {
+    const { status } = location.state || {};
+    if (status === "pending") return "0";
+    if (status === "delivered") return "1";
+    return "";
+  });
   const [branchFilter, setBranchFilter] = useState("");
   const [branches, setBranches] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -203,8 +216,8 @@ const OrdersList = () => {
   const tableRows = orders.map((order) => ({
     id: order.id,
     title: order.title,
-    delivery_date: order.delivery_date,
-    total_amount: order.total_amount,
+    delivery_date: format(new Date(order.delivery_date), "dd-MM-yyyy"),
+    total_amount: `₹${order.total_amount}`,
     branch_name: order.branch.name,
     customer_name: order.customer_name,
     customer_mobile: order.customer_mobile,
@@ -311,7 +324,13 @@ const OrdersList = () => {
           />
         </Grid>
 
-        <Grid item xs={12} md={2} lg={2} sx={{ ml: { md: "auto" }, width: { xs: "100%", md: 280 } }}>
+        <Grid
+          item
+          xs={12}
+          md={2}
+          lg={2}
+          sx={{ ml: { md: "auto" }, width: { xs: "100%", md: 280 } }}
+        >
           <TextField
             fullWidth
             label="Search Orders"
@@ -355,13 +374,28 @@ const OrdersList = () => {
                 <strong>Title:</strong> {selectedOrder.title}
               </Typography>
               <Typography>
-                <strong>Delivery Date & Time:</strong>{" "}
-                {selectedOrder.delivery_date} {selectedOrder.delivery_time}
+                <strong>Description:</strong> {selectedOrder.description}
+              </Typography>
+              {selectedOrder.remarks && (
+                <Typography>
+                  <strong>Remarks:</strong> {selectedOrder.remarks}
+                </Typography>
+              )}
+              <Divider sx={{ my: 2 }} />
+              <Typography>
+                <strong>Delivery Date:</strong>{" "}
+                {selectedOrder.delivery_date
+                  ? format(new Date(selectedOrder.delivery_date), "dd-MM-yyyy")
+                  : "-"}
+              </Typography>
+              <Typography>
+                <strong>Delivery Time:</strong>{" "}
+                {selectedOrder.delivery_time || "-"}
               </Typography>
               {selectedOrder.delivered_date && (
                 <Typography>
                   <strong>Delivered Date:</strong>{" "}
-                  {selectedOrder.delivered_date}
+                  {format(new Date(selectedOrder.delivered_date), "dd-MM-yyyy")}
                 </Typography>
               )}
               <Divider sx={{ my: 2 }} />
@@ -391,11 +425,17 @@ const OrdersList = () => {
                 />
               </Typography>
               <Typography>
-                <strong>Total Amount:</strong> {selectedOrder.total_amount}
+                <strong>Total Amount:</strong> ₹{selectedOrder.total_amount}
               </Typography>
               <Typography>
-                <strong>Advance Amount:</strong> {selectedOrder.advance_amount}
+                <strong>Advance Amount:</strong> ₹{selectedOrder.advance_amount}
               </Typography>
+              {selectedOrder.advance_amount && (
+                <Typography>
+                  <strong>Balance Amount:</strong> ₹
+                  {selectedOrder.balance_amount}
+                </Typography>
+              )}
               <Divider sx={{ my: 2 }} />
               <Typography>
                 <strong>Employee Name:</strong>{" "}

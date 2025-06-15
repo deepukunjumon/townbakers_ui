@@ -25,6 +25,7 @@ import { STRINGS } from "../../constants/strings";
 import ChipComponent from "../../components/ChipComponent";
 import { ORDER_PAYMENT_STATUS_CONFIG, ORDER_STATUS_CONFIG } from "../../constants/statuses";
 import { useLocation } from "react-router-dom";
+import { format } from "date-fns";
 
 const ListOrders = () => {
   const location = useLocation();
@@ -328,7 +329,7 @@ const ListOrders = () => {
   const tableRows = orders.map((order) => ({
     id: order.id,
     title: order.title,
-    delivery_date: order.delivery_date,
+    delivery_date: format(new Date(order.delivery_date), "dd-MM-yyyy"),
     total_amount: `₹${order.total_amount}`,
     customer_name: order.customer_name,
     customer_mobile: order.customer_mobile,
@@ -476,12 +477,15 @@ const ListOrders = () => {
                   <strong>Title:</strong> {selectedOrder.title}
                 </Typography>
                 <Typography>
-                  <strong>Delivery Date:</strong> {selectedOrder.delivery_date}
+                  <strong>Delivery Date:</strong>{" "}
+                  {selectedOrder.delivery_date
+                    ? format(new Date(selectedOrder.delivery_date), "dd-MM-yyyy")
+                    : "-"}
                 </Typography>
                 {selectedOrder.delivered_date && (
                   <Typography>
                     <strong>Delivered Date:</strong>{" "}
-                    {selectedOrder.delivered_date}
+                    {format(new Date(selectedOrder.delivered_date), "dd-MM-yyyy")}
                   </Typography>
                 )}
               </Box>

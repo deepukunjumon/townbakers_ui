@@ -33,12 +33,18 @@ const SuperAdminDashboard = () => {
       loading: true,
       color: "warning",
       icon: <AssignmentIcon />,
+      onClick: () => navigate(ROUTES.SUPER_ADMIN.ALL_ORDERS, {
+          state: { status: "pending", todayOnly: true },
+        }),
     },
     {
       title: "Today's Delivered Orders",
       loading: true,
       color: "success",
       icon: <AssignmentIcon />,
+      onClick: () => navigate(ROUTES.SUPER_ADMIN.ALL_ORDERS, {
+        state: { status: "delivered", todayOnly: true },
+      }),
     },
   ]);
 
