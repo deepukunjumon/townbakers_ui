@@ -49,6 +49,8 @@ const apiConfig = {
     AUDIT_LOGS: `${API_BASE_URL}/super-admin/logs/audit-logs`,
     AUDIT_LOG_ACTIONS: `${API_BASE_URL}/super-admin/audit-log/actions`,
     TABLES_LIST: `${API_BASE_URL}/super-admin/list/tables`,
+    EMAIL_LOGS: `${API_BASE_URL}/admin/logs/email-logs`,
+    EMAIL_LOG_TYPES: `${API_BASE_URL}/admin/email-log/types`,
   },
 
   // Admin APIs

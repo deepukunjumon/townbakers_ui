@@ -17,6 +17,7 @@ import {
   Assignment,
   MultipleStop,
   Groups,
+  Mail,
 } from "@mui/icons-material";
 
 const SuperAdminLayout = () => {
@@ -114,6 +115,11 @@ const SuperAdminLayout = () => {
               label: "Audit Logs",
               icon: <MultipleStop />,
               onClick: () => navigate(ROUTES.SUPER_ADMIN.AUDIT_LOGS),
+            },
+            {
+              label: "Email Logs",
+              icon: <Mail />,
+              onClick: () => navigate(ROUTES.SUPER_ADMIN.EMAIL_LOGS),
             },
           ],
         },
