@@ -216,7 +216,7 @@ const OrdersList = () => {
   const tableRows = orders.map((order) => ({
     id: order.id,
     title: order.title,
-    delivery_date: format(new Date(order.delivery_date), "dd-MM-yyyy"),
+    delivery_date: order.delivery_date,
     total_amount: `₹${order.total_amount}`,
     branch_name: order.branch.name,
     customer_name: order.customer_name,
