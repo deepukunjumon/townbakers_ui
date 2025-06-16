@@ -155,7 +155,7 @@ const CreateUser = () => {
   };
 
   return (
-    <Box sx={{ mx: "auto", my: 3, px: { xs: 2, md: 6 }, maxWidth: 600 }}>
+    <Box sx={{ maxWidth: { xs: "100%", md: 600 }, mx: "auto" }}>
       {submitLoading && <Loader message="Loading..." />}
       <SnackbarAlert
         open={snack.open}

@@ -189,7 +189,7 @@ const ViewBranchStockSummary = () => {
   ];
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       {loading && <Loader message="Loading..." />}
       <SnackbarAlert
         open={snack.open}
@@ -255,7 +255,7 @@ const ViewBranchStockSummary = () => {
               required
               label="Select Date"
               sx={{
-                maxWidth: { xs: 200, sm: "100%" },
+                maxWidth: { xs: "95%", sm: "100%" },
               }}
               date={date}
               onChange={(newDate) => setDate(newDate)}
@@ -269,12 +269,13 @@ const ViewBranchStockSummary = () => {
               variant="contained"
               color="primary"
               sx={{
+                ml: { xs: -2, sm: 0 },
                 width: "auto",
                 minWidth: "100px",
-                height: "56px",
+                height: "54px",
               }}
             >
-              SUBMIT
+              Generate
             </ButtonComponent>
           </Box>
         </Box>

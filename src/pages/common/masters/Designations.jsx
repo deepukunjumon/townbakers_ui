@@ -384,11 +384,13 @@ const Designations = () => {
               </Box>
             ) : null}
 
-            <IconButtonComponent
-              icon={EditIcon}
-              onClick={() => handleEditClick(params.row)}
-              title="Edit"
-            />
+            {statusNum === 1 && (
+              <IconButtonComponent
+                icon={EditIcon}
+                onClick={() => handleEditClick(params.row)}
+                title="Edit"
+              />
+            )}
           </Box>
         );
       },
@@ -460,7 +462,7 @@ const Designations = () => {
   );
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       <Typography variant="h5" gutterBottom>
         Designations
       </Typography>
@@ -469,13 +471,13 @@ const Designations = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: { xs: "flex-start", md: "flex-end" },
           gap: 2,
           flexWrap: "wrap",
           mb: 2,
         }}
       >
-        <Box sx={{ width: { xs: 100, md: 200 } }}>
+        <Box sx={{ width: { xs: 120, md: 200 } }}>
           <SelectFieldComponent
             label="Status"
             name="status"
@@ -488,7 +490,7 @@ const Designations = () => {
           />
         </Box>
 
-        <Box sx={{ width: { xs: "100%", sm: 300 } }}>
+        <Box sx={{ width: { xs: 214, sm: 300 } }}>
           <TextField
             label="Search"
             variant="outlined"
@@ -541,7 +543,7 @@ const Designations = () => {
         color="primary"
         aria-label="add"
         onClick={() => setModalOpen(true)}
-        sx={{ position: "fixed", bottom: 16, right: 16 }}
+        sx={{ position: "fixed", bottom: 32, right: 32 }}
       >
         <AddIcon />
       </Fab>

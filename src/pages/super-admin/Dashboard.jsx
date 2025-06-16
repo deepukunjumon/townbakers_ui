@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Box, Grid, Typography, IconButton } from "@mui/material";
+import { Box, Grid, Typography, IconButton, Divider } from "@mui/material";
 import StatCard from "../../components/StatCard";
 import PeopleIcon from "@mui/icons-material/People";
 import BusinessIcon from "@mui/icons-material/Business";
@@ -16,7 +16,6 @@ const SuperAdminDashboard = () => {
   const [stats, setStats] = useState([
     {
       title: "Total Branches",
-      subtitle: "Active branches count",
       loading: true,
       color: "info",
       icon: <BusinessIcon />,
@@ -24,18 +23,28 @@ const SuperAdminDashboard = () => {
     },
     {
       title: "Total Employees",
-      subtitle: "Active employees count",
       loading: true,
       color: "primary",
       icon: <PeopleIcon />,
       onClick: () => navigate(`${ROUTES.SUPER_ADMIN.EMPLOYEES_LIST}`),
     },
     {
-      title: "Upcoming Orders",
-      subtitle: "Total upcoming orders count",
+      title: "Today's Pending Orders",
       loading: true,
       color: "warning",
       icon: <AssignmentIcon />,
+      onClick: () => navigate(ROUTES.SUPER_ADMIN.ALL_ORDERS, {
+          state: { status: "pending", todayOnly: true },
+        }),
+    },
+    {
+      title: "Today's Delivered Orders",
+      loading: true,
+      color: "success",
+      icon: <AssignmentIcon />,
+      onClick: () => navigate(ROUTES.SUPER_ADMIN.ALL_ORDERS, {
+        state: { status: "delivered", todayOnly: true },
+      }),
     },
   ]);
 
@@ -48,6 +57,9 @@ const SuperAdminDashboard = () => {
     );
     axios
       .get(apiConfig.SUPER_ADMIN.DASHBOARD_STATS, {
+        params: {
+          orders : true
+        },
         headers: {
           Authorization: getToken(),
         },
@@ -72,14 +84,21 @@ const SuperAdminDashboard = () => {
                   loading: false,
                 };
               }
-              if (stat.title === "Upcoming Orders") {
+              if (stat.title === "Today's Pending Orders") {
                 return {
                   ...stat,
-                  value: data.upcoming_orders_count,
+                  value: data.todays_orders.pending,
                   loading: false,
                 };
               }
-              return stat;
+              if (stat.title === "Today's Delivered Orders") {
+                return {
+                  ...stat,
+                  value: data.todays_orders.delivered,
+                  loading: false,
+                };
+              }
+            return stat;
             })
           );
         }
@@ -94,9 +113,9 @@ const SuperAdminDashboard = () => {
   }, [fetchStats]);
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       <Box
-        sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}
+        sx={{ display: "flex", alignItems: "center", mb: 2 }}
       >
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
           Dashboard
@@ -105,6 +124,7 @@ const SuperAdminDashboard = () => {
           <RefreshIcon />
         </IconButton>
       </Box>
+      <Divider sx={{ mb: 2 }} />
       <Grid container spacing={2}>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
