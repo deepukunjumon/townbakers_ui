@@ -114,7 +114,7 @@ const Dashboard = () => {
       .catch((err) => {
         console.error("Failed to load dashboard stats:", err);
       });
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     fetchStats();

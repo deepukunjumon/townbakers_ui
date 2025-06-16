@@ -8,7 +8,6 @@ import TableComponent from "../../components/TableComponent";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ExportMenu from "../../components/ExportMenu";
 import { getToken } from "../../utils/auth";
-import RefreshIcon from "@mui/icons-material/Refresh";
 
 const ViewStocks = () => {
   const [date, setDate] = useState(new Date());
@@ -139,9 +138,9 @@ const ViewStocks = () => {
 
   const columns = [
     { field: "item_name", headerName: "Item", flex: 2 },
-    { 
-      field: "total_quantity", 
-      headerName: "Total Quantity", 
+    {
+      field: "total_quantity",
+      headerName: "Total Quantity",
       flex: 1,
       align: 'right',
       headerAlign: 'right'
@@ -150,9 +149,9 @@ const ViewStocks = () => {
 
   return (
     <Box sx={{ maxWidth: "auto" }}>
-      <Box sx={{ 
-        display: "flex", 
-        justifyContent: "space-between", 
+      <Box sx={{
+        display: "flex",
+        justifyContent: "space-between",
         alignItems: "center",
         mb: 2
       }}>
@@ -188,7 +187,7 @@ const ViewStocks = () => {
           variant="contained"
           color="primary"
           onClick={handleRefresh}
-          sx={{ 
+          sx={{
             minWidth: 120,
           }}
         >

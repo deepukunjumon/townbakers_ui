@@ -1,10 +1,8 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import FooterComponent from "../components/FooterComponent";
 
 const Unauthorized = () => {
-    const navigate = useNavigate();
     return (
         <Box
             sx={{
