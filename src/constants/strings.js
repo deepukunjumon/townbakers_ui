@@ -8,6 +8,9 @@ export const STRINGS = {
   CONFIRM_DISABLE_USER_CONTENT: (name) =>
     `Are you sure you want to disable user "${name}"?`,
   CONFIRM_DISABLE_USER_DESCRIPTION: "You can re-enable this user later.",
+  CONFIRM_ENABLE_USER_TITLE: "Enable User",
+  CONFIRM_ENABLE_USER_CONTENT: (name) =>
+    `Are you sure you want to enable user "${name}"?`,
 
   CONFIRM: "Confirm",
   CONFIRM_ACTION: "Confirm Action",

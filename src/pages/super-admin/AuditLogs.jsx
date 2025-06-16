@@ -10,16 +10,6 @@ import ChipComponent from "../../components/ChipComponent";
 import apiConfig from "../../config/apiConfig";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 
-const actionOptions = [
-  { id: "", name: "All Actions" },
-  { id: "create", name: "Create" },
-  { id: "update", name: "Update" },
-  { id: "delete", name: "Delete" },
-  { id: "import", name: "Import" },
-  { id: "enable", name: "Enable" },
-  { id: "disable", name: "Disable" },
-];
-
 const AuditLogs = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,6 +18,9 @@ const AuditLogs = () => {
     id: "",
     name: "All Actions",
   });
+  const [actionOptions, setActionOptions] = useState([
+    { id: "", name: "All Actions" },
+  ]);
   const [tableFilter, setTableFilter] = useState({
     id: "",
     name: "All Tables",
@@ -48,6 +41,30 @@ const AuditLogs = () => {
     per_page: 10,
     total: 0,
   });
+
+  const fetchActionOptions = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(apiConfig.SUPER_ADMIN.AUDIT_LOG_ACTIONS, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setActionOptions([{ id: "", name: "All Actions" }, ...data.actions]);
+      } else {
+        throw new Error(data.message || "Failed to fetch action options");
+      }
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: error.message || "Failed to load action options",
+      });
+    }
+  }, []);
 
   const fetchTableOptions = useCallback(async () => {
     try {
@@ -72,10 +89,6 @@ const AuditLogs = () => {
       });
     }
   }, []);
-
-  useEffect(() => {
-    fetchTableOptions();
-  }, [fetchTableOptions]);
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
@@ -134,6 +147,14 @@ const AuditLogs = () => {
   ]);
 
   useEffect(() => {
+    fetchActionOptions();
+  }, [fetchActionOptions]);
+
+  useEffect(() => {
+    fetchTableOptions();
+  }, [fetchTableOptions]);
+
+  useEffect(() => {
     fetchLogs();
   }, [fetchLogs]);
 
@@ -163,11 +184,13 @@ const AuditLogs = () => {
         const value = params.value?.toLowerCase();
         const colorMap = {
           create: "success",
-          update: "warning",
+          update: "info",
           delete: "error",
           import: "info",
           enable: "success",
           disable: "warning",
+          complete: "success",
+          cancel: "error"
         };
 
         const properCase = value
@@ -212,7 +235,7 @@ const AuditLogs = () => {
   ];
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", py: 3, px: { xs: 1, sm: 2 } }}>
+    <Box sx={{ maxWidth: "auto" }} >
       <Typography variant="h5">Audit Logs</Typography>
       <Divider sx={{ mb: 2 }} />
 
@@ -226,7 +249,7 @@ const AuditLogs = () => {
         }}
       >
         <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-          <Box sx={{ width: { xs: 159, sm: 200 } }}>
+          <Box sx={{ width: { xs: 166, sm: 200 } }}>
             <SelectFieldComponent
               label="Table"
               value={tableFilter}
@@ -243,7 +266,7 @@ const AuditLogs = () => {
             />
           </Box>
 
-          <Box sx={{ width: { xs: 159, sm: 200 } }}>
+          <Box sx={{ width: { xs: 166, sm: 200 } }}>
             <SelectFieldComponent
               label="Action"
               value={actionFilter}
@@ -269,7 +292,7 @@ const AuditLogs = () => {
                   setStartDate(date);
                   setPagination((prev) => ({ ...prev, current_page: 1 }));
                 }}
-                sx={{ width: { xs: 159, md: 180 } }}
+                sx={{ width: { xs: 166, sm: 177, md: 180 } }}
                 maxDate={endDate || new Date()}
               />
             </Grid>
@@ -281,7 +304,7 @@ const AuditLogs = () => {
                   setEndDate(date);
                   setPagination((prev) => ({ ...prev, current_page: 1 }));
                 }}
-                sx={{ width: { xs: 159, md: 180 } }}
+                sx={{ width: { xs: 166, sm: 177, md: 180 } }}
                 minDate={startDate}
                 maxDate={new Date()}
               />
@@ -289,7 +312,7 @@ const AuditLogs = () => {
           </Grid>
         </Box>
 
-        <Box sx={{ width: { xs: "100%", sm: 300 } }}>
+        <Box sx={{ width: { xs: "100%", md: 300 } }}>
           <TextFieldComponent
             label="Search"
             variant="outlined"
@@ -320,7 +343,7 @@ const AuditLogs = () => {
           onPaginationChange={handlePaginationChange}
         />
       )}
-    </Box>
+    </Box >
   );
 };
 

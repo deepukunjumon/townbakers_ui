@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   Box,
   Grid,
@@ -7,18 +7,20 @@ import {
   Radio,
   RadioGroup,
   FormControlLabel,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import apiConfig from "../../config/apiConfig";
 import { getToken, getBranchIdFromToken } from "../../utils/auth";
 import ButtonComponent from "../../components/ButtonComponent";
-import SelectFieldComponent from "../../components/SelectFieldComponent";
 import TextFieldComponent from "../../components/TextFieldComponent";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import TimePickerComponent from "../../components/TimePickerComponent";
 import Loader from "../../components/Loader";
 import axios from "axios";
 import { format } from "date-fns";
+import { debounce } from "lodash";
 
 const initialFormState = {
   title: "",
@@ -45,22 +47,75 @@ const CreateOrder = () => {
     severity: "info",
     message: "",
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [employeeInputValue, setEmployeeInputValue] = useState("");
 
-  useEffect(() => {
-    axios
-      .get(`${apiConfig.MINIMAL_EMPLOYEES}`, {
-        headers: { Authorization: getToken() },
-      })
-      .then((res) => setEmployeeList(res.data.employees || []))
-      .catch(() =>
+  const token = getToken();
+
+  const titleCase = (str) => {
+    if (!str) return "";
+    return String(str)
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  const debouncedSearchEmployeesRef = useRef();
+
+  const fetchEmployees = useCallback(
+    async (searchTerm) => {
+      try {
+        const url = searchTerm.trim()
+          ? `${apiConfig.MINIMAL_EMPLOYEES}?q=${encodeURIComponent(searchTerm)}`
+          : `${apiConfig.MINIMAL_EMPLOYEES}`;
+
+        const response = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await response.json();
+        setEmployeeList(data?.employees || []);
+        return true;
+      } catch (error) {
+        console.error("Failed to fetch employees:", error);
         setSnack({
           open: true,
           severity: "error",
           message: "Failed to load employees",
-        })
-      );
-  }, []);
+        });
+        return false;
+      }
+    },
+    [token, setEmployeeList, setSnack]
+  );
+
+  useEffect(() => {
+    debouncedSearchEmployeesRef.current = debounce(fetchEmployees, 300);
+
+    const loadInitialData = async () => {
+      setLoading(true);
+      const success = await fetchEmployees("");
+      if (success) {
+        setLoading(false);
+      } else {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load initial data",
+        });
+        setLoading(false);
+      }
+    };
+
+    loadInitialData();
+
+    return () => {
+      if (debouncedSearchEmployeesRef.current) {
+        debouncedSearchEmployeesRef.current.cancel();
+      }
+    };
+  }, [token, fetchEmployees]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -121,13 +176,9 @@ const CreateOrder = () => {
     };
 
     try {
-      const res = await axios.post(
-        `${apiConfig.CREATE_ORDER}`,
-        payload,
-        {
-          headers: { Authorization: getToken() },
-        }
-      );
+      const res = await axios.post(`${apiConfig.CREATE_ORDER}`, payload, {
+        headers: { Authorization: getToken() },
+      });
 
       setSnack({
         open: true,
@@ -149,8 +200,8 @@ const CreateOrder = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
-      {loading && <Loader message="Creating Order..." />}
+    <Box sx={{ maxWidth: "auto" }}>
+      {loading && <Loader />}
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
@@ -365,16 +416,55 @@ const CreateOrder = () => {
 
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <SelectFieldComponent
-              label="Employee"
-              value={form.employee}
-              onChange={(e) => setForm({ ...form, employee: e.target.value })}
+            <Autocomplete
               options={employeeList}
-              valueKey="id"
-              displayKey={(emp) => `${emp.employee_code} - ${emp.name}`}
-              required
-              fullWidth
-              sx={{ minWidth: { xs: 320 } }}
+              getOptionLabel={(option) =>
+                option
+                  ? `${option.employee_code} - ${titleCase(option.name)}`
+                  : ""
+              }
+              value={form.employee}
+              onChange={(event, newValue) => {
+                setForm({ ...form, employee: newValue });
+              }}
+              inputValue={employeeInputValue}
+              onInputChange={(event, newInputValue) => {
+                setEmployeeInputValue(newInputValue);
+                debouncedSearchEmployeesRef.current(newInputValue);
+              }}
+              filterOptions={(options) => options}
+              isOptionEqualToValue={(option, value) =>
+                value && option.id === value.id
+              }
+              renderOption={(props, option) => (
+                <Box
+                  component="li"
+                  sx={{ "& > div": { mr: 2, flexShrink: 0 } }}
+                  {...props}
+                  key={option.id}
+                >
+                  <Grid
+                    container
+                    sx={{
+                      alignItems: "center",
+                    }}
+                  >
+                    <Grid item xs>
+                      <span style={{ fontWeight: 400 }}>
+                        {titleCase(option.name)} (Code: {option.employee_code})
+                      </span>
+                    </Grid>
+                  </Grid>
+                </Box>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select Employee"
+                  required
+                  sx={{ minWidth: { xs: 320 } }}
+                />
+              )}
             />
           </Grid>
         </Grid>
@@ -382,7 +472,21 @@ const CreateOrder = () => {
         <Divider sx={{ my: 3 }} />
 
         {/* Submit */}
-        <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-start", gap: 2 }}>
+          <ButtonComponent
+            type="button"
+            variant="outlined"
+            color="primary"
+            size="large"
+            onClick={() => {
+              setForm(initialFormState);
+              setPaymentStatus("2");
+              setEmployeeInputValue("");
+            }}
+            sx={{ fontSize: "0.9rem" }}
+          >
+            Clear
+          </ButtonComponent>
           <ButtonComponent
             type="submit"
             variant="contained"

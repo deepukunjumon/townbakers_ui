@@ -313,7 +313,7 @@ const ViewBranches = () => {
   );
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 3 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       <Typography variant="h5" gutterBottom>
         Branches
       </Typography>

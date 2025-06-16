@@ -9,13 +9,13 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
-  Button,
   Stack,
 } from "@mui/material";
 import { Email as EmailIcon, Phone as PhoneIcon } from "@mui/icons-material";
 import axios from "axios";
 import Loader from "../components/Loader";
 import SnackbarAlert from "../components/SnackbarAlert";
+import ButtonComponent from "../components/ButtonComponent";
 import apiConfig from "../config/apiConfig";
 import { getToken } from "../utils/auth";
 import { useNavigate } from "react-router-dom";
@@ -242,86 +242,120 @@ const ViewProfile = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ 
+      maxWidth: 800, 
+      mx: 'auto',
+      px: { xs: 2, sm: 3 },
+      py: 3
+    }}>
       <SnackbarAlert
         open={snack.open}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
         severity={snack.severity}
         message={snack.message}
       />
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+      <Box sx={{ 
+        display: "flex", 
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 3,
+        mb: 4
+      }}>
         <Avatar
           sx={{
-            width: 80,
-            height: 80,
+            width: 100,
+            height: 100,
             bgcolor: "primary.main",
-            fontSize: 36,
+            fontSize: 40,
             fontWeight: "bold",
           }}
           aria-label="profile-avatar"
         >
           {profile.name ? profile.name.charAt(0).toUpperCase() : "U"}
         </Avatar>
-        <Box sx={{ flexGrow: 1 }}>
-          <Typography variant="h5" fontWeight="bold" noWrap>
+        <Box sx={{ textAlign: "center" }}>
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
             {profile.name}
           </Typography>
           <Chip
             label={roleChipLabel}
             color="primary"
             size="small"
-            sx={{ py: 1, mt: 1, pointerEvents: "none" }}
+            sx={{ py: 1, pointerEvents: "none" }}
           />
         </Box>
       </Box>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="subtitle1" fontWeight="bold" mb={1}>
-          {profile.role === "Branch" ? "Branch Address" : null}
+
+      <Box sx={{ 
+        maxWidth: 600,
+        mx: 'auto',
+        px: { xs: 2, sm: 3 }
+      }}>
+        {profile.role === "Branch" && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" fontWeight="bold" mb={1}>
+              Branch Address
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ whiteSpace: "pre-line" }}
+            >
+              {address}
+            </Typography>
+          </Box>
+        )}
+
+        <Divider sx={{ mb: 3 }} />
+
+        <Typography variant="subtitle1" fontWeight="bold" mb={2}>
+          Contact Information
         </Typography>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ whiteSpace: "pre-line" }}
+        <List disablePadding>
+          <ListItem disableGutters sx={{ py: 1 }}>
+            <ListItemIcon sx={{ minWidth: 50, color: "text.secondary" }}>
+              <EmailIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary={profile.email || "Not provided"}
+              secondaryTypographyProps={{ fontSize: 14 }}
+            />
+          </ListItem>
+          <ListItem disableGutters sx={{ py: 1 }}>
+            <ListItemIcon sx={{ minWidth: 50, color: "text.secondary" }}>
+              <PhoneIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary={profile.mobile || "Not provided"}
+              secondaryTypographyProps={{ fontSize: 14 }}
+            />
+          </ListItem>
+        </List>
+
+        <Stack 
+          direction="row" 
+          spacing={2} 
+          justifyContent="center"
+          sx={{ mt: 4 }}
         >
-          {address}
-        </Typography>
+          <ButtonComponent 
+            variant="outlined" 
+            onClick={() => setModalOpen(true)}
+            sx={{ minWidth: 120 }}
+          >
+            Edit
+          </ButtonComponent>
+          <ButtonComponent
+            variant="contained"
+            color="primary"
+            onClick={() => navigate(ROUTES.RESET_PASSWORD)}
+            sx={{ minWidth: 120 }}
+          >
+            Reset Password
+          </ButtonComponent>
+        </Stack>
       </Box>
-      <Divider sx={{ mb: 3 }} />
-      <Typography variant="subtitle1" fontWeight="bold" mb={2}>
-        Contact Information
-      </Typography>
-      <List disablePadding>
-        <ListItem disableGutters sx={{ py: 0.8 }}>
-          <ListItemIcon sx={{ minWidth: 50, color: "text.secondary" }}>
-            <EmailIcon />
-          </ListItemIcon>
-          <ListItemText
-            primary={profile.email || "Not provided"}
-            secondaryTypographyProps={{ fontSize: 14 }}
-          />
-        </ListItem>
-        <ListItem disableGutters sx={{ py: 0.8 }}>
-          <ListItemIcon sx={{ minWidth: 50, color: "text.secondary" }}>
-            <PhoneIcon />
-          </ListItemIcon>
-          <ListItemText
-            primary={profile.mobile || "Not provided"}
-            secondaryTypographyProps={{ fontSize: 14 }}
-          />
-        </ListItem>
-      </List>
-      <Stack direction="row" spacing={2} mt={4}>
-        <Button variant="outlined" onClick={() => setModalOpen(true)}>
-          Edit
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => navigate(ROUTES.RESET_PASSWORD)}
-        >
-          Reset Password
-        </Button>
-      </Stack>
+
       <ModalComponent
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -401,20 +435,22 @@ const ViewProfile = () => {
               required
             />
             <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
-              <Button
+              <ButtonComponent
                 onClick={() => setModalOpen(false)}
                 variant="outlined"
                 disabled={updating}
+                sx={{ minWidth: 100 }}
               >
                 Cancel
-              </Button>
-              <Button
+              </ButtonComponent>
+              <ButtonComponent
                 onClick={handleUpdate}
                 variant="contained"
                 disabled={updating || !isFormChanged()}
+                sx={{ minWidth: 100 }}
               >
                 {updating ? "Updating..." : "Update"}
-              </Button>
+              </ButtonComponent>
             </Box>
           </Box>
         }

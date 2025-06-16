@@ -41,6 +41,7 @@ import DeveloperTools from "../pages/super-admin/DeveloperTools";
 import AdminCreateOrder from "../pages/admin/AdminCreateOrder";
 import OrdersList from "../pages/admin/OrdersList";
 import AuditLogs from "../pages/super-admin/AuditLogs";
+import Users from "../pages/super-admin/Users";
 
 const AppRoutes = () => (
   <Routes>
@@ -76,6 +77,8 @@ const AppRoutes = () => (
     >
       <Route path={ROUTES.SUPER_ADMIN.DASHBOARD} element={<SuperAdminDashboard />} />
       <Route path={ROUTES.SUPER_ADMIN.CREATE_USER} element={<CreateUser />} />
+      <Route path={ROUTES.SUPER_ADMIN.CREATE_USER} element={<CreateUser />} />
+      <Route path={ROUTES.SUPER_ADMIN.USERS_LIST} element={<Users />} />
       <Route path={ROUTES.SUPER_ADMIN.CREATE_BRANCH} element={<CreateBranch />} />
       <Route path={ROUTES.SUPER_ADMIN.BRANCH_LIST} element={<ViewBranches />} />
       <Route path={ROUTES.SUPER_ADMIN.CREATE_EMPLOYEE} element={<CreateEmployeeByAdmin />} />

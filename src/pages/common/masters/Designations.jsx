@@ -10,12 +10,14 @@ import {
   Fab,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
 import TableComponent from "../../../components/TableComponent";
 import SnackbarAlert from "../../../components/SnackbarAlert";
 import Loader from "../../../components/Loader";
 import SelectFieldComponent from "../../../components/SelectFieldComponent";
 import ModalComponent from "../../../components/ModalComponent";
 import ChipComponent from "../../../components/ChipComponent";
+import IconButtonComponent from "../../../components/IconButtonComponent";
 import apiConfig from "../../../config/apiConfig";
 import { STRINGS } from "../../../constants/strings";
 
@@ -46,6 +48,7 @@ const Designations = () => {
   const controllerRef = useRef(null);
 
   const [loadingSwitches, setLoadingSwitches] = useState({});
+  const [loadingRow, setLoadingRow] = useState(null);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [confirmPayload, setConfirmPayload] = useState({
     id: null,
@@ -54,6 +57,8 @@ const Designations = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [newDesignation, setNewDesignation] = useState("");
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedDesignation, setSelectedDesignation] = useState(null);
 
   const fetchDesignations = useCallback(
     async (
@@ -188,6 +193,87 @@ const Designations = () => {
     }
   };
 
+  const handleEditClick = (designation) => {
+    setNewDesignation(designation.designation);
+    setSelectedDesignation(designation);
+    setIsEditMode(true);
+    setModalOpen(true);
+  };
+
+  const handleCreateDesignation = async () => {
+    if (!newDesignation.trim()) {
+      setSnack({
+        open: true,
+        severity: "warning",
+        message: "Please enter designation name",
+      });
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (isEditMode) {
+      setLoadingRow(selectedDesignation.id);
+    } else {
+      setLoading(true);
+    }
+
+    try {
+      const url = isEditMode
+        ? apiConfig.UPDATE_DESIGNATION_DETAILS(selectedDesignation.id)
+        : apiConfig.CREATE_DESIGNATION;
+
+      const res = await fetch(url, {
+        method: isEditMode ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          designation: newDesignation.trim(),
+          status: isEditMode ? selectedDesignation.status : 1,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || `Failed to ${isEditMode ? 'update' : 'create'} designation`);
+      }
+
+      setModalOpen(false);
+      setNewDesignation("");
+      setSelectedDesignation(null);
+      setIsEditMode(false);
+      setPagination((prev) => ({ ...prev, current_page: 1 }));
+      await fetchDesignations();
+
+      setSnack({
+        open: true,
+        severity: "success",
+        message: `Designation ${isEditMode ? 'updated' : 'created'} successfully`,
+      });
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: error.message || `Failed to ${isEditMode ? 'update' : 'create'} designation`,
+      });
+    } finally {
+      if (isEditMode) {
+        setLoadingRow(null);
+      } else {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setNewDesignation("");
+    setSelectedDesignation(null);
+    setIsEditMode(false);
+  };
+
   const columns = [
     {
       field: "designation",
@@ -195,6 +281,14 @@ const Designations = () => {
       flex: 1,
       headerAlign: "left",
       align: "left",
+      renderCell: (params) => (
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {loadingRow === params.row.id && (
+            <CircularProgress size={20} />
+          )}
+          {params.row.designation}
+        </Box>
+      ),
     },
     {
       field: "status",
@@ -239,57 +333,62 @@ const Designations = () => {
         }
 
         return (
-          <Box
-            sx={{ display: "flex", justifyContent: "center", width: "100%" }}
-          >
+          <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
             <ChipComponent {...chipProps} />
           </Box>
         );
       },
     },
     {
-      field: "toggle",
-      headerName: "",
-      flex: 1,
-      sortable: false,
-      filterable: false,
+      field: "actions",
+      headerName: "Actions",
+      width: 150,
       headerAlign: "center",
       align: "center",
       renderCell: (params) => {
         const statusNum = Number(params.row.status);
         const isLoading = !!loadingSwitches[params.row.id];
-        if (statusNum !== 0 && statusNum !== 1) return null;
         return (
-          <Box
-            sx={{
-              position: "relative",
-              display: "inline-flex",
-              justifyContent: "center",
-              width: "100%",
-            }}
-          >
-            <Switch
-              checked={statusNum === 1}
-              onChange={() => {
-                if (!isLoading) {
-                  handleToggleStatus(params.row.id, statusNum);
-                }
-              }}
-              size="medium"
-              color="primary"
-              disabled={isLoading}
-            />
-            {isLoading && (
-              <CircularProgress
-                size={24}
-                sx={{
-                  position: "absolute",
-                  top: "50%",
-                  left: "50%",
-                  marginTop: "-12px",
-                  marginLeft: "-12px",
-                  pointerEvents: "none",
-                }}
+          <Box sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 1
+          }}>
+            {statusNum === 0 || statusNum === 1 ? (
+              <Box sx={{ position: "relative" }}>
+                <Switch
+                  checked={statusNum === 1}
+                  onChange={() => {
+                    if (!isLoading) {
+                      handleToggleStatus(params.row.id, statusNum);
+                    }
+                  }}
+                  size="small"
+                  color="primary"
+                  disabled={isLoading}
+                />
+                {isLoading && (
+                  <CircularProgress
+                    size={24}
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      marginTop: "-12px",
+                      marginLeft: "-12px",
+                      pointerEvents: "none",
+                    }}
+                  />
+                )}
+              </Box>
+            ) : null}
+
+            {statusNum === 1 && (
+              <IconButtonComponent
+                icon={EditIcon}
+                onClick={() => handleEditClick(params.row)}
+                title="Edit"
               />
             )}
           </Box>
@@ -324,58 +423,6 @@ const Designations = () => {
     }, 500);
   };
 
-  const handleCreateDesignation = async () => {
-    if (!newDesignation.trim()) {
-      setSnack({
-        open: true,
-        severity: "warning",
-        message: "Please enter designation name",
-      });
-      return;
-    }
-
-    const token = localStorage.getItem("token");
-    setLoading(true);
-
-    try {
-      const res = await fetch(apiConfig.CREATE_DESIGNATION, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          designation: newDesignation.trim(),
-          status: 1,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to create designation");
-      }
-
-      setSnack({
-        open: true,
-        severity: "success",
-        message: "Designation created successfully",
-      });
-      setModalOpen(false);
-      setNewDesignation("");
-      setPagination((prev) => ({ ...prev, current_page: 1 }));
-      fetchDesignations();
-    } catch (error) {
-      setSnack({
-        open: true,
-        severity: "error",
-        message: error.message || "Failed to create designation",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const confirmationModalContent = (
     <Box>
       {confirmPayload.currentStatus === 1
@@ -404,18 +451,18 @@ const Designations = () => {
         autoFocus
       />
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <Button onClick={() => setModalOpen(false)} sx={{ mr: 1 }}>
+        <Button onClick={handleModalClose} sx={{ mr: 1 }}>
           Cancel
         </Button>
         <Button variant="text" onClick={handleCreateDesignation}>
-          Create
+          {isEditMode ? 'Update' : 'Create'}
         </Button>
       </Box>
     </Box>
   );
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       <Typography variant="h5" gutterBottom>
         Designations
       </Typography>
@@ -424,13 +471,13 @@ const Designations = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "flex-end",
+          justifyContent: { xs: "flex-start", md: "flex-end" },
           gap: 2,
           flexWrap: "wrap",
           mb: 2,
         }}
       >
-        <Box sx={{ width: { xs: 100, md: 200 } }}>
+        <Box sx={{ width: { xs: 120, md: 200 } }}>
           <SelectFieldComponent
             label="Status"
             name="status"
@@ -443,7 +490,7 @@ const Designations = () => {
           />
         </Box>
 
-        <Box sx={{ width: { xs: "100%", sm: 300 } }}>
+        <Box sx={{ width: { xs: 214, sm: 300 } }}>
           <TextField
             label="Search"
             variant="outlined"
@@ -472,41 +519,34 @@ const Designations = () => {
             total={pagination.total}
             page={pagination.current_page - 1}
             rowsPerPage={pagination.per_page}
-            onPaginationChange={handlePaginationChange}
+            onPageChange={handlePaginationChange}
+            onRowsPerPageChange={handlePaginationChange}
           />
         )}
       </Box>
 
-      <Fab
-        color="primary"
-        aria-label="add"
-        onClick={() => {
-          setNewDesignation("");
-          setModalOpen(true);
-        }}
-        sx={{
-          position: "fixed",
-          bottom: 32,
-          right: 32,
-        }}
-      >
-        <AddIcon />
-      </Fab>
+      <ModalComponent
+        open={modalOpen}
+        onClose={handleModalClose}
+        title={isEditMode ? "Edit Designation" : "Create Designation"}
+        content={modalContent}
+      />
 
       <ModalComponent
         open={confirmModalOpen}
-        onClose={() => {}}
-        hideCloseIcon={true}
-        title={STRINGS.CONFIRM_ACTION}
+        onClose={() => setConfirmModalOpen(false)}
+        title="Confirm Status Change"
         content={confirmationModalContent}
       />
 
-      <ModalComponent
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="Create New Designation"
-        content={modalContent}
-      />
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={() => setModalOpen(true)}
+        sx={{ position: "fixed", bottom: 32, right: 32 }}
+      >
+        <AddIcon />
+      </Fab>
     </Box>
   );
 };

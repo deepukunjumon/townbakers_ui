@@ -8,29 +8,45 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import axios from "axios";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../constants/routes";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState([
     {
       title: "Total Branches",
-      subtitle: "Active branches count",
       loading: true,
       color: "info",
       icon: <BusinessIcon />,
+      onClick: () => navigate(ROUTES.ADMIN.BRANCH_LIST),
     },
     {
       title: "Total Employees",
-      subtitle: "Active employees count",
       loading: true,
       color: "primary",
       icon: <PeopleIcon />,
+      onClick: () => navigate(`${ROUTES.ADMIN.EMPLOYEES_LIST}`),
     },
     {
-      title: "Pending Orders",
-      subtitle: "Pending orders count",
+      title: "Today's Pending Orders",
       loading: true,
       color: "warning",
       icon: <AssignmentIcon />,
+      onClick: () =>
+        navigate(ROUTES.ADMIN.ALL_ORDERS, {
+          state: { status: "pending", todayOnly: true },
+        }),
+    },
+    {
+      title: "Today's Delivered Orders",
+      loading: true,
+      color: "success",
+      icon: <AssignmentIcon />,
+      onClick: () =>
+        navigate(ROUTES.ADMIN.ALL_ORDERS, {
+          state: { status: "delivered", todayOnly: true },
+        }),
     },
   ]);
 
@@ -67,13 +83,20 @@ const Dashboard = () => {
                   loading: false,
                 };
               }
-              if (stat.title === "Pending Orders") {
-                return {
-                  ...stat,
-                  value: data.pending_orders_count,
-                  loading: false,
-                };
-              }
+                if (stat.title === "Today's Pending Orders") {
+                  return {
+                    ...stat,
+                    value: data.todays_pending_orders_count,
+                    loading: false,
+                  };
+                }
+                if (stat.title === "Today's Delivered Orders") {
+                  return {
+                    ...stat,
+                    value: data.todays_delivered_orders_count,
+                    loading: false,
+                  };
+                }
               return stat;
             })
           );
@@ -89,9 +112,9 @@ const Dashboard = () => {
   }, [fetchStats]);
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       <Box
-        sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}
+        sx={{ display: "flex", alignItems: "center"}}
       >
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
           Dashboard

@@ -22,8 +22,10 @@ import ModalComponent from "../../components/ModalComponent";
 import Loader from "../../components/Loader";
 import ChipComponent from "../../components/ChipComponent";
 import { ORDER_STATUS_CONFIG } from "../../constants/statuses";
+import { useLocation } from "react-router-dom";
 
 const OrdersList = () => {
+  const location = useLocation();
   const currentDate = new Date();
 
   const [orders, setOrders] = useState([]);
@@ -34,10 +36,21 @@ const OrdersList = () => {
     per_page: 10,
     total: 0,
   });
-  const [startDate, setStartDate] = useState(currentDate);
-  const [endDate, setEndDate] = useState(currentDate);
+  const [startDate, setStartDate] = useState(() => {
+    const { todayOnly } = location.state || {};
+    return todayOnly ? currentDate : currentDate;
+  });
+  const [endDate, setEndDate] = useState(() => {
+    const { todayOnly } = location.state || {};
+    return todayOnly ? currentDate : currentDate;
+  });
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState(() => {
+    const { status } = location.state || {};
+    if (status === "pending") return "0";
+    if (status === "delivered") return "1";
+    return "";
+  });
   const [branchFilter, setBranchFilter] = useState("");
   const [branches, setBranches] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -204,7 +217,7 @@ const OrdersList = () => {
     id: order.id,
     title: order.title,
     delivery_date: order.delivery_date,
-    total_amount: order.total_amount,
+    total_amount: `₹${order.total_amount}`,
     branch_name: order.branch.name,
     customer_name: order.customer_name,
     customer_mobile: order.customer_mobile,
@@ -237,7 +250,7 @@ const OrdersList = () => {
   ];
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", py: 3, px: { xs: 1, sm: 2 } }}>
+    <Box sx={{ maxWidth: "auto" }}>
       {loading && <Loader message="Loading..." />}
       <Typography variant="h5" gutterBottom>
         Orders List
@@ -260,7 +273,7 @@ const OrdersList = () => {
               setStartDate(d);
               if (d > endDate) setEndDate(d);
             }}
-            sx={{ width: { xs: 150, md: 180 } }}
+            sx={{ width: { xs: 166, md: 180 } }}
           />
         </Grid>
         <Grid item xs={6} md={3}>
@@ -269,7 +282,7 @@ const OrdersList = () => {
             value={endDate}
             onChange={setEndDate}
             minDate={startDate}
-            sx={{ width: { xs: 150, md: 180 } }}
+            sx={{ width: { xs: 166, md: 180 } }}
           />
         </Grid>
 
@@ -281,12 +294,12 @@ const OrdersList = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               label="Status"
               displayEmpty
-              sx={{ width: { xs: 150, md: 160 } }}
+              sx={{ width: { xs: 166, md: 160 } }}
               renderValue={(selected) => {
                 if (selected === "") return "All";
                 const selectedOption = [
                   { value: "0", label: "Pending" },
-                  { value: "1", label: "Completed" },
+                  { value: "1", label: "Delivered" },
                   { value: "-1", label: "Cancelled" },
                 ].find((opt) => opt.value === selected);
                 return selectedOption?.label || selected;
@@ -294,7 +307,7 @@ const OrdersList = () => {
             >
               <MenuItem value="">All</MenuItem>
               <MenuItem value="0">Pending</MenuItem>
-              <MenuItem value="1">Completed</MenuItem>
+              <MenuItem value="1">Delivered</MenuItem>
               <MenuItem value="-1">Cancelled</MenuItem>
             </Select>
           </FormControl>
@@ -306,17 +319,22 @@ const OrdersList = () => {
             getOptionLabel={(o) => `${o.code} - ${o.name}`}
             value={branches.find((b) => b.id === branchFilter) || null}
             onChange={(e, newVal) => setBranchFilter(newVal?.id || "")}
-            sx={{ width: { xs: 150, md: 200 } }}
+            sx={{ width: { xs: 166, md: 200 } }}
             renderInput={(params) => <TextField {...params} label="Branch" />}
           />
         </Grid>
 
-        <Grid item xs={12} md={2} lg={2} sx={{ ml: { md: "auto" } }}>
+        <Grid
+          item
+          xs={12}
+          md={2}
+          lg={2}
+          sx={{ ml: { md: "auto" }, width: { xs: "100%", md: 280 } }}
+        >
           <TextField
             fullWidth
             label="Search Orders"
             value={search}
-            sx={{ width: 320 }}
             onChange={(e) => setSearch(e.target.value)}
           />
         </Grid>
@@ -356,13 +374,28 @@ const OrdersList = () => {
                 <strong>Title:</strong> {selectedOrder.title}
               </Typography>
               <Typography>
-                <strong>Delivery Date & Time:</strong>{" "}
-                {selectedOrder.delivery_date} {selectedOrder.delivery_time}
+                <strong>Description:</strong> {selectedOrder.description}
+              </Typography>
+              {selectedOrder.remarks && (
+                <Typography>
+                  <strong>Remarks:</strong> {selectedOrder.remarks}
+                </Typography>
+              )}
+              <Divider sx={{ my: 2 }} />
+              <Typography>
+                <strong>Delivery Date:</strong>{" "}
+                {selectedOrder.delivery_date
+                  ? format(new Date(selectedOrder.delivery_date), "dd-MM-yyyy")
+                  : "-"}
+              </Typography>
+              <Typography>
+                <strong>Delivery Time:</strong>{" "}
+                {selectedOrder.delivery_time || "-"}
               </Typography>
               {selectedOrder.delivered_date && (
                 <Typography>
                   <strong>Delivered Date:</strong>{" "}
-                  {selectedOrder.delivered_date}
+                  {format(new Date(selectedOrder.delivered_date), "dd-MM-yyyy")}
                 </Typography>
               )}
               <Divider sx={{ my: 2 }} />
@@ -392,11 +425,17 @@ const OrdersList = () => {
                 />
               </Typography>
               <Typography>
-                <strong>Total Amount:</strong> {selectedOrder.total_amount}
+                <strong>Total Amount:</strong> ₹{selectedOrder.total_amount}
               </Typography>
               <Typography>
-                <strong>Advance Amount:</strong> {selectedOrder.advance_amount}
+                <strong>Advance Amount:</strong> ₹{selectedOrder.advance_amount}
               </Typography>
+              {selectedOrder.advance_amount && (
+                <Typography>
+                  <strong>Balance Amount:</strong> ₹
+                  {selectedOrder.balance_amount}
+                </Typography>
+              )}
               <Divider sx={{ my: 2 }} />
               <Typography>
                 <strong>Employee Name:</strong>{" "}

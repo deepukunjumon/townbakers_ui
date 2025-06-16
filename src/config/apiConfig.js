@@ -10,6 +10,7 @@ const apiConfig = {
   LOGIN_URL: `${API_BASE_URL}/login`,
   RESET_PASSWORD_URL: `${API_BASE_URL}/password/reset`,
   PROFILE: `${API_BASE_URL}/profile`,
+  UPDATE_PROFILE: `${API_BASE_URL}/update/profile`,
   LOGOUT_URL: `${API_BASE_URL}/logout`,
   MINIMAL_BRANCHES: `${API_BASE_URL}/branches/minimal`,
   MINIMAL_EMPLOYEES: `${API_BASE_URL}/employees/minimal`,
@@ -21,6 +22,7 @@ const apiConfig = {
   UPDATE_EMPLOYEE_STATUS: `${API_BASE_URL}/employee/update-status`,
 
   CREATE_ITEM: `${API_BASE_URL}/create/item`,
+  UPDATE_ITEM_DETAILS: (id) => `${API_BASE_URL}/item/update/${id}`,
   IMPORT_ITEMS: `${API_BASE_URL}/import/items`,
   ITEMS_LIST: `${API_BASE_URL}/items`,
   MINIMAL_ITEMS: `${API_BASE_URL}/items/minimal`,
@@ -29,6 +31,7 @@ const apiConfig = {
   ORDER_DETAILS: (id) => `${API_BASE_URL}/order/${id}`,
 
   CREATE_DESIGNATION: `${API_BASE_URL}/create/designation`,
+  UPDATE_DESIGNATION_DETAILS: (id) => `${API_BASE_URL}/designation/update/${id}`,
   UPDATE_DESIGNATION_STATUS: `${API_BASE_URL}/designation/update-status`,
 
   //Sample Files
@@ -36,9 +39,15 @@ const apiConfig = {
 
   //Super Admin APIs
   SUPER_ADMIN: {
+    DASHBOARD_STATS: `${API_BASE_URL}/super-admin/dashboard/stats`,
     CREATE_USER: `${API_BASE_URL}/super-admin/create/user`,
+    USER_ROLES: `${API_BASE_URL}/super-admin/user-roles`,
+    USERS_LIST: `${API_BASE_URL}/super-admin/users`,
+    UPDATE_USER_STATUS: `${API_BASE_URL}/super-admin/user/update-status`,
+    UPDATE_USER_DETAILS: (id) => `${API_BASE_URL}/super-admin/user/update/${id}`,
     MAIL_TEST: `${API_BASE_URL}/super-admin/test-mail`,
     AUDIT_LOGS: `${API_BASE_URL}/super-admin/logs/audit-logs`,
+    AUDIT_LOG_ACTIONS: `${API_BASE_URL}/super-admin/audit-log/actions`,
     TABLES_LIST: `${API_BASE_URL}/super-admin/list/tables`,
   },
 

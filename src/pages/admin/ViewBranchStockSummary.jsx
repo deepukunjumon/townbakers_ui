@@ -48,7 +48,7 @@ const ViewBranchStockSummary = () => {
   const handleExport = (type) => {
     const formattedDate = format(date, "yyyy-MM-dd");
     const form = document.createElement("form");
-    form.method = "POST";
+    form.method = "GET";
     form.action = `${apiConfig.BRANCHWISE_STOCK_SUMMARY}`;
 
     const addField = (name, value) => {
@@ -102,22 +102,23 @@ const ViewBranchStockSummary = () => {
     if (!branchId || !date) return;
     setLoading(true);
     try {
-      const res = await axios.post(
-        apiConfig.BRANCHWISE_STOCK_SUMMARY,
-        {
-          branch_id: branchId,
+      // Extract just the branch ID if branchId is an object
+      const branchIdValue =
+        typeof branchId === "object" ? branchId.id : branchId;
+
+      const res = await axios.get(apiConfig.BRANCHWISE_STOCK_SUMMARY, {
+        params: {
+          branch_id: branchIdValue, // Only pass the branch ID
           date: format(date, "yyyy-MM-dd"),
           page: pagination.current_page,
           per_page: pagination.per_page,
           q: searchTerm.trim(),
         },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: getToken(),
-          },
-        }
-      );
+        headers: {
+          Authorization: `Bearer ${getToken()}`, // Ensure Bearer is included
+        },
+      });
+
       const data = res.data;
       if (Array.isArray(data.data)) {
         const flatData =
@@ -138,7 +139,8 @@ const ViewBranchStockSummary = () => {
           message: data.message,
         });
       } else throw new Error();
-    } catch {
+    } catch (error) {
+      console.error("Error fetching stock summary:", error);
       setSnack({
         open: true,
         severity: "error",
@@ -154,7 +156,6 @@ const ViewBranchStockSummary = () => {
     pagination.per_page,
     searchTerm,
   ]);
-
   const handlePaginationChange = ({ page, rowsPerPage }) => {
     setPagination((prev) => ({
       ...prev,
@@ -188,7 +189,7 @@ const ViewBranchStockSummary = () => {
   ];
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: "auto" }}>
       {loading && <Loader message="Loading..." />}
       <SnackbarAlert
         open={snack.open}
@@ -254,7 +255,7 @@ const ViewBranchStockSummary = () => {
               required
               label="Select Date"
               sx={{
-                maxWidth: { xs: 200, sm: "100%" },
+                maxWidth: { xs: "95%", sm: "100%" },
               }}
               date={date}
               onChange={(newDate) => setDate(newDate)}
@@ -268,12 +269,13 @@ const ViewBranchStockSummary = () => {
               variant="contained"
               color="primary"
               sx={{
+                ml: { xs: -2, sm: 0 },
                 width: "auto",
                 minWidth: "100px",
-                height: "56px",
+                height: "54px",
               }}
             >
-              SUBMIT
+              Generate
             </ButtonComponent>
           </Box>
         </Box>
