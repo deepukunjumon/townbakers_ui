@@ -265,6 +265,29 @@ const TableComponent = ({
           borderTop: "1px solid",
           borderColor: "divider",
           flexShrink: 0,
+          ".MuiTablePagination-displayedRows, .MuiTablePagination-selectLabel":
+            {
+              fontSize: {
+                xs: "0.85rem",
+                sm: "0.9rem",
+              },
+            },
+          ".MuiIconButton-root": {
+            padding: {
+              xs: "2px",
+              sm: "8px",
+            },
+            fontSize: {
+              xs: "0.85rem",
+              sm: "0.9rem",
+            },
+          },
+          ".MuiSelect-select": {
+            fontSize: {
+              xs: "0.85rem",
+              sm: "0.9rem",
+            },
+          },
         }}
       />
 

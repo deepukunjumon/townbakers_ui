@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Grid, Typography, IconButton } from "@mui/material";
+import { Box, Divider, Grid, Typography, IconButton } from "@mui/material";
 import StatCard from "../../components/StatCard";
 import PeopleIcon from "@mui/icons-material/People";
 import AssignmentIcon from "@mui/icons-material/Assignment";
@@ -16,7 +16,6 @@ const Dashboard = () => {
   const [stats, setStats] = useState([
     {
       title: "Active Employees",
-      subtitle: "Active employees count",
       loading: true,
       color: "primary",
       icon: <PeopleIcon />,
@@ -27,7 +26,6 @@ const Dashboard = () => {
     },
     {
       title: "Upcoming Orders",
-      subtitle: "Count of pending orders",
       loading: true,
       color: "warning",
       icon: <AssignmentIcon />,
@@ -38,7 +36,6 @@ const Dashboard = () => {
     },
     {
       title: "Today's Pending Orders",
-      subtitle: "Orders to be completed today",
       loading: true,
       color: "info",
       icon: <AssignmentIcon />,
@@ -46,6 +43,12 @@ const Dashboard = () => {
         navigate(ROUTES.BRANCH.LIST_ORDERS, {
           state: { status: "pending", todayOnly: true },
         }),
+    },
+    {
+      title: "Today's Delivered Orders",
+      loading: true,
+      color: "success",
+      icon: <AssignmentIcon />,
     },
   ]);
 
@@ -96,6 +99,13 @@ const Dashboard = () => {
                   loading: false,
                 };
               }
+              if (stat.title === "Today's Delivered Orders") {
+                return {
+                  ...stat,
+                  value: data.todays_delivered_orders_count,
+                  loading: false,
+                };
+              }
               return stat;
             })
           );
@@ -104,17 +114,15 @@ const Dashboard = () => {
       .catch((err) => {
         console.error("Failed to load dashboard stats:", err);
       });
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
-      <Box
-        sx={{ mt: { xs: -3 }, display: "flex", alignItems: "center", mb: 2 }}
-      >
+    <Box sx={{ maxWidth: "auto" }}>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
           Dashboard
         </Typography>
@@ -122,6 +130,7 @@ const Dashboard = () => {
           <RefreshIcon />
         </IconButton>
       </Box>
+      <Divider sx={{ mb: 2 }} />
       <Grid container spacing={2}>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={index}>

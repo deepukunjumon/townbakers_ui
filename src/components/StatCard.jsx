@@ -47,7 +47,7 @@ const StatCard = ({
         borderRadius: 2,
         width: "100%",
         minWidth: { xs: 120, sm: 140, md: 160 },
-        maxWidth: { xs: 140, sm: 160, md: 225 },
+        maxWidth: { xs: 160, sm: 160, md: 225 },
         height: "auto",
         p: 2,
         display: "flex",
@@ -127,14 +127,13 @@ const StatCard = ({
             <Typography
               variant="caption"
               sx={{
-                fontWeight: 500,
+                fontWeight: 700,
                 textTransform: "uppercase",
                 fontSize: isXs ? "0.625rem" : "0.75rem",
                 mb: 0.5,
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
-                opacity: 0.85,
               }}
             >
               {title}
@@ -144,32 +143,13 @@ const StatCard = ({
               variant="h6"
               sx={{
                 fontWeight: 700,
-                fontSize: isXs ? "1rem" : "1.25rem",
+                fontSize: isXs ? "1rem" : "1.2rem",
                 lineHeight: 1.2,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                mb: subtitle ? 0.5 : 0,
+                wordBreak: "break-word"
               }}
             >
               {value}
             </Typography>
-
-            {subtitle && (
-              <Typography
-                variant="caption"
-                sx={{
-                  fontWeight: 500,
-                  fontSize: isXs ? "0.625rem" : "0.75rem",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  opacity: 0.8,
-                }}
-              >
-                {subtitle}
-              </Typography>
-            )}
           </>
         )}
       </Box>

@@ -204,7 +204,7 @@ const Login = () => {
           </Box>
         </Grid>
       </Grid>
-      <Grid sx={{ mt: { xs: 7, md: -2 } }}>
+      <Grid sx={{ mt: { xs: 10, md: -2 } }}>
         <FooterComponent />
       </Grid>
     </Box>

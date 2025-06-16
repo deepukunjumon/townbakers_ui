@@ -1,11 +1,8 @@
 import React from "react";
-import { Box, Typography, Button } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Box, Typography } from "@mui/material";
 import FooterComponent from "../components/FooterComponent";
 
 const NotFound = () => {
-  const navigate = useNavigate();
-
   return (
     <Box
       sx={{

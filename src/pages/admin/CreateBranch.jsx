@@ -74,7 +74,7 @@ const CreateBranch = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "auto", mx: "auto", p: 2 }}>
+    <Box sx={{ maxWidth: { xs: "100%", md: 600 }, mx: "auto" }}>
       {loading && <Loader message="Creating branch..." />}
       <Typography variant="h5" gutterBottom>
         Create Branch
@@ -89,22 +89,22 @@ const CreateBranch = () => {
             item
             xs={12}
             spacing={2}
-            direction={{ xs: "column", md: "row" }}
+            direction={{ xs: "column", sm: "row" }}
           >
             <Grid item xs={12} md={4}>
               <TextFieldComponent
+                sx={{ width: { sm: 250, md: 200 } }}
                 label="Branch Code"
                 name="code"
                 value={form.code}
                 onChange={handleChange}
                 required
                 error={!!errors.code}
-                fullWidth
               />
             </Grid>
             <Grid item xs={12} md={8}>
               <TextFieldComponent
-                sx={{ width: { md: 592 } }}
+                sx={{ width: { sm: 430, md: 380 } }}
                 label="Branch Name"
                 name="name"
                 value={form.name}
