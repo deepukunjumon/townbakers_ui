@@ -292,7 +292,6 @@ const Users = () => {
             disabled={loadingRoles}
           />
         </Box>
-
         <Box sx={{ width: { xs: "100%", sm: 300, md: 360 } }}>
           <TextField label="Search" variant="outlined" fullWidth onChange={handleSearchChange} placeholder="Search users..." />
         </Box>
