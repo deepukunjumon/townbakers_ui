@@ -11,7 +11,9 @@ import {
   MenuItem,
   Divider,
   Autocomplete,
+  Fab,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import { getToken } from "../../utils/auth";
@@ -22,9 +24,13 @@ import ModalComponent from "../../components/ModalComponent";
 import Loader from "../../components/Loader";
 import ChipComponent from "../../components/ChipComponent";
 import { ORDER_STATUS_CONFIG } from "../../constants/statuses";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getRoleFromToken } from "../../utils/auth";
+import { ROUTES } from "../../constants/routes";
 
 const OrdersList = () => {
+  const navigate = useNavigate();
+  const role = getRoleFromToken();
   const location = useLocation();
   const currentDate = new Date();
 
@@ -351,6 +357,25 @@ const OrdersList = () => {
           onRowClick={(row) => handleOrderClick(row.id)}
         />
       )}
+
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={() => {
+          if (role === "admin") {
+            navigate(ROUTES.ADMIN.CREATE_ORDER);
+          } else if (role === "super_admin") {
+            navigate(ROUTES.SUPER_ADMIN.CREATE_ORDER);
+          }
+        }}
+        sx={{
+          position: "fixed",
+          bottom: 32,
+          right: 32,
+        }}
+      >
+        <AddIcon />
+      </Fab>
 
       <ModalComponent
         open={openModal}

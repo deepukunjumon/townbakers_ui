@@ -200,7 +200,7 @@ const CreateOrder = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: "auto" }}>
+    <Box sx={{ maxWidth: "100%" }}>
       {loading && <Loader />}
       <SnackbarAlert
         open={snack.open}
@@ -220,7 +220,13 @@ const CreateOrder = () => {
         >
           Order Details
         </Typography>
-        <Grid container spacing={3}>
+
+        <Grid
+          container
+          spacing={3}
+          gap={{ xs: 0, sm: 3 }}
+          pr={{ xs: 0, sm: 3 }}
+        >
           <Grid item xs={12} sm={6}>
             <TextFieldComponent
               label="Order Title"
@@ -265,25 +271,30 @@ const CreateOrder = () => {
           Delivery Details
         </Typography>
 
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6}>
+        <Grid
+          container
+          spacing={3}
+          gap={{ xs: 1.5 }}
+          pr={{ xs: 0 }}
+        >
+          <Grid item xs={6} sm={6}>
             <DateSelectorComponent
               label="Delivery Date"
               name="delivery_date"
               value={form.delivery_date}
               onChange={handleDateChange}
               minDate={new Date()}
-              sx={{ minWidth: { xs: 320 } }}
+              sx={{ maxWidth: { xs: "70%", sm: "100%" } }}
               required
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={6} sm={6}>
             <TimePickerComponent
               label="Delivery Time"
               name="delivery_time"
               value={form.delivery_time}
               onChange={(time) => handleTimeChange(time, "delivery_time")}
-              sx={{ minWidth: { xs: 320 } }}
+              sx={{ maxWidth: { xs: "70%", sm: "100%" } }}
               required
             />
           </Grid>
@@ -320,6 +331,7 @@ const CreateOrder = () => {
               label="Customer Mobile"
               name="customer_mobile"
               value={form.customer_mobile}
+              type="mobile"
               onChange={handleChange}
               sx={{ minWidth: { xs: 320 } }}
               required
@@ -458,7 +470,7 @@ const CreateOrder = () => {
                 </Box>
               )}
               renderInput={(params) => (
-                <TextField
+                <TextFieldComponent
                   {...params}
                   label="Select Employee"
                   required
