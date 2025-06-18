@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Box, Typography, Divider, Button } from "@mui/material";
 import format from "date-fns/format";
 import SnackbarAlert from "../../components/SnackbarAlert";
@@ -8,6 +8,7 @@ import TableComponent from "../../components/TableComponent";
 import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ExportMenu from "../../components/ExportMenu";
 import { getToken } from "../../utils/auth";
+import TextFieldComponent from "../../components/TextFieldComponent";
 
 const ViewStocks = () => {
   const [date, setDate] = useState(new Date());
@@ -26,6 +27,9 @@ const ViewStocks = () => {
 
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const searchTimeout = useRef(null);
 
   const handleExportClick = (eventOrType) => {
     if (typeof eventOrType === "string") {
@@ -70,7 +74,7 @@ const ViewStocks = () => {
 
     try {
       const res = await fetch(
-        `${apiConfig.STOCK_SUMMARY}?page=${pagination.current_page}&per_page=${pagination.per_page}`,
+        `${apiConfig.STOCK_SUMMARY}?page=${pagination.current_page}&per_page=${pagination.per_page}&q=${encodeURIComponent(searchTerm.trim())}`,
         {
           method: "POST",
           headers: {
@@ -112,11 +116,12 @@ const ViewStocks = () => {
     } finally {
       setLoading(false);
     }
-  }, [date, pagination.current_page, pagination.per_page]);
+  }, [date, pagination.current_page, pagination.per_page, searchTerm]);
 
+  // ✅ Call fetchStocks when date or pagination changes
   useEffect(() => {
-    setLoading(false);
-  }, []);
+    fetchStocks();
+  }, [fetchStocks]);
 
   const handleDateChange = (newDate) => {
     setDate(newDate);
@@ -136,28 +141,37 @@ const ViewStocks = () => {
     fetchStocks();
   };
 
+  const handleSearchChange = (event) => {
+    const value = event.target.value;
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {
+      setSearchTerm(value);
+      setPagination((prev) => ({ ...prev, current_page: 1 }));
+    }, 500);
+  };
+
   const columns = [
     { field: "item_name", headerName: "Item", flex: 2 },
     {
       field: "total_quantity",
       headerName: "Total Quantity",
       flex: 1,
-      align: 'right',
-      headerAlign: 'right'
+      align: "right",
+      headerAlign: "right",
     },
   ];
 
   return (
     <Box sx={{ maxWidth: "auto" }}>
-      <Box sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        mb: 2
-      }}>
-        <Typography variant="h5">
-          Stock Summary
-        </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Typography variant="h5">Stock Summary</Typography>
         <ExportMenu
           anchorEl={anchorEl}
           open={menuOpen}
@@ -193,6 +207,16 @@ const ViewStocks = () => {
         >
           Generate
         </Button>
+      </Box>
+
+      <Box display="flex" justifyContent="flex-end" mb={2}>
+        <TextFieldComponent
+          label="Search"
+          variant="outlined"
+          onChange={handleSearchChange}
+          placeholder="Search items..."
+          sx={{ width: { xs: 200, sm: 300 } }}
+        />
       </Box>
 
       {loading && <Loader message="Loading..." />}

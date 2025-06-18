@@ -1,7 +1,7 @@
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
     ? "https://api-tbms.up.railway.app/api" //Production URL
-    : "http://localhost:8000/api"; //Development URL
+    : "http://localhost:8080/api"; //Development URL
 
 const apiConfig = {
   BASE_URL: API_BASE_URL,
@@ -89,6 +89,7 @@ const apiConfig = {
 
   ADD_STOCK: `${API_BASE_URL}/stock/add`,
   STOCK_SUMMARY: `${API_BASE_URL}/branch/stock/summary`,
+  SEND_STOCK_SUMMARY: `${API_BASE_URL}/branch/stock/summary/email`,
 };
 
 export default apiConfig;
