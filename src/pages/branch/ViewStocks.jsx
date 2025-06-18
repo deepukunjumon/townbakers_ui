@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { Box, Typography, Divider, Button } from "@mui/material";
+import { Box, Typography, Divider, Button, Accordion, AccordionSummary, AccordionDetails, FormControl, RadioGroup, FormControlLabel, Radio, useTheme, useMediaQuery } from "@mui/material";
 import format from "date-fns/format";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import Loader from "../../components/Loader";
@@ -10,8 +10,13 @@ import ExportMenu from "../../components/ExportMenu";
 import { getToken } from "../../utils/auth";
 import TextFieldComponent from "../../components/TextFieldComponent";
 import ButtonComponent from "../../components/ButtonComponent";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import SendIcon from "@mui/icons-material/Send";
 
 const ViewStocks = () => {
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [date, setDate] = useState(new Date());
   const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,6 +36,13 @@ const ViewStocks = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimeout = useRef(null);
+
+  const [sendMode, setSendMode] = useState("normal");
+  const [sendCC, setSendCC] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const [sendReportMessage, setSendReportMessage] = useState("");
+  const [sendReportSeverity, setSendReportSeverity] = useState("success");
 
   const handleExportClick = (eventOrType) => {
     if (typeof eventOrType === "string") {
@@ -150,6 +162,39 @@ const ViewStocks = () => {
     }, 300);
   };
 
+  const handleSendReport = async () => {
+    setSending(true);
+    setSendReportMessage("");
+    try {
+      const token = localStorage.getItem("token");
+      let payload = {};
+      if (sendMode === "custom") {
+        if (date) payload.date = format(date, "yyyy-MM-dd");
+        if (sendCC) payload.cc = sendCC.split(',').map(email => email.trim()).filter(Boolean);
+      }
+      const res = await fetch(apiConfig.SEND_STOCK_SUMMARY, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSendReportMessage(data.message || "Report sent successfully!");
+        setSendReportSeverity("success");
+      } else {
+        throw new Error(data.message || "Failed to send report");
+      }
+    } catch (err) {
+      setSendReportMessage(err.message || "Failed to send report");
+      setSendReportSeverity("error");
+    } finally {
+      setSending(false);
+    }
+  };
+
   const columns = [
     { field: "item_name", headerName: "Item", flex: 2 },
     {
@@ -222,6 +267,71 @@ const ViewStocks = () => {
         )}
       </Box>
 
+      {/* Loader overlay while sending report */}
+      {sending && <Loader message="Sending report..." />}
+
+      <Box gap={2} my={2}>
+        {stockData.length > 0 && !sending && (
+          <Accordion sx={{ mt: 2 }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography>More Actions</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <FormControl component="fieldset">
+                <RadioGroup
+                  row
+                  value={sendMode}
+                  onChange={e => setSendMode(e.target.value)}
+                >
+                  <FormControlLabel value="normal" control={<Radio />} label="Normal mode" />
+                  <FormControlLabel value="custom" control={<Radio />} label="Custom mode" />
+                </RadioGroup>
+              </FormControl>
+              {sendMode === "custom" && (
+                <Box display="flex" gap={2} flexWrap="wrap" mt={2}>
+                  <DateSelectorComponent
+                    label="Select Date"
+                    value={date}
+                    onChange={handleDateChange}
+                    maxDate={new Date()}
+                    sx={{ width: { xs: "100%", sm: 220 } }}
+                    required
+                  />
+                  <TextFieldComponent
+                    label="Additional Emails (CC)"
+                    value={sendCC}
+                    onChange={(e) => setSendCC(e.target.value)}
+                    placeholder="Comma separated emails"
+                    multiline={isXs}
+                    rows={isXs ? 2 : undefined}
+                    sx={{ width: { xs: "100%", sm: "80%" } }}
+                  />
+                </Box>
+              )}
+              <Box mt={2}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleSendReport}
+                  disabled={sending}
+                  startIcon={<SendIcon />}
+                >
+                  {sending ? "Sending..." : "Send Report"}
+                </Button>
+                {sendReportMessage && (
+                  <Typography
+                    sx={{ mt: 2 }}
+                    color={sendReportSeverity === "success" ? "success.main" : "error.main"}
+                  >
+                    {sendReportMessage}
+                  </Typography>
+                )}
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+        )}
+      </Box>
+
       {loading && <Loader message="Loading..." />}
 
       {!loading && (
@@ -235,7 +345,6 @@ const ViewStocks = () => {
         />
       )}
     </Box>
-
   );
 };
 
