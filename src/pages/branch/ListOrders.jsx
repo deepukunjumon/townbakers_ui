@@ -3,6 +3,7 @@ import {
   Box,
   Typography,
   CircularProgress,
+  Fab,
   Grid,
   TextField,
   FormControl,
@@ -13,6 +14,7 @@ import {
   Stack,
   Autocomplete,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import TableComponent from "../../components/TableComponent";
 import ButtonComponent from "../../components/ButtonComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
@@ -24,11 +26,15 @@ import Loader from "../../components/Loader";
 import { STRINGS } from "../../constants/strings";
 import ChipComponent from "../../components/ChipComponent";
 import { ORDER_PAYMENT_STATUS_CONFIG, ORDER_STATUS_CONFIG } from "../../constants/statuses";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
+import { getRoleFromToken } from "../../utils/auth";
+import { ROUTES } from "../../constants/routes";
 
 const ListOrders = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const role = getRoleFromToken();
   const currentDate = new Date();
 
   const [orders, setOrders] = useState([]);
@@ -447,6 +453,19 @@ const ListOrders = () => {
           onRowClick={(row) => handleOrderClick(row.id)}
         />
       )}
+
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={() => navigate(ROUTES.BRANCH.CREATE_ORDER)}
+        sx={{
+          position: "fixed",
+          bottom: 32,
+          right: 32,
+        }}
+      >
+        <AddIcon />
+      </Fab>
 
       <ModalComponent
         open={openModal}
