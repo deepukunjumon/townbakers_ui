@@ -29,7 +29,7 @@ const EmailLogs = () => {
         label: "All Types",
     });
     const [typeOptions, setTypeOptions] = useState([
-        { id: "", name: "All Types" },
+        { value: "", label: "All Types" },
     ]);
     const [startDate, setStartDate] = useState(startOfMonth(new Date()));
     const [endDate, setEndDate] = useState(endOfMonth(new Date()));
@@ -56,7 +56,7 @@ const EmailLogs = () => {
             const data = await response.json();
 
             if (data.success) {
-                setTypeOptions([{ id: "", name: "All Types" }, ...data.types]);
+                setTypeOptions([{ id: "", label: "All Types" }, ...data.types]);
             } else {
                 throw new Error(data.message || "Failed to fetch email types");
             }
@@ -161,6 +161,7 @@ const EmailLogs = () => {
                     order_delivery: "success",
                     order_confirmation: "info",
                     order_cancellation: "error",
+                    stock_summary: "primary",
                 };
 
                 const label = params.value
@@ -172,7 +173,7 @@ const EmailLogs = () => {
                 return (
                     <ChipComponent
                         label={label}
-                        color={colorMap[value] || "default"}
+                        color={colorMap[value] || "primary"}
                         size="small"
                     />
                 );
