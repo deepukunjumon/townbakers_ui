@@ -168,7 +168,7 @@ const ViewBranchStockSummary = () => {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(() => {
       setSearchTerm(value);
-    }, 500);
+    }, 300);
   };
 
   useEffect(() => {

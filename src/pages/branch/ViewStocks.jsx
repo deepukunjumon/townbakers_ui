@@ -9,6 +9,7 @@ import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ExportMenu from "../../components/ExportMenu";
 import { getToken } from "../../utils/auth";
 import TextFieldComponent from "../../components/TextFieldComponent";
+import ButtonComponent from "../../components/ButtonComponent";
 
 const ViewStocks = () => {
   const [date, setDate] = useState(new Date());
@@ -118,7 +119,6 @@ const ViewStocks = () => {
     }
   }, [date, pagination.current_page, pagination.per_page, searchTerm]);
 
-  // ✅ Call fetchStocks when date or pagination changes
   useEffect(() => {
     fetchStocks();
   }, [fetchStocks]);
@@ -147,7 +147,7 @@ const ViewStocks = () => {
     searchTimeout.current = setTimeout(() => {
       setSearchTerm(value);
       setPagination((prev) => ({ ...prev, current_page: 1 }));
-    }, 500);
+    }, 300);
   };
 
   const columns = [
@@ -163,14 +163,7 @@ const ViewStocks = () => {
 
   return (
     <Box sx={{ maxWidth: "auto" }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 2,
-        }}
-      >
+      <Box display="flex" justifyContent="space-between" alignItems="center">
         <Typography variant="h5">Stock Summary</Typography>
         <ExportMenu
           anchorEl={anchorEl}
@@ -190,33 +183,43 @@ const ViewStocks = () => {
         message={snack.message}
       />
 
-      <Box display="flex" gap={2} my={2} alignItems="center">
-        <DateSelectorComponent
-          sx={{ width: { xs: 200, sm: "100%" } }}
-          value={date}
-          maxDate={new Date()}
-          onChange={handleDateChange}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleRefresh}
-          sx={{
-            minWidth: 120,
-          }}
-        >
-          Generate
-        </Button>
-      </Box>
+      {/* Filter Row */}
+      <Box
+        display="flex"
+        flexWrap="wrap"
+        gap={2}
+        justifyContent="space-between"
+        alignItems="center"
+        my={2}
+      >
+        <Box display="flex" gap={2} flexWrap="wrap">
+          <DateSelectorComponent
+            sx={{ width: { xs: "100%", sm: 220 } }}
+            value={date}
+            maxDate={new Date()}
+            onChange={handleDateChange}
+          />
+          <ButtonComponent
+            onClick={handleRefresh}
+            variant="contained"
+            color="primary"
+            sx={{ height: "54px", minWidth: "auto" }}
+          >
+            Refresh
+          </ButtonComponent>
+        </Box>
 
-      <Box display="flex" justifyContent="flex-end" mb={2}>
-        <TextFieldComponent
-          label="Search"
-          variant="outlined"
-          onChange={handleSearchChange}
-          placeholder="Search items..."
-          sx={{ width: { xs: 200, sm: 300 } }}
-        />
+        {stockData.length > 0 && (
+          <Box sx={{ width: { xs: "100%", sm: 320 } }}>
+            <TextFieldComponent
+              label="Search"
+              variant="outlined"
+              onChange={handleSearchChange}
+              placeholder="Search items..."
+              fullWidth
+            />
+          </Box>
+        )}
       </Box>
 
       {loading && <Loader message="Loading..." />}
@@ -232,6 +235,7 @@ const ViewStocks = () => {
         />
       )}
     </Box>
+
   );
 };
 
