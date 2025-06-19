@@ -168,9 +168,9 @@ const ViewStocks = () => {
     try {
       const token = localStorage.getItem("token");
       let payload = {};
-      if (sendMode === "custom") {
-        if (date) payload.date = format(date, "yyyy-MM-dd");
-        if (sendCC) payload.cc = sendCC.split(',').map(email => email.trim()).filter(Boolean);
+      if (date) payload.date = format(date, "yyyy-MM-dd");
+      if (sendMode === "custom" && sendCC) {
+        payload.cc = sendCC.split(',').map(email => email.trim()).filter(Boolean);
       }
       const res = await fetch(apiConfig.SEND_STOCK_SUMMARY, {
         method: "POST",
@@ -267,11 +267,8 @@ const ViewStocks = () => {
         )}
       </Box>
 
-      {/* Loader overlay while sending report */}
-      {sending && <Loader message="Sending report..." />}
-
       <Box gap={2} my={2}>
-        {stockData.length > 0 && !sending && (
+        {stockData.length > 0 && (
           <Accordion sx={{ mt: 2 }}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Typography>More Actions</Typography>
@@ -289,14 +286,6 @@ const ViewStocks = () => {
               </FormControl>
               {sendMode === "custom" && (
                 <Box display="flex" gap={2} flexWrap="wrap" mt={2}>
-                  <DateSelectorComponent
-                    label="Select Date"
-                    value={date}
-                    onChange={handleDateChange}
-                    maxDate={new Date()}
-                    sx={{ width: { xs: "100%", sm: 220 } }}
-                    required
-                  />
                   <TextFieldComponent
                     label="Additional Emails (CC)"
                     value={sendCC}
@@ -308,7 +297,7 @@ const ViewStocks = () => {
                   />
                 </Box>
               )}
-              <Box mt={2}>
+              <Box mt={2} display="flex" alignItems="center" gap={2}>
                 <Button
                   variant="contained"
                   color="primary"
@@ -318,15 +307,16 @@ const ViewStocks = () => {
                 >
                   {sending ? "Sending..." : "Send Report"}
                 </Button>
-                {sendReportMessage && (
-                  <Typography
-                    sx={{ mt: 2 }}
-                    color={sendReportSeverity === "success" ? "success.main" : "error.main"}
-                  >
-                    {sendReportMessage}
-                  </Typography>
-                )}
+                {sending && <Loader message="Sending Report..." />}
               </Box>
+              {sendReportMessage && (
+                <Typography
+                  sx={{ mt: 2 }}
+                  color={sendReportSeverity === "success" ? "success.main" : "error.main"}
+                >
+                  {sendReportMessage}
+                </Typography>
+              )}
             </AccordionDetails>
           </Accordion>
         )}
