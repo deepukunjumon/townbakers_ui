@@ -206,6 +206,7 @@ const EmailLogs = () => {
                 );
             },
         },
+        { field: "sent_by", headerName: "Sent By", flex: 1 },
         { field: "error_message", headerName: "Error Message", flex: 2 },
         {
             field: "created_at",
