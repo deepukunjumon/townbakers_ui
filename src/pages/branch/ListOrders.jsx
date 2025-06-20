@@ -378,7 +378,7 @@ const ListOrders = () => {
       />
     ),
     actions:
-      order.status !== 1 ? (
+      order.is_deletable ? (
         <IconButtonComponent
           icon={DeleteIcon}
           color="error"

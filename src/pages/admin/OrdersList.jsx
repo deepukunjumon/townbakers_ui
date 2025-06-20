@@ -283,7 +283,7 @@ const OrdersList = () => {
         }
       />
     ),
-    actions: order.status !== 1 ? (
+    actions: order.is_deletable ? (
       <Box sx={{ display: "flex", gap: 1 }}>
         <IconButtonComponent
           icon={DeleteIcon}

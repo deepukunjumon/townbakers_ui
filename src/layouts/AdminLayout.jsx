@@ -16,7 +16,8 @@ import {
   Article,
   Assignment,
   MultipleStop,
-  Mail
+  Mail,
+  AssignmentAdd
 } from "@mui/icons-material";
 
 const AdminLayout = () => {
@@ -92,7 +93,7 @@ const AdminLayout = () => {
       icon: <Assignment />,
       children: [
         {
-          icon: <Assignment />,
+          icon: <AssignmentAdd />,
           label: "Create Order",
           onClick: () => navigate(ROUTES.ADMIN.CREATE_ORDER),
         },
