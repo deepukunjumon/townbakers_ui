@@ -382,6 +382,7 @@ const ListOrders = () => {
         <IconButtonComponent
           icon={DeleteIcon}
           color="error"
+          size="small"
           title="Delete Order"
           onClick={(e) => {
             e.stopPropagation();

@@ -287,6 +287,7 @@ const OrdersList = () => {
       <Box sx={{ display: "flex", gap: 1 }}>
         <IconButtonComponent
           icon={DeleteIcon}
+          size="small"
           onClick={(e) => {
             e.stopPropagation();
             handleDeleteClick(order);
