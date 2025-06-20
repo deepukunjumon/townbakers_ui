@@ -29,6 +29,7 @@ const apiConfig = {
   UPDATE_ITEM_STATUS: `${API_BASE_URL}/item/update-status`,
 
   ORDER_DETAILS: (id) => `${API_BASE_URL}/order/${id}`,
+  DELETE_ORDER: (id) => `${API_BASE_URL}/order/${id}`,
 
   CREATE_DESIGNATION: `${API_BASE_URL}/create/designation`,
   UPDATE_DESIGNATION_DETAILS: (id) => `${API_BASE_URL}/designation/update/${id}`,
