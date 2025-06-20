@@ -9,6 +9,7 @@ import {
   Avatar,
   useTheme,
   useMediaQuery,
+  Link,
 } from "@mui/material";
 import { STRINGS } from "../constants/strings";
 import FooterComponent from "../components/FooterComponent";
@@ -200,6 +201,21 @@ const Login = () => {
               >
                 {loading ? "Logging in..." : "SIGN IN"}
               </Button>
+
+              <Grid container>
+                <Grid item>
+                  <Link
+                    href="#"
+                    variant="body2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate(ROUTES.FORGOT_PASSWORD);
+                    }}
+                  >
+                    Forgot password?
+                  </Link>
+                </Grid>
+              </Grid>
             </Box>
           </Box>
         </Grid>

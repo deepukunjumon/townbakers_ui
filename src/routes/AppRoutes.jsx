@@ -5,6 +5,7 @@ import { ROUTES } from "../constants/routes";
 import Login from "../pages/Login";
 import ResetPassword from "../pages/ResetPassword";
 import Unauthorized from "../pages/Unauthorized";
+import ForgotPassword from "../pages/ForgotPassword";
 
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -50,6 +51,7 @@ const AppRoutes = () => (
     <Route path={ROUTES.ROOT} element={<Login />} />
     <Route path={ROUTES.LOGIN} element={<Login />} />
     <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
+    <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
 
     <Route
       element={

@@ -4,6 +4,7 @@ export const ROUTES = {
   RESET_PASSWORD: "/password/reset",
   UNAUTHORIZED: "/unauthorized",
   PROFILE: "/profile",
+  FORGOT_PASSWORD: "/forgot-password",
 
   ITEMS_LIST: "/items",
 

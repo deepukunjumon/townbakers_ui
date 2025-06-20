@@ -91,6 +91,10 @@ const apiConfig = {
   ADD_STOCK: `${API_BASE_URL}/stock/add`,
   STOCK_SUMMARY: `${API_BASE_URL}/branch/stock/summary`,
   SEND_STOCK_SUMMARY: `${API_BASE_URL}/branch/stock/summary/email`,
+
+  FORGOT_PASSWORD: `${API_BASE_URL}/forgot-password`,
+  VERIFY_OTP: `${API_BASE_URL}/verify-otp`,
+  RESET_PASSWORD: `${API_BASE_URL}/reset-password`,
 };
 
 export default apiConfig;
