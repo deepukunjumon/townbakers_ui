@@ -372,19 +372,18 @@ const ViewProfile = () => {
               error={Boolean(errors.username)}
               helperText={errors.username}
             />
-            {profile.role === "Admin" ||
-              (profile.role === "Super Admin" && (
-                <TextFieldComponent
-                  label="Name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  fullWidth
-                  error={Boolean(errors.name)}
-                  helperText={errors.name}
-                  required
-                />
-              ))}
+            {(profile.role === "Admin" || profile.role === "Super Admin") && (
+              <TextFieldComponent
+                label="Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                fullWidth
+                error={Boolean(errors.name)}
+                helperText={errors.name}
+                required
+              />
+            )}
             {profile.role === "Branch" && (
               <TextFieldComponent
                 label="Branch Name"
