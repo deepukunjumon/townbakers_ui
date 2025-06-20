@@ -14,7 +14,9 @@ import {
   Token,
   Inventory,
   Article,
-  Assignment
+  Assignment,
+  MultipleStop,
+  Mail
 } from "@mui/icons-material";
 
 const AdminLayout = () => {
@@ -91,8 +93,24 @@ const AdminLayout = () => {
       children: [
         {
           icon: <Assignment />,
+          label: "Create Order",
+          onClick: () => navigate(ROUTES.ADMIN.CREATE_ORDER),
+        },
+        {
+          icon: <Assignment />,
           label: "All Orders",
           onClick: () => navigate(ROUTES.ADMIN.ALL_ORDERS),
+        },
+      ],
+    },
+    {
+      label: "Logs",
+      icon: <MultipleStop />,
+      children: [
+        {
+          label: "Email Logs",
+          icon: <Mail />,
+          onClick: () => navigate(ROUTES.ADMIN.EMAIL_LOGS),
         },
       ],
     },

@@ -102,20 +102,19 @@ const ViewBranchStockSummary = () => {
     if (!branchId || !date) return;
     setLoading(true);
     try {
-      // Extract just the branch ID if branchId is an object
       const branchIdValue =
         typeof branchId === "object" ? branchId.id : branchId;
 
       const res = await axios.get(apiConfig.BRANCHWISE_STOCK_SUMMARY, {
         params: {
-          branch_id: branchIdValue, // Only pass the branch ID
+          branch_id: branchIdValue,
           date: format(date, "yyyy-MM-dd"),
           page: pagination.current_page,
           per_page: pagination.per_page,
           q: searchTerm.trim(),
         },
         headers: {
-          Authorization: `Bearer ${getToken()}`, // Ensure Bearer is included
+          Authorization: `Bearer ${getToken()}`,
         },
       });
 
@@ -169,7 +168,7 @@ const ViewBranchStockSummary = () => {
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(() => {
       setSearchTerm(value);
-    }, 500);
+    }, 300);
   };
 
   useEffect(() => {

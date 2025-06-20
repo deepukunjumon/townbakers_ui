@@ -41,6 +41,7 @@ import DeveloperTools from "../pages/super-admin/DeveloperTools";
 import AdminCreateOrder from "../pages/admin/AdminCreateOrder";
 import OrdersList from "../pages/admin/OrdersList";
 import AuditLogs from "../pages/super-admin/AuditLogs";
+import EmailLogs from "../pages/super-admin/EmailLogs";
 import Users from "../pages/super-admin/Users";
 
 const AppRoutes = () => (
@@ -89,6 +90,7 @@ const AppRoutes = () => (
       <Route path={ROUTES.SUPER_ADMIN.ALL_ORDERS} element={<OrdersList />} />
       <Route path={ROUTES.SUPER_ADMIN.DEVELOPER_TOOLS} element={<DeveloperTools />} />
       <Route path={ROUTES.SUPER_ADMIN.AUDIT_LOGS} element={<AuditLogs />} />
+      <Route path={ROUTES.SUPER_ADMIN.EMAIL_LOGS} element={<EmailLogs />} />
     </Route>
 
     {/* Admin Protected */}
@@ -109,6 +111,7 @@ const AppRoutes = () => (
       <Route path={ROUTES.ADMIN.DESIGNATIONS} element={<Designations />} />
       <Route path={ROUTES.ADMIN.CREATE_ORDER} element={<AdminCreateOrder />} />
       <Route path={ROUTES.ADMIN.ALL_ORDERS} element={<OrdersList />} />
+      <Route path={ROUTES.ADMIN.EMAIL_LOGS} element={<EmailLogs />} />
     </Route>
 
     {/* Branch Protected */}

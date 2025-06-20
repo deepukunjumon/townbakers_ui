@@ -28,6 +28,8 @@ export const ROUTES = {
     DEVELOPER_TOOLS: "/super-admin/tools",
 
     AUDIT_LOGS: "/super-admin/logs/audit-logs",
+
+    EMAIL_LOGS: "/super-admin/logs/email-logs",
   },
 
   ADMIN: {
@@ -45,6 +47,8 @@ export const ROUTES = {
 
     CREATE_ORDER: "/admin/create/order",
     ALL_ORDERS: "/admin/orders",
+
+    EMAIL_LOGS: "/admin/logs/email-logs",
   },
 
   BRANCH: {

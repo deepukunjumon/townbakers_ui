@@ -11,7 +11,12 @@ import {
   MenuItem,
   Divider,
   Autocomplete,
+  Fab,
+  Button,
+  IconButton,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import { getToken } from "../../utils/auth";
@@ -22,9 +27,14 @@ import ModalComponent from "../../components/ModalComponent";
 import Loader from "../../components/Loader";
 import ChipComponent from "../../components/ChipComponent";
 import { ORDER_STATUS_CONFIG } from "../../constants/statuses";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getRoleFromToken } from "../../utils/auth";
+import { ROUTES } from "../../constants/routes";
+import IconButtonComponent from "../../components/IconButtonComponent";
 
 const OrdersList = () => {
+  const navigate = useNavigate();
+  const role = getRoleFromToken();
   const location = useLocation();
   const currentDate = new Date();
 
@@ -56,6 +66,9 @@ const OrdersList = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [snack, setSnack] = useState({
     open: false,
     severity: "error",
@@ -213,6 +226,43 @@ const OrdersList = () => {
     if (controllerRef.current) controllerRef.current.abort();
   };
 
+  const handleDeleteOrder = async (orderId) => {
+    setDeleting(true);
+    try {
+      const token = getToken();
+      const res = await fetch(`${apiConfig.DELETE_ORDER(orderId)}`, {
+        method: 'DELETE',
+        headers: { Authorization: `${token}` },
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSnack({
+          open: true,
+          severity: "success",
+          message: data.message || "Order deleted successfully",
+        });
+        fetchOrders(); // Refresh the list
+      } else {
+        throw new Error(data.message || "Failed to delete order");
+      }
+    } catch (err) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: err.message || "Failed to delete order",
+      });
+    } finally {
+      setDeleting(false);
+      setDeleteModalOpen(false);
+      setOrderToDelete(null);
+    }
+  };
+
+  const handleDeleteClick = (order) => {
+    setOrderToDelete(order);
+    setDeleteModalOpen(true);
+  };
+
   const tableRows = orders.map((order) => ({
     id: order.id,
     title: order.title,
@@ -233,6 +283,20 @@ const OrdersList = () => {
         }
       />
     ),
+    actions: order.status !== 1 ? (
+      <Box sx={{ display: "flex", gap: 1 }}>
+        <IconButtonComponent
+          icon={DeleteIcon}
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteClick(order);
+          }}
+          color="error"
+          title="Delete"
+        />
+      </Box>
+    ) : null,
   }));
 
   const columns = [
@@ -247,6 +311,7 @@ const OrdersList = () => {
     { field: "customer_name", headerName: "Customer Name", flex: 1 },
     { field: "customer_mobile", headerName: "Customer Mobile", flex: 1 },
     { field: "status", headerName: "Status", flex: 1 },
+    { field: "actions", headerName: "Actions", flex: 0.5 },
   ];
 
   return (
@@ -351,6 +416,25 @@ const OrdersList = () => {
           onRowClick={(row) => handleOrderClick(row.id)}
         />
       )}
+
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={() => {
+          if (role === "admin") {
+            navigate(ROUTES.ADMIN.CREATE_ORDER);
+          } else if (role === "super_admin") {
+            navigate(ROUTES.SUPER_ADMIN.CREATE_ORDER);
+          }
+        }}
+        sx={{
+          position: "fixed",
+          bottom: 32,
+          right: 32,
+        }}
+      >
+        <AddIcon />
+      </Fab>
 
       <ModalComponent
         open={openModal}
@@ -460,6 +544,47 @@ const OrdersList = () => {
                   </Typography>
                 </>
               )}
+            </Box>
+          ) : null
+        }
+      />
+
+      <ModalComponent
+        open={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setOrderToDelete(null);
+        }}
+        title="Confirm Delete"
+        content={
+          orderToDelete ? (
+            <Box>
+              <Typography>
+                Are you sure you want to delete the order "{orderToDelete.title}"?
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                This action cannot be undone.
+              </Typography>
+              <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 2 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setDeleteModalOpen(false);
+                    setOrderToDelete(null);
+                  }}
+                  disabled={deleting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() => handleDeleteOrder(orderToDelete.id)}
+                  disabled={deleting}
+                >
+                  {deleting ? "Deleting..." : "Delete"}
+                </Button>
+              </Box>
             </Box>
           ) : null
         }

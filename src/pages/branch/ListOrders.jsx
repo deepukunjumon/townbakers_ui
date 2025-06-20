@@ -3,6 +3,7 @@ import {
   Box,
   Typography,
   CircularProgress,
+  Fab,
   Grid,
   TextField,
   FormControl,
@@ -13,6 +14,8 @@ import {
   Stack,
   Autocomplete,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import TableComponent from "../../components/TableComponent";
 import ButtonComponent from "../../components/ButtonComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
@@ -24,11 +27,17 @@ import Loader from "../../components/Loader";
 import { STRINGS } from "../../constants/strings";
 import ChipComponent from "../../components/ChipComponent";
 import { ORDER_PAYMENT_STATUS_CONFIG, ORDER_STATUS_CONFIG } from "../../constants/statuses";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
+import { getRoleFromToken } from "../../utils/auth";
+import { ROUTES } from "../../constants/routes";
+import IconButtonComponent from "../../components/IconButtonComponent";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 const ListOrders = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const role = getRoleFromToken();
   const currentDate = new Date();
 
   const [orders, setOrders] = useState([]);
@@ -61,6 +70,10 @@ const ListOrders = () => {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const controllerRef = useRef(null);
+  const [confirmDelete, setConfirmDelete] = useState({
+    open: false,
+    order: null,
+  });
 
   const fetchOrders = useCallback(
     async (search = "") => {
@@ -317,6 +330,68 @@ const ListOrders = () => {
     }
   };
 
+  const handleDeleteClick = (order) => {
+    setConfirmDelete({ open: true, order });
+  };
+
+  const handleDeleteOrder = async () => {
+    if (!confirmDelete.order) return;
+
+    try {
+      const token = getToken();
+      const res = await fetch(
+        `${apiConfig.DELETE_ORDER(confirmDelete.order.id)}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.success) {
+        setSnack({
+          open: true,
+          severity: "success",
+          message: "Order deleted successfully.",
+        });
+        setConfirmDelete({ open: false, order: null });
+        fetchOrders(search); // Refresh the list
+      } else {
+        throw new Error(data.message || "Failed to delete order.");
+      }
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: error.message,
+      });
+    }
+  };
+
+  const tableRows = orders.map((order) => ({
+    ...order,
+    status: (
+      <ChipComponent
+        label={ORDER_STATUS_CONFIG[order.status]?.label || "Unknown"}
+        color={ORDER_STATUS_CONFIG[order.status]?.color || "default"}
+      />
+    ),
+    actions:
+      order.status !== 1 ? (
+        <IconButtonComponent
+          icon={DeleteIcon}
+          color="error"
+          size="small"
+          title="Delete Order"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDeleteClick(order);
+          }}
+        />
+      ) : null,
+  }));
+
   const columns = [
     { field: "title", headerName: "Title", flex: 1 },
     { field: "delivery_date", headerName: "Delivery Date", flex: 1 },
@@ -324,28 +399,8 @@ const ListOrders = () => {
     { field: "customer_name", headerName: "Customer Name", flex: 1 },
     { field: "customer_mobile", headerName: "Customer Mobile", flex: 1 },
     { field: "status", headerName: "Status", flex: 1 },
+    { field: "actions", headerName: "Actions", flex: 0.5 },
   ];
-
-  const tableRows = orders.map((order) => ({
-    id: order.id,
-    title: order.title,
-    delivery_date: format(new Date(order.delivery_date), "dd-MM-yyyy"),
-    total_amount: `₹${order.total_amount}`,
-    customer_name: order.customer_name,
-    customer_mobile: order.customer_mobile,
-    status: (
-      <ChipComponent
-        label={
-          ORDER_STATUS_CONFIG[order.status]?.label ||
-          ORDER_STATUS_CONFIG.default.label
-        }
-        color={
-          ORDER_STATUS_CONFIG[order.status]?.color ||
-          ORDER_STATUS_CONFIG.default.color
-        }
-      />
-    ),
-  }));
 
   const handleStartDateChange = (newDate) => {
     setStartDate(newDate);
@@ -436,7 +491,7 @@ const ListOrders = () => {
         </Grid>
       </Grid>
 
-      {!loading && (
+      {!loading && orders.length > 0 && (
         <TableComponent
           rows={tableRows}
           columns={columns}
@@ -447,6 +502,28 @@ const ListOrders = () => {
           onRowClick={(row) => handleOrderClick(row.id)}
         />
       )}
+
+      <ConfirmDialog
+        open={confirmDelete.open}
+        onClose={() => setConfirmDelete({ open: false, order: null })}
+        onConfirm={handleDeleteOrder}
+        title="Delete Order"
+        content={`Are you sure you want to delete the order titled "${confirmDelete.order?.title || ""
+          }"?`}
+      />
+
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={() => navigate(ROUTES.BRANCH.CREATE_ORDER)}
+        sx={{
+          position: "fixed",
+          bottom: 32,
+          right: 32,
+        }}
+      >
+        <AddIcon />
+      </Fab>
 
       <ModalComponent
         open={openModal}
