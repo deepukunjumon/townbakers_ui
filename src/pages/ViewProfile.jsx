@@ -242,8 +242,8 @@ const ViewProfile = () => {
   };
 
   return (
-    <Box sx={{ 
-      maxWidth: 800, 
+    <Box sx={{
+      maxWidth: 800,
       mx: 'auto',
       px: { xs: 2, sm: 3 },
       py: 3
@@ -254,8 +254,8 @@ const ViewProfile = () => {
         severity={snack.severity}
         message={snack.message}
       />
-      <Box sx={{ 
-        display: "flex", 
+      <Box sx={{
+        display: "flex",
         flexDirection: "column",
         alignItems: "center",
         gap: 3,
@@ -286,7 +286,7 @@ const ViewProfile = () => {
         </Box>
       </Box>
 
-      <Box sx={{ 
+      <Box sx={{
         maxWidth: 600,
         mx: 'auto',
         px: { xs: 2, sm: 3 }
@@ -332,14 +332,14 @@ const ViewProfile = () => {
           </ListItem>
         </List>
 
-        <Stack 
-          direction="row" 
-          spacing={2} 
+        <Stack
+          direction="row"
+          spacing={2}
           justifyContent="center"
           sx={{ mt: 4 }}
         >
-          <ButtonComponent 
-            variant="outlined" 
+          <ButtonComponent
+            variant="outlined"
             onClick={() => setModalOpen(true)}
             sx={{ minWidth: 120 }}
           >
@@ -372,8 +372,8 @@ const ViewProfile = () => {
               error={Boolean(errors.username)}
               helperText={errors.username}
             />
-            {profile.role === "admin" ||
-              (profile.role === "super_admin" && (
+            {profile.role === "Admin" ||
+              (profile.role === "Super Admin" && (
                 <TextFieldComponent
                   label="Name"
                   name="name"
