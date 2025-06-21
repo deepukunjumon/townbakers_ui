@@ -202,7 +202,7 @@ const Login = () => {
                 {loading ? "Logging in..." : "SIGN IN"}
               </Button>
 
-              <Grid container>
+              <Grid container sx={{ mt: 1 }}>
                 <Grid item>
                   <Link
                     href="#"
@@ -211,6 +211,7 @@ const Login = () => {
                       e.preventDefault();
                       navigate(ROUTES.FORGOT_PASSWORD);
                     }}
+                    sx={{ textDecoration: "none" }}
                   >
                     Forgot password?
                   </Link>

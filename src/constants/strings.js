@@ -45,6 +45,14 @@ export const STRINGS = {
   FAILED_TO_COMPLETE_ACTION: "Failed to complete the action",
   SOMETHING_WENT_WRONG: "Something went wrong. Please try again later.",
 
+  FORGOT_PASSWORD_TITLE: "Forgot Password",
+  FORGOT_PASSWORD_DESCRIPTION:
+    "Enter your email address and we'll send you an OTP to reset your password.",
+  VERIFY_OTP_TITLE: "Verify OTP",
+  VERIFY_OTP_DESCRIPTION: "Enter the OTP sent to your email.",
+  RESET_PASSWORD_TITLE: "Reset Password",
+  RESET_PASSWORD_DESCRIPTION: "Create a new password for your account.",
+
   //All Employees
   DELETE_EMPLOYEE_CONFIRMATION:
     "Are you sure you want to delete this employee ?",
