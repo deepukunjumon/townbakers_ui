@@ -5,7 +5,6 @@ import {
   Divider,
   TextField,
   Switch,
-  Button,
   CircularProgress,
   Fab,
 } from "@mui/material";
@@ -20,6 +19,7 @@ import ChipComponent from "../../../components/ChipComponent";
 import IconButtonComponent from "../../../components/IconButtonComponent";
 import apiConfig from "../../../config/apiConfig";
 import { STRINGS } from "../../../constants/strings";
+import ButtonComponent from "../../../components/ButtonComponent";
 
 const statusOptions = [
   { name: "All", id: "" },
@@ -429,12 +429,12 @@ const Designations = () => {
         ? STRINGS.DISABLE_DESIGNATION
         : STRINGS.ENABLE_DESIGNATION}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
-        <Button variant="text" onClick={() => setConfirmModalOpen(false)}>
+        <ButtonComponent variant="outlined" onClick={() => setConfirmModalOpen(false)}>
           Cancel
-        </Button>
-        <Button variant="text" onClick={handleConfirmToggle} autoFocus>
+        </ButtonComponent>
+        <ButtonComponent variant="contained" onClick={handleConfirmToggle} autoFocus>
           Confirm
-        </Button>
+        </ButtonComponent>
       </Box>
     </Box>
   );
@@ -451,12 +451,12 @@ const Designations = () => {
         autoFocus
       />
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <Button onClick={handleModalClose} sx={{ mr: 1 }}>
+        <ButtonComponent variant="outlined" onClick={handleModalClose} sx={{ mr: 1 }}>
           Cancel
-        </Button>
-        <Button variant="text" onClick={handleCreateDesignation}>
+        </ButtonComponent>
+        <ButtonComponent variant="contained" onClick={handleCreateDesignation}>
           {isEditMode ? 'Update' : 'Create'}
-        </Button>
+        </ButtonComponent>
       </Box>
     </Box>
   );

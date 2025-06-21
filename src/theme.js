@@ -32,7 +32,7 @@ const baseTheme = createTheme({
     h5: { fontWeight: 700, fontSize: "1.35rem" },
     h6: { fontWeight: 700, fontSize: "1.15rem" },
     body1: { fontWeight: 400, fontSize: "1rem" },
-    body2: { fontWeight: 400, fontSize: "0.97rem" },
+    body2: { fontWeight: 400, fontSize: "0.90rem" },
   },
 });
 

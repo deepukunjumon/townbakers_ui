@@ -4,7 +4,6 @@ import { jwtDecode } from "jwt-decode";
 import {
   Box,
   Typography,
-  Button,
   Grid,
   Avatar,
   useTheme,
@@ -13,6 +12,7 @@ import {
 } from "@mui/material";
 import { STRINGS } from "../constants/strings";
 import FooterComponent from "../components/FooterComponent";
+import ButtonComponent from "../components/ButtonComponent";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 import { ROUTES } from "../constants/routes";
@@ -206,7 +206,7 @@ const Login = () => {
                 required
               />
 
-              <Button
+              <ButtonComponent
                 type="submit"
                 disabled={loading}
                 variant="contained"
@@ -214,7 +214,7 @@ const Login = () => {
                 sx={{ mt: 2 }}
               >
                 {loading ? "Logging in..." : "SIGN IN"}
-              </Button>
+              </ButtonComponent>
 
               <Grid container sx={{ mt: 1 }}>
                 <Grid item>

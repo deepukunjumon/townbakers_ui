@@ -7,7 +7,7 @@ const SnackbarAlert = ({
   onClose,
   severity = "success",
   message,
-  autoHideDuration = 1500,
+  autoHideDuration = 2000,
   anchorOrigin = { vertical: "top", horizontal: "right" },
 }) => (
   <Snackbar

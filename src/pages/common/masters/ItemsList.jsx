@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Box, Typography, Divider, Switch, Fab, Button } from "@mui/material";
+import { Box, Typography, Divider, Switch, Fab, Link } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import TableComponent from "../../../components/TableComponent";
@@ -423,12 +423,12 @@ const ItemsList = () => {
         placeholder="Add a description for the item"
       />
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <Button onClick={handleModalClose} sx={{ mr: 1 }}>
+        <ButtonComponent variant="outlined" onClick={handleModalClose} sx={{ mr: 1 }}>
           Cancel
-        </Button>
-        <Button variant="text" onClick={handleCreateItem}>
+        </ButtonComponent>
+        <ButtonComponent variant="contained" onClick={handleCreateItem}>
           {isEditMode ? "Update" : "Create"}
-        </Button>
+        </ButtonComponent>
       </Box>
     </Box>
   );
@@ -564,23 +564,22 @@ const ItemsList = () => {
               onChange={handleFileChange}
               disabled={importing}
             />
-            <Button
+            <ButtonComponent
               onClick={handleImport}
               disabled={!file || importing}
               sx={{ mt: 2 }}
               variant="contained"
             >
               {importing ? "Importing..." : "Import"}
-            </Button>
+            </ButtonComponent>
             <Box sx={{ mb: 2 }}>
-              <a
+              <Link
                 href={`${apiConfig.BASE_URL}/../sample-files/items.xlsx`}
-                download
-                style={{ textDecoration: "underline", color: "#1976d2" }}
-                rel="noopener noreferrer"
+                variant="body2"
+                sx={{ textDecoration: "none" }}
               >
                 Sample File
-              </a>
+              </Link>
             </Box>
             {importResult && (
               <Box sx={{ mt: 2 }}>

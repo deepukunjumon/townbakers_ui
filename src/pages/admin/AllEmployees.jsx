@@ -26,6 +26,7 @@ import ModalComponent from "../../components/ModalComponent";
 import ExportMenu from "../../components/ExportMenu";
 import ButtonComponent from "../../components/ButtonComponent";
 import IconButtonComponent from "../../components/IconButtonComponent";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 import { getRoleFromToken } from "../../utils/auth";
 import apiConfig from "../../config/apiConfig";
@@ -348,26 +349,37 @@ const AllEmployees = () => {
   }, [confirmPayload]);
 
   // Confirmation modal content
-  const confirmationModalContent = (
-    <Box>
-      {confirmPayload.action === "delete"
-        ? STRINGS.DELETE_EMPLOYEE_CONFIRMATION
-        : confirmPayload.currentStatus === 1
-        ? STRINGS.DISABLE_EMPLOYEE_CONFIRMATION
-        : STRINGS.ENABLE_EMPLOYEE_CONFIRMATION}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <ButtonComponent
-          variant="text"
-          onClick={() => setConfirmModalOpen(false)}
-        >
-          {STRINGS.CANCEL}
-        </ButtonComponent>
-        <ButtonComponent variant="text" onClick={handleConfirmToggle} autoFocus>
-          {STRINGS.CONFIRM}
-        </ButtonComponent>
-      </Box>
-    </Box>
-  );
+  const getConfirmationDialogProps = () => {
+    const { action, currentStatus } = confirmPayload;
+    
+    if (action === "delete") {
+      return {
+        title: "Delete Employee",
+        content: STRINGS.DELETE_EMPLOYEE_CONFIRMATION,
+        type: "danger",
+        confirmText: "Delete",
+        confirmColor: "error",
+      };
+    }
+    
+    if (currentStatus === 1) {
+      return {
+        title: "Disable Employee",
+        content: STRINGS.DISABLE_EMPLOYEE_CONFIRMATION,
+        type: "warning",
+        confirmText: "Disable",
+        confirmColor: "warning",
+      };
+    }
+    
+    return {
+      title: "Enable Employee",
+      content: STRINGS.ENABLE_EMPLOYEE_CONFIRMATION,
+      type: "success",
+      confirmText: "Enable",
+      confirmColor: "success",
+    };
+  };
 
   // Edit modal content
   const editModalContent = (
@@ -397,6 +409,7 @@ const AllEmployees = () => {
           <TextFieldComponent
             fullWidth
             label="Mobile"
+            type = "mobile"
             value={editFormData.mobile}
             onChange={(e) =>
               setEditFormData((prev) => ({ ...prev, mobile: e.target.value }))
@@ -769,12 +782,11 @@ const AllEmployees = () => {
         content={editModalContent}
       />
 
-      <ModalComponent
+      <ConfirmDialog
         open={confirmModalOpen}
-        onClose={() => {}}
-        hideCloseIcon
-        title={STRINGS.CONFIRM_ACTION}
-        content={confirmationModalContent}
+        onClose={() => setConfirmModalOpen(false)}
+        onConfirm={handleConfirmToggle}
+        {...getConfirmationDialogProps()}
       />
     </Box>
   );

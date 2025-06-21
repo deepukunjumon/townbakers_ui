@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Box, Grid, Button, Typography, Divider } from "@mui/material";
+import { Box, Grid, Typography, Divider } from "@mui/material";
 import apiConfig from "../../config/apiConfig";
 import { getToken } from "../../utils/auth";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import TextFieldComponent from "../../components/TextFieldComponent";
+import ButtonComponent from "../../components/ButtonComponent";
 import Loader from "../../components/Loader";
 import ModalComponent from "../../components/ModalComponent";
 
@@ -131,6 +132,7 @@ const CreateBranch = () => {
             <TextFieldComponent
               label="Mobile"
               name="mobile"
+              type="mobile"
               value={form.mobile}
               onChange={handleChange}
               required
@@ -142,6 +144,7 @@ const CreateBranch = () => {
             <TextFieldComponent
               label="Phone"
               name="phone"
+              type="phone"
               value={form.phone}
               onChange={handleChange}
               inputProps={{ maxLength: 15 }}
@@ -159,14 +162,23 @@ const CreateBranch = () => {
             />
           </Grid>
           <Grid item xs={12}>
-            <Button
+            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
+            <ButtonComponent
+              type="button"
+              variant="outlined"
+              onClick={() => setForm(initialState)}
+            >
+              Reset
+            </ButtonComponent>
+            <ButtonComponent
               type="submit"
               variant="contained"
               color="primary"
               disabled={loading || !isFormValid()}
             >
               {loading ? "Creating..." : "Create Branch"}
-            </Button>
+            </ButtonComponent>
+            </Box>
           </Grid>
         </Grid>
       </Box>
