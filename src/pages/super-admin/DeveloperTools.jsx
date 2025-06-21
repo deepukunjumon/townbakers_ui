@@ -18,6 +18,7 @@ import ButtonComponent from "../../components/ButtonComponent";
 import { getToken } from "../../utils/auth";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import Loader from "../../components/Loader";
+import { STRINGS } from "../../constants/strings";
 
 // Custom hook for form handling
 const useFormState = (initialState) => {
