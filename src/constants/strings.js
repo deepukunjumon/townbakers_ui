@@ -73,4 +73,7 @@ export const STRINGS = {
     `Are you sure you want to disable the item "${name}"?`,
   ENABLE_ITEM_CONFIRMATION: (name) =>
     `Are you sure you want to enable the item "${name}"?`,
+
+  //Developer Tools
+  WHATSAPP_TEST_MESSAGE: "This is a test message from TBMS",
 }; 
