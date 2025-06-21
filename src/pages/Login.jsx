@@ -20,6 +20,7 @@ import apiConfig from "../config/apiConfig";
 import TextFieldComponent from "../components/TextFieldComponent";
 import SnackbarAlert from "../components/SnackbarAlert";
 import login_page_image from "../assets/images/login_page_image.svg";
+import logo from "../assets/images/logo.svg";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -165,9 +166,22 @@ const Login = () => {
               alignItems: "center",
             }}
           >
-            <Avatar sx={{ bgcolor: "primary.main", mb: 1 }}>
-              <LockOutlinedIcon />
-            </Avatar>
+            {isMobile ? (
+              <img 
+                src={logo} 
+                alt="Logo" 
+                style={{ 
+                  width: "100px", 
+                  height: "auto", 
+                  marginBottom: "8px",
+                  objectFit: "contain" 
+                }} 
+              />
+            ) : (
+              <Avatar sx={{ bgcolor: "primary.main", mb: 1 }}>
+                <LockOutlinedIcon />
+              </Avatar>
+            )}
             <Typography variant="h5">Sign in</Typography>
 
             <Box
