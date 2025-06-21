@@ -22,6 +22,7 @@ import SelectFieldComponent from "../../components/SelectFieldComponent";
 import ModalComponent from "../../components/ModalComponent";
 import ButtonComponent from "../../components/ButtonComponent";
 import IconButtonComponent from "../../components/IconButtonComponent";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 import { getRoleFromToken } from "../../utils/auth";
 import apiConfig from "../../config/apiConfig";
@@ -167,20 +168,38 @@ const Users = () => {
     }
   }, [confirmPayload, fetchUsers]);
 
-  // Confirmation modal content
-  const confirmationModalContent = (
-    <Box>
-      {confirmPayload.action === "delete"
-        ? STRINGS.CONFIRM_DELETE_USER_CONTENT(users.find(u => u.id === confirmPayload.id)?.name)
-        : confirmPayload.currentStatus === 1
-          ? STRINGS.CONFIRM_DISABLE_USER_CONTENT(users.find(u => u.id === confirmPayload.id)?.name)
-          : STRINGS.CONFIRM_ENABLE_USER_CONTENT(users.find(u => u.id === confirmPayload.id)?.name)}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <ButtonComponent variant="text" onClick={() => setConfirmModalOpen(false)}>{STRINGS.CANCEL}</ButtonComponent>
-        <ButtonComponent variant="text" onClick={handleConfirmToggle} autoFocus>{STRINGS.CONFIRM}</ButtonComponent>
-      </Box>
-    </Box>
-  );
+  const getConfirmationDialogProps = () => {
+    const { action, currentStatus } = confirmPayload;
+    const userName = users.find(u => u.id === confirmPayload.id)?.name;
+    
+    if (action === "delete") {
+      return {
+        title: "Delete User",
+        content: STRINGS.CONFIRM_DELETE_USER_CONTENT(userName),
+        type: "danger",
+        confirmText: "Delete",
+        confirmColor: "error",
+      };
+    }
+    
+    if (currentStatus === 1) {
+      return {
+        title: "Disable User",
+        content: STRINGS.CONFIRM_DISABLE_USER_CONTENT(userName),
+        type: "warning",
+        confirmText: "Disable",
+        confirmColor: "warning",
+      };
+    }
+    
+    return {
+      title: "Enable User",
+      content: STRINGS.CONFIRM_ENABLE_USER_CONTENT(userName),
+      type: "success",
+      confirmText: "Enable",
+      confirmColor: "success",
+    };
+  };
 
   // Table columns
   const columns = [
@@ -300,7 +319,12 @@ const Users = () => {
       {loading ? <Loader message="Loading..." /> : <TableComponent rows={users} columns={columns} rowIdField="id" total={pagination.total} page={pagination.current_page - 1} rowsPerPage={pagination.per_page} onPaginationChange={handlePaginationChange} />}
       <Fab color="primary" aria-label="add" onClick={() => { if (role === "admin") navigate(ROUTES.ADMIN.CREATE_EMPLOYEE); else if (role === "super_admin") navigate(ROUTES.SUPER_ADMIN.CREATE_USER); }} sx={{ position: "fixed", bottom: 32, right: 32 }}><AddIcon /></Fab>
       <ModalComponent open={editModalOpen} onClose={() => setEditModalOpen(false)} title="User Details" content={editModalContent} />
-      <ModalComponent open={confirmModalOpen} hideCloseIcon title={confirmPayload.currentStatus === 1 ? STRINGS.CONFIRM_DISABLE_USER_TITLE : STRINGS.ENABLE} content={confirmationModalContent} />
+      <ConfirmDialog
+        open={confirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        onConfirm={handleConfirmToggle}
+        {...getConfirmationDialogProps()}
+      />
     </Box>
   );
 };

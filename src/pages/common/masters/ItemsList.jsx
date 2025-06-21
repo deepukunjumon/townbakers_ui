@@ -6,6 +6,7 @@ import TableComponent from "../../../components/TableComponent";
 import Loader from "../../../components/Loader";
 import SnackbarAlert from "../../../components/SnackbarAlert";
 import ModalComponent from "../../../components/ModalComponent";
+import ConfirmDialog from "../../../components/ConfirmDialog";
 import apiConfig from "../../../config/apiConfig";
 import SearchFieldComponent from "../../../components/SearchFieldComponent";
 import TextFieldComponent from "../../../components/TextFieldComponent";
@@ -433,42 +434,27 @@ const ItemsList = () => {
     </Box>
   );
 
-  const renderConfirmationModal = () => (
-    <ModalComponent
-      open={confirmModalOpen}
-      hideCloseIcon={true}
-      onClose={handleConfirmCancel}
-      title="Confirm Status Change"
-      content={
-        <Box>
-          <Typography>
-            {selectedItem?.currentStatus === 1
-              ? STRINGS.DISABLE_ITEM_CONFIRMATION(selectedItem?.name)
-              : STRINGS.ENABLE_ITEM_CONFIRMATION(selectedItem?.name)}
-          </Typography>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-            <ButtonComponent
-              variant="text"
-              color="primary"
-              onClick={handleConfirmCancel}
-              sx={{ mr: 1 }}
-            >
-              {STRINGS.CANCEL}
-            </ButtonComponent>
-            <ButtonComponent
-              variant="text"
-              color={selectedItem?.currentStatus === 1 ? "error" : "success"}
-              onClick={confirmToggleStatus}
-            >
-              {selectedItem?.currentStatus === 1
-                ? STRINGS.DISABLE
-                : STRINGS.ENABLE}
-            </ButtonComponent>
-          </Box>
-        </Box>
-      }
-    />
-  );
+  const getConfirmationDialogProps = () => {
+    if (!selectedItem) return {};
+    
+    if (selectedItem.currentStatus === 1) {
+      return {
+        title: "Disable Item",
+        content: STRINGS.DISABLE_ITEM_CONFIRMATION(selectedItem.name),
+        type: "warning",
+        confirmText: "Disable",
+        confirmColor: "warning",
+      };
+    }
+    
+    return {
+      title: "Enable Item",
+      content: STRINGS.ENABLE_ITEM_CONFIRMATION(selectedItem.name),
+      type: "success",
+      confirmText: "Enable",
+      confirmColor: "success",
+    };
+  };
 
   return (
     <Box sx={{ maxWidth: "auto" }}>
@@ -539,7 +525,12 @@ const ItemsList = () => {
         <AddIcon />
       </Fab>
 
-      {renderConfirmationModal()}
+      <ConfirmDialog
+        open={confirmModalOpen}
+        onClose={handleConfirmCancel}
+        onConfirm={confirmToggleStatus}
+        {...getConfirmationDialogProps()}
+      />
 
       <ModalComponent
         open={modalOpen}

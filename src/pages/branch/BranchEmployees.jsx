@@ -18,10 +18,9 @@ import { STRINGS } from "../../constants/strings";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getToken } from "../../utils/auth";
 import { userStatusMap } from "../../constants/statuses";
-import ModalComponent from "../../components/ModalComponent";
-import ButtonComponent from "../../components/ButtonComponent";
 import TextFieldComponent from "../../components/TextFieldComponent";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 const statusOptions = [
   { name: "All", id: "" },
@@ -208,24 +207,27 @@ const BranchEmployees = () => {
     }
   };
 
-  const confirmationModalContent = (
-    <Box>
-      {confirmPayload.currentStatus === 1
-        ? STRINGS.DISABLE_EMPLOYEE_CONFIRMATION
-        : STRINGS.ENABLE_EMPLOYEE_CONFIRMATION}
-      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-        <ButtonComponent
-          variant="text"
-          onClick={() => setConfirmModalOpen(false)}
-        >
-          {STRINGS.CANCEL}
-        </ButtonComponent>
-        <ButtonComponent variant="text" onClick={handleConfirmToggle} autoFocus>
-          {STRINGS.CONFIRM}
-        </ButtonComponent>
-      </Box>
-    </Box>
-  );
+  const getConfirmationDialogProps = () => {
+    const { currentStatus } = confirmPayload;
+    
+    if (currentStatus === 1) {
+      return {
+        title: "Disable Employee",
+        content: STRINGS.DISABLE_EMPLOYEE_CONFIRMATION,
+        type: "warning",
+        confirmText: "Disable",
+        confirmColor: "warning",
+      };
+    }
+    
+    return {
+      title: "Enable Employee",
+      content: STRINGS.ENABLE_EMPLOYEE_CONFIRMATION,
+      type: "success",
+      confirmText: "Enable",
+      confirmColor: "success",
+    };
+  };
 
   const columns = [
     { field: "employee_code", headerName: "Employee Code", flex: 1 },
@@ -374,12 +376,11 @@ const BranchEmployees = () => {
         />
       )}
 
-      <ModalComponent
+      <ConfirmDialog
         open={confirmModalOpen}
-        onClose={() => { }}
-        hideCloseIcon={true}
-        title={STRINGS.CONFIRM_ACTION}
-        content={confirmationModalContent}
+        onClose={() => setConfirmModalOpen(false)}
+        onConfirm={handleConfirmToggle}
+        {...getConfirmationDialogProps()}
       />
 
       <Fab

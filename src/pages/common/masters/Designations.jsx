@@ -17,9 +17,11 @@ import SelectFieldComponent from "../../../components/SelectFieldComponent";
 import ModalComponent from "../../../components/ModalComponent";
 import ChipComponent from "../../../components/ChipComponent";
 import IconButtonComponent from "../../../components/IconButtonComponent";
+import ConfirmDialog from "../../../components/ConfirmDialog";
 import apiConfig from "../../../config/apiConfig";
 import { STRINGS } from "../../../constants/strings";
 import ButtonComponent from "../../../components/ButtonComponent";
+import { debounce } from "lodash";
 
 const statusOptions = [
   { name: "All", id: "" },
@@ -30,8 +32,7 @@ const statusOptions = [
 
 const Designations = () => {
   const [designations, setDesignations] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [initialLoad, setInitialLoad] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [snack, setSnack] = useState({
     open: false,
     severity: "error",
@@ -42,10 +43,12 @@ const Designations = () => {
     per_page: 10,
     total: 0,
   });
+  const paginationRef = useRef(pagination);
   const [statusFilter, setStatusFilter] = useState(statusOptions[0]);
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimeout = useRef(null);
   const controllerRef = useRef(null);
+  const debouncedFetchDesignationsRef = useRef();
 
   const [loadingSwitches, setLoadingSwitches] = useState({});
   const [loadingRow, setLoadingRow] = useState(null);
@@ -60,12 +63,16 @@ const Designations = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedDesignation, setSelectedDesignation] = useState(null);
 
+  useEffect(() => {
+    paginationRef.current = pagination;
+  }, [pagination]);
+
   const fetchDesignations = useCallback(
     async (
       status = statusFilter.id,
       q = searchTerm,
-      page = pagination.current_page,
-      perPage = pagination.per_page
+      page = paginationRef.current.current_page,
+      perPage = paginationRef.current.per_page
     ) => {
       if (controllerRef.current) {
         controllerRef.current.abort();
@@ -75,7 +82,6 @@ const Designations = () => {
       controllerRef.current = newController;
 
       setLoading(true);
-      setInitialLoad(true);
 
       try {
         const params = new URLSearchParams({
@@ -123,15 +129,39 @@ const Designations = () => {
         }
       } finally {
         setLoading(false);
-        setInitialLoad(false);
       }
     },
-    [pagination.current_page, pagination.per_page, statusFilter.id, searchTerm]
+    [setDesignations, setPagination, setSnack, controllerRef]
   );
 
   useEffect(() => {
-    fetchDesignations();
-  }, [fetchDesignations]);
+    debouncedFetchDesignationsRef.current = debounce(fetchDesignations, 300);
+
+    debouncedFetchDesignationsRef.current(
+      statusFilter.id,
+      "",
+      pagination.current_page,
+      pagination.per_page
+    );
+
+    return () => {
+      if (debouncedFetchDesignationsRef.current) {
+        debouncedFetchDesignationsRef.current.cancel();
+      }
+      if (controllerRef.current) {
+        controllerRef.current.abort();
+      }
+    };
+  }, [fetchDesignations, pagination.current_page, pagination.per_page]);
+
+  useEffect(() => {
+    debouncedFetchDesignationsRef.current(
+      statusFilter.id,
+      searchTerm,
+      pagination.current_page,
+      pagination.per_page
+    );
+  }, [statusFilter.id, searchTerm, pagination.current_page, pagination.per_page]);
 
   const handleToggleStatus = async (id, currentStatus) => {
     setConfirmModalOpen(true);
@@ -245,7 +275,7 @@ const Designations = () => {
       setSelectedDesignation(null);
       setIsEditMode(false);
       setPagination((prev) => ({ ...prev, current_page: 1 }));
-      await fetchDesignations();
+      await fetchDesignations(statusFilter.id, searchTerm, 1, pagination.per_page);
 
       setSnack({
         open: true,
@@ -403,6 +433,7 @@ const Designations = () => {
       current_page: page,
       per_page: rowsPerPage,
     }));
+    fetchDesignations(statusFilter.id, searchTerm, page, rowsPerPage);
   };
 
   const handleStatusChange = (event) => {
@@ -423,21 +454,27 @@ const Designations = () => {
     }, 500);
   };
 
-  const confirmationModalContent = (
-    <Box>
-      {confirmPayload.currentStatus === 1
-        ? STRINGS.DISABLE_DESIGNATION
-        : STRINGS.ENABLE_DESIGNATION}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
-        <ButtonComponent variant="outlined" onClick={() => setConfirmModalOpen(false)}>
-          Cancel
-        </ButtonComponent>
-        <ButtonComponent variant="contained" onClick={handleConfirmToggle} autoFocus>
-          Confirm
-        </ButtonComponent>
-      </Box>
-    </Box>
-  );
+  const getConfirmationDialogProps = () => {
+    const { currentStatus } = confirmPayload;
+    
+    if (currentStatus === 1) {
+      return {
+        title: "Disable Designation",
+        content: STRINGS.DISABLE_DESIGNATION,
+        type: "warning",
+        confirmText: "Disable",
+        confirmColor: "warning",
+      };
+    }
+    
+    return {
+      title: "Enable Designation",
+      content: STRINGS.ENABLE_DESIGNATION,
+      type: "success",
+      confirmText: "Enable",
+      confirmColor: "success",
+    };
+  };
 
   const modalContent = (
     <Box component="form" sx={{ mt: 1 }} noValidate autoComplete="off">
@@ -509,7 +546,7 @@ const Designations = () => {
       />
 
       <Box sx={{ position: "relative" }}>
-        {loading || initialLoad ? (
+        {loading ? (
           <Loader message="Loading..." />
         ) : (
           <TableComponent
@@ -532,11 +569,11 @@ const Designations = () => {
         content={modalContent}
       />
 
-      <ModalComponent
+      <ConfirmDialog
         open={confirmModalOpen}
         onClose={() => setConfirmModalOpen(false)}
-        title="Confirm Status Change"
-        content={confirmationModalContent}
+        onConfirm={handleConfirmToggle}
+        {...getConfirmationDialogProps()}
       />
 
       <Fab

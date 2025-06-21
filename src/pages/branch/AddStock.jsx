@@ -8,7 +8,6 @@ import {
   ListItem,
   ListItemText,
   Grid,
-  Button,
   Autocomplete,
   TextField,
 } from "@mui/material";
@@ -19,7 +18,7 @@ import apiConfig from "../../config/apiConfig";
 import { getToken, getBranchIdFromToken } from "../../utils/auth";
 import ButtonComponent from "../../components/ButtonComponent";
 import Loader from "../../components/Loader";
-import ModalComponent from "../../components/ModalComponent";
+import ConfirmDialog from "../../components/ConfirmDialog";
 import { STRINGS } from "../../constants/strings";
 import { debounce } from "lodash";
 
@@ -256,21 +255,15 @@ const AddStock = () => {
     }
   };
 
-  const confirmationModalContent = (
-    <Box>
-      <Typography variant="body1" gutterBottom>
-        {STRINGS.SUBMIT_CONFIRMATION}
-      </Typography>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
-        <Button variant="text" onClick={() => setConfirmModalOpen(false)}>
-          {STRINGS.CANCEL}
-        </Button>
-        <Button variant="text" onClick={handleConfirmSubmit} autoFocus>
-          {STRINGS.CONFIRM}
-        </Button>
-      </Box>
-    </Box>
-  );
+  const getConfirmationDialogProps = () => {
+    return {
+      title: "Confirm Submission",
+      content: STRINGS.SUBMIT_CONFIRMATION,
+      type: "info",
+      confirmText: "Submit",
+      confirmColor: "primary",
+    };
+  };
 
   return (
     <Box sx={{ maxWidth: "auto" }}>
@@ -523,12 +516,11 @@ const AddStock = () => {
             </Box>
           </form>
 
-          <ModalComponent
+          <ConfirmDialog
             open={confirmModalOpen}
-            hideCloseIcon={true}
             onClose={() => setConfirmModalOpen(false)}
-            title="Confirm Submission"
-            content={confirmationModalContent}
+            onConfirm={handleConfirmSubmit}
+            {...getConfirmationDialogProps()}
           />
         </>
       )}
