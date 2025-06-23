@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import TableComponent from "../../components/TableComponent";
 import ButtonComponent from "../../components/ButtonComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
@@ -26,13 +27,17 @@ import ModalComponent from "../../components/ModalComponent";
 import Loader from "../../components/Loader";
 import { STRINGS } from "../../constants/strings";
 import ChipComponent from "../../components/ChipComponent";
-import { ORDER_PAYMENT_STATUS_CONFIG, ORDER_STATUS_CONFIG } from "../../constants/statuses";
+import {
+  ORDER_PAYMENT_STATUS_CONFIG,
+  ORDER_STATUS_CONFIG,
+} from "../../constants/statuses";
 import { useLocation, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { getRoleFromToken } from "../../utils/auth";
 import { ROUTES } from "../../constants/routes";
 import IconButtonComponent from "../../components/IconButtonComponent";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import { debounce } from "lodash";
 
 const ListOrders = () => {
   const location = useLocation();
@@ -51,6 +56,7 @@ const ListOrders = () => {
   const [startDate, setStartDate] = useState(currentDate);
   const [endDate, setEndDate] = useState(currentDate);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
   const [statusFilter, setStatusFilter] = useState(() => {
     const { status } = location.state || {};
     if (status === "pending") {
@@ -74,79 +80,88 @@ const ListOrders = () => {
     open: false,
     order: null,
   });
+  const debouncedSearchRef = useRef();
 
-  const fetchOrders = useCallback(
-    async (search = "") => {
-      if (controllerRef.current) {
-        controllerRef.current.abort();
+  const fetchOrders = useCallback(async () => {
+    if (controllerRef.current) {
+      controllerRef.current.abort();
+    }
+
+    const token = getToken();
+    const newController = new AbortController();
+    controllerRef.current = newController;
+
+    setLoading(true);
+
+    try {
+      const params = new URLSearchParams({
+        page: pagination.current_page,
+        per_page: pagination.per_page,
+        search: debouncedSearch.trim(),
+        status: statusFilter,
+        start_date: startDate.toISOString().split("T")[0],
+        end_date: endDate.toISOString().split("T")[0],
+      }).toString();
+
+      const res = await fetch(`${apiConfig.BRANCH_ORDERS}?${params}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        signal: newController.signal,
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setOrders(data.orders || []);
+        setPagination((prev) => ({
+          ...prev,
+          total: data.pagination?.total || 0,
+        }));
+      } else {
+        throw new Error(data.message || STRINGS.FAILED_TO_COMPLETE_ACTION);
       }
-
-      const token = getToken();
-      const newController = new AbortController();
-      controllerRef.current = newController;
-
-      setLoading(true);
-
-      try {
-        const params = new URLSearchParams({
-          page: pagination.current_page,
-          per_page: pagination.per_page,
-          search: search.trim(),
-          status: statusFilter,
-          start_date: startDate.toISOString().split("T")[0],
-          end_date: endDate.toISOString().split("T")[0],
-        }).toString();
-
-        const res = await fetch(`${apiConfig.BRANCH_ORDERS}?${params}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          signal: newController.signal,
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: error.message || STRINGS.SOMETHING_WENT_WRONG,
         });
-
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-          setOrders(data.orders || []);
-          setPagination((prev) => ({
-            ...prev,
-            total: data.pagination?.total || 0,
-          }));
-        } else {
-          throw new Error(data.message || STRINGS.FAILED_TO_COMPLETE_ACTION);
-        }
-      } catch (error) {
-        if (error.name !== "AbortError") {
-          setSnack({
-            open: true,
-            severity: "error",
-            message: error.message || STRINGS.SOMETHING_WENT_WRONG,
-          });
-        }
-      } finally {
-        setLoading(false);
       }
-    },
-    [
-      pagination.current_page,
-      pagination.per_page,
-      statusFilter,
-      startDate,
-      endDate,
-    ]
-  );
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    pagination.current_page,
+    pagination.per_page,
+    statusFilter,
+    startDate,
+    endDate,
+    debouncedSearch,
+  ]);
 
   useEffect(() => {
-    fetchOrders(search);
-  }, [fetchOrders, search]);
+    debouncedSearchRef.current = debounce((value) => {
+      setDebouncedSearch(value);
+      setPagination((prev) => ({
+        ...prev,
+        current_page: 1,
+      }));
+    }, 300);
+    return () => {
+      if (debouncedSearchRef.current) debouncedSearchRef.current.cancel();
+    };
+  }, []);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearch(value);
-    setPagination((prev) => ({
-      ...prev,
-      current_page: 1,
-    }));
+    if (debouncedSearchRef.current) debouncedSearchRef.current(value);
   };
 
   const handlePaginationChange = ({ page, rowsPerPage }) => {
@@ -226,7 +241,7 @@ const ListOrders = () => {
         if (orderData.success && orderData.order) {
           setSelectedOrder(orderData.order);
         }
-        fetchOrders(search);
+        fetchOrders();
       } else {
         setSnack({
           open: true,
@@ -311,7 +326,7 @@ const ListOrders = () => {
         }
         setShowEmployeeSelect(false);
         setSelectedEmployee(null);
-        fetchOrders(search);
+        fetchOrders();
       } else {
         setSnack({
           open: true,
@@ -356,7 +371,7 @@ const ListOrders = () => {
           message: "Order deleted successfully.",
         });
         setConfirmDelete({ open: false, order: null });
-        fetchOrders(search); // Refresh the list
+        fetchOrders();
       } else {
         throw new Error(data.message || "Failed to delete order.");
       }
@@ -377,19 +392,34 @@ const ListOrders = () => {
         color={ORDER_STATUS_CONFIG[order.status]?.color || "default"}
       />
     ),
-    actions:
-      order.is_deletable ? (
-        <IconButtonComponent
-          icon={DeleteIcon}
-          color="error"
-          size="small"
-          title="Delete Order"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDeleteClick(order);
-          }}
-        />
-      ) : null,
+    actions: (
+      <Box sx={{ display: "flex", gap: 1 }}>
+        {order.is_deletable && (
+          <IconButtonComponent
+            icon={DeleteIcon}
+            color="error"
+            size="small"
+            title="Delete Order"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteClick(order);
+            }}
+          />
+        )}
+        {order.is_editable && (
+          <IconButtonComponent
+            icon={EditIcon}
+            color="primary"
+            size="small"
+            title="Edit Order"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`${ROUTES.BRANCH.CREATE_ORDER}/${order.id}`);
+            }}
+          />
+        )}
+      </Box>
+    ),
   }));
 
   const columns = [
@@ -508,8 +538,9 @@ const ListOrders = () => {
         onClose={() => setConfirmDelete({ open: false, order: null })}
         onConfirm={handleDeleteOrder}
         title="Delete Order"
-        content={`Are you sure you want to delete the order titled "${confirmDelete.order?.title || ""
-          }"?`}
+        content={`Are you sure you want to delete the order titled "${
+          confirmDelete.order?.title || ""
+        }"?`}
       />
 
       <Fab
@@ -556,13 +587,19 @@ const ListOrders = () => {
                 <Typography>
                   <strong>Delivery Date:</strong>{" "}
                   {selectedOrder.delivery_date
-                    ? format(new Date(selectedOrder.delivery_date), "dd-MM-yyyy")
+                    ? format(
+                        new Date(selectedOrder.delivery_date),
+                        "dd-MM-yyyy"
+                      )
                     : "-"}
                 </Typography>
                 {selectedOrder.delivered_date && (
                   <Typography>
                     <strong>Delivered Date:</strong>{" "}
-                    {format(new Date(selectedOrder.delivered_date), "dd-MM-yyyy")}
+                    {format(
+                      new Date(selectedOrder.delivered_date),
+                      "dd-MM-yyyy"
+                    )}
                   </Typography>
                 )}
               </Box>
