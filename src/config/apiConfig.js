@@ -32,7 +32,8 @@ const apiConfig = {
   DELETE_ORDER: (id) => `${API_BASE_URL}/order/${id}`,
 
   CREATE_DESIGNATION: `${API_BASE_URL}/create/designation`,
-  UPDATE_DESIGNATION_DETAILS: (id) => `${API_BASE_URL}/designation/update/${id}`,
+  UPDATE_DESIGNATION_DETAILS: (id) =>
+    `${API_BASE_URL}/designation/update/${id}`,
   UPDATE_DESIGNATION_STATUS: `${API_BASE_URL}/designation/update-status`,
 
   //Sample Files
@@ -45,7 +46,8 @@ const apiConfig = {
     USER_ROLES: `${API_BASE_URL}/super-admin/user-roles`,
     USERS_LIST: `${API_BASE_URL}/super-admin/users`,
     UPDATE_USER_STATUS: `${API_BASE_URL}/super-admin/user/update-status`,
-    UPDATE_USER_DETAILS: (id) => `${API_BASE_URL}/super-admin/user/update/${id}`,
+    UPDATE_USER_DETAILS: (id) =>
+      `${API_BASE_URL}/super-admin/user/update/${id}`,
     MAIL_TEST: `${API_BASE_URL}/super-admin/test-mail`,
     WHATSAPP_TEST: `${API_BASE_URL}/super-admin/whatsapp/send-message`,
     AUDIT_LOGS: `${API_BASE_URL}/super-admin/logs/audit-logs`,
@@ -86,6 +88,7 @@ const apiConfig = {
   BRANCH_EMPLOYEES: `${API_BASE_URL}/branch/employees`,
 
   CREATE_ORDER: `${API_BASE_URL}/branch/create/order`,
+  ADMIN_UPDATE_ORDER: (id) => `${API_BASE_URL}/admin/order/${id}/update`,
   BRANCH_ORDERS: `${API_BASE_URL}/branch/orders`,
   UPDATE_ORDER_STATUS: (id) => `${API_BASE_URL}/order/${id}/status`,
 
