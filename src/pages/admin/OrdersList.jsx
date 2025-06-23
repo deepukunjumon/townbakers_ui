@@ -314,7 +314,6 @@ const OrdersList = () => {
   const handleEditClick = async (order) => {
     setEditModalOpen(true);
     setModalLoading(true);
-    // Fetch minimal branches and employees
     try {
       const [branchesRes, employeesRes] = await Promise.all([
         fetch(apiConfig.MINIMAL_BRANCHES, {
@@ -336,13 +335,16 @@ const OrdersList = () => {
       const data = await res.json();
       if (data.success && data.order) {
         // Find the full branch and employee objects from the minimal lists
+        // Use nested branch and employee objects to get IDs
+        const branchId = data.order.branch?.id;
+        const employeeId = data.order.employee?.id;
         const branchObj =
           (branchesData.branches || []).find(
-            (b) => b.id === data.order.branch_id
+            (b) => String(b.id) === String(branchId)
           ) || null;
         const employeeObj =
           (employeesData.employees || []).find(
-            (e) => e.id === data.order.employee_id
+            (e) => String(e.id) === String(employeeId)
           ) || null;
         setOrderToEdit({
           ...data.order,
@@ -363,6 +365,21 @@ const OrdersList = () => {
     } catch {}
     setModalLoading(false);
   };
+
+  // Ensure orderToEdit.branch and employee always match the latest branchList/employeeList objects
+  useEffect(() => {
+    if (editModalOpen && orderToEdit && branchList.length && employeeList.length) {
+      const branchObj = branchList.find(b => String(b.id) === String(orderToEdit.branch?.id)) || null;
+      const employeeObj = employeeList.find(e => String(e.id) === String(orderToEdit.employee?.id)) || null;
+      if (orderToEdit.branch !== branchObj || orderToEdit.employee !== employeeObj) {
+        setOrderToEdit(prev => ({
+          ...prev,
+          branch: branchObj,
+          employee: employeeObj,
+        }));
+      }
+    }
+  }, [editModalOpen, orderToEdit, branchList, employeeList]);
 
   const handleUpdateOrder = async () => {
     if (!orderToEdit || !originalOrder) return;
@@ -1065,7 +1082,6 @@ const OrdersList = () => {
                         setOrderToEdit({
                           ...orderToEdit,
                           branch: e.target.value,
-                          employee: null,
                         });
                       }}
                       options={branchList}
