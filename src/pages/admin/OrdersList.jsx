@@ -13,7 +13,6 @@ import {
   Autocomplete,
   Fab,
   Button,
-  IconButton,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -31,6 +30,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { getRoleFromToken } from "../../utils/auth";
 import { ROUTES } from "../../constants/routes";
 import IconButtonComponent from "../../components/IconButtonComponent";
+import { debounce } from "lodash";
 
 const OrdersList = () => {
   const navigate = useNavigate();
@@ -76,6 +76,7 @@ const OrdersList = () => {
   });
 
   const controllerRef = useRef(null);
+  const debouncedSearchRef = useRef();
 
   const fetchBranches = async () => {
     try {
@@ -168,6 +169,24 @@ const OrdersList = () => {
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
+
+  useEffect(() => {
+    debouncedSearchRef.current = debounce((value) => {
+      setSearch(value);
+      setPagination((prev) => ({
+        ...prev,
+        current_page: 1,
+      }));
+    }, 300);
+    return () => {
+      if (debouncedSearchRef.current) debouncedSearchRef.current.cancel();
+    };
+  }, []);
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    if (debouncedSearchRef.current) debouncedSearchRef.current(value);
+  };
 
   const handlePaginationChange = ({ page, rowsPerPage }) => {
     setPagination((prev) => ({
@@ -400,7 +419,7 @@ const OrdersList = () => {
             fullWidth
             label="Search Orders"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={handleSearchChange}
           />
         </Grid>
       </Grid>
