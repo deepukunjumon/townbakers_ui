@@ -39,7 +39,7 @@ const OrdersList = () => {
   const currentDate = new Date();
 
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     current_page: 1,
     last_page: 1,
@@ -55,6 +55,7 @@ const OrdersList = () => {
     return todayOnly ? currentDate : currentDate;
   });
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState(() => {
     const { status } = location.state || {};
     if (status === "pending") return "0";
@@ -112,22 +113,30 @@ const OrdersList = () => {
   }, []);
 
   const fetchOrders = useCallback(async () => {
-    setLoading(true);
-    const token = getToken();
+    if (controllerRef.current) {
+      controllerRef.current.abort();
+    }
 
-    const params = new URLSearchParams({
-      start_date: format(startDate, "yyyy-MM-dd"),
-      end_date: format(endDate, "yyyy-MM-dd"),
-      page: pagination.current_page,
-      per_page: pagination.per_page,
-      search,
-      status: statusFilter,
-      branch_id: branchFilter,
-    });
+    const token = getToken();
+    const newController = new AbortController();
+    controllerRef.current = newController;
+
+    setLoading(true);
 
     try {
+      const params = new URLSearchParams({
+        start_date: format(startDate, "yyyy-MM-dd"),
+        end_date: format(endDate, "yyyy-MM-dd"),
+        page: pagination.current_page,
+        per_page: pagination.per_page,
+        search: debouncedSearch.trim(),
+        status: statusFilter,
+        branch_id: branchFilter,
+      });
+
       const res = await fetch(`${apiConfig.ALL_ORDERS}?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
+        signal: newController.signal,
       });
       const data = await res.json();
 
@@ -147,12 +156,14 @@ const OrdersList = () => {
           message: data.message || "Failed to load orders",
         });
       }
-    } catch {
-      setSnack({
-        open: true,
-        severity: "error",
-        message: "Failed to load orders",
-      });
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load orders",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -161,7 +172,7 @@ const OrdersList = () => {
     pagination.per_page,
     startDate,
     endDate,
-    search,
+    debouncedSearch,
     statusFilter,
     branchFilter,
   ]);
@@ -172,7 +183,7 @@ const OrdersList = () => {
 
   useEffect(() => {
     debouncedSearchRef.current = debounce((value) => {
-      setSearch(value);
+      setDebouncedSearch(value);
       setPagination((prev) => ({
         ...prev,
         current_page: 1,
@@ -185,6 +196,7 @@ const OrdersList = () => {
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
+    setSearch(value);
     if (debouncedSearchRef.current) debouncedSearchRef.current(value);
   };
 
