@@ -277,6 +277,7 @@ const CreateOrder = () => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextFieldComponent
+              type="mobile"
               label="Customer Mobile"
               name="customer_mobile"
               value={form.customer_mobile}

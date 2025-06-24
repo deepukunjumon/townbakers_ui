@@ -323,7 +323,6 @@ const OrdersList = () => {
       });
       const data = await res.json();
       if (data.success && data.order) {
-        // Use nested branch and employee objects to get IDs
         const branchId = data.order.branch?.id;
         const employeeId = data.order.employee?.id;
         const branchObj =
@@ -357,7 +356,6 @@ const OrdersList = () => {
   const handleUpdateOrder = async () => {
     if (!orderToEdit || !originalOrder) return;
 
-    // Sync paymentStatus to orderToEdit before diffing
     const updatedOrder = { ...orderToEdit, payment_status: paymentStatus };
 
     setUpdating(true);
@@ -374,7 +372,6 @@ const OrdersList = () => {
         "customer_mobile",
         "total_amount",
         "advance_amount",
-        // payment_status handled below
       ];
       const updatedFields = {};
       fieldsToCheck.forEach((field) => {
@@ -382,11 +379,9 @@ const OrdersList = () => {
           updatedFields[field] = updatedOrder[field];
         }
       });
-      // Always check payment_status
       if (updatedOrder.payment_status !== originalOrder.payment_status) {
         updatedFields.payment_status = updatedOrder.payment_status;
       }
-      // For branch and employee, compare by id
       if (
         (orderToEdit.branch?.id || null) !== (originalOrder.branch?.id || null)
       ) {
@@ -398,7 +393,6 @@ const OrdersList = () => {
       ) {
         updatedFields.employee_id = orderToEdit.employee?.id || null;
       }
-      // Always include id
       updatedFields.id = orderToEdit.id;
       if (updatedFields.delivery_date) {
         updatedFields.delivery_date = updatedFields.delivery_date
@@ -1111,7 +1105,7 @@ const OrdersList = () => {
               {/* Actions */}
               <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
                 <Button
-                  variant="outlined"
+                  variant="text"
                   onClick={() => {
                     setEditModalOpen(false);
                     setOrderToEdit(null);
