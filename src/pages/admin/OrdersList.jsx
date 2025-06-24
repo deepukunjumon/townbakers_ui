@@ -303,8 +303,12 @@ const OrdersList = () => {
   const handleEditClick = async (order) => {
     setEditModalOpen(true);
     setModalLoading(true);
+
     try {
-      const [branchesRes, employeesRes] = await Promise.all([
+      const [orderRes, branchesRes, employeesRes] = await Promise.all([
+        fetch(apiConfig.ORDER_DETAILS(order.id), {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        }),
         fetch(apiConfig.MINIMAL_BRANCHES, {
           headers: { Authorization: getToken() },
         }),
@@ -312,19 +316,21 @@ const OrdersList = () => {
           headers: { Authorization: getToken() },
         }),
       ]);
+      const orderData = await orderRes.json();
       const branchesData = await branchesRes.json();
       const employeesData = await employeesRes.json();
-      if (branchesData.success) setBranchList(branchesData.branches || []);
-      if (employeesData.success) setEmployeeList(employeesData.employees || []);
 
-      const token = getToken();
-      const res = await fetch(apiConfig.ORDER_DETAILS(order.id), {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.success && data.order) {
-        const branchId = data.order.branch?.id;
-        const employeeId = data.order.employee?.id;
+      if (
+        orderData.success &&
+        orderData.order &&
+        branchesData.success &&
+        employeesData.success
+      ) {
+        setBranchList(branchesData.branches || []);
+        setEmployeeList(employeesData.employees || []);
+
+        const branchId = orderData.order.branch?.id;
+        const employeeId = orderData.order.employee?.id;
         const branchObj =
           (branchesData.branches || []).find(
             (b) => String(b.id) === String(branchId)
@@ -333,24 +339,40 @@ const OrdersList = () => {
           (employeesData.employees || []).find(
             (e) => String(e.id) === String(employeeId)
           ) || null;
+
         setOrderToEdit({
-          ...data.order,
+          ...orderData.order,
           branch: branchObj,
           employee: employeeObj,
-          delivery_date: data.order.delivery_date ? new Date(data.order.delivery_date) : null,
+          delivery_date: orderData.order.delivery_date
+            ? new Date(orderData.order.delivery_date)
+            : null,
         });
         setOriginalOrder({
-          ...data.order,
+          ...orderData.order,
           branch: branchObj,
           employee: employeeObj,
-          delivery_date: data.order.delivery_date ? new Date(data.order.delivery_date) : null,
+          delivery_date: orderData.order.delivery_date
+            ? new Date(orderData.order.delivery_date)
+            : null,
         });
-        setPaymentStatus(data.order.payment_status?.toString() || "0");
+        setPaymentStatus(orderData.order.payment_status?.toString() || "0");
       } else {
-        throw new Error(data.message || "Failed to load order details");
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load order or reference data.",
+        });
       }
-    } catch { }
-    setModalLoading(false);
+    } catch {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to load order or reference data.",
+      });
+    } finally {
+      setModalLoading(false);
+    }
   };
 
   const handleUpdateOrder = async () => {
@@ -771,13 +793,7 @@ const OrdersList = () => {
         }}
         content={
           modalLoading ? (
-            <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              minHeight={150}
-              maxWidth="auto"
-            >
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight={150}>
               <CircularProgress />
             </Box>
           ) : orderToEdit ? (
@@ -1069,11 +1085,19 @@ const OrdersList = () => {
                       label="Branch"
                       value={orderToEdit.branch}
                       onChange={(e, newValue) => {
-                        setOrderToEdit({
-                          ...orderToEdit,
-                          branch: newValue,
-                          employee: null,
-                        });
+                        if (!newValue) {
+                          setOrderToEdit(prev => ({
+                            ...prev,
+                            branch: originalOrder.branch,
+                          }));
+                        } else {
+                          const branchObj = branchList.find(b => b.id === newValue.id) || null;
+                          setOrderToEdit(prev => ({
+                            ...prev,
+                            branch: branchObj,
+                            employee: null,
+                          }));
+                        }
                       }}
                       options={branchList}
                       valueKey="id"
@@ -1088,7 +1112,18 @@ const OrdersList = () => {
                       label="Employee"
                       value={orderToEdit.employee}
                       onChange={(e, newValue) => {
-                        setOrderToEdit({ ...orderToEdit, employee: newValue });
+                        if (!newValue) {
+                          setOrderToEdit(prev => ({
+                            ...prev,
+                            employee: originalOrder.employee,
+                          }));
+                        } else {
+                          const employeeObj = employeeList.find(emp => emp.id === newValue.id) || null;
+                          setOrderToEdit(prev => ({
+                            ...prev,
+                            employee: employeeObj,
+                          }));
+                        }
                       }}
                       options={employeeList}
                       valueKey="id"
