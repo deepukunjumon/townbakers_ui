@@ -33,7 +33,6 @@ import {
 } from "../../constants/statuses";
 import { useLocation, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { getRoleFromToken } from "../../utils/auth";
 import { ROUTES } from "../../constants/routes";
 import IconButtonComponent from "../../components/IconButtonComponent";
 import ConfirmDialog from "../../components/ConfirmDialog";
@@ -42,7 +41,6 @@ import { debounce } from "lodash";
 const ListOrders = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const role = getRoleFromToken();
   const currentDate = new Date();
 
   const [orders, setOrders] = useState([]);
@@ -538,9 +536,8 @@ const ListOrders = () => {
         onClose={() => setConfirmDelete({ open: false, order: null })}
         onConfirm={handleDeleteOrder}
         title="Delete Order"
-        content={`Are you sure you want to delete the order titled "${
-          confirmDelete.order?.title || ""
-        }"?`}
+        content={`Are you sure you want to delete the order titled "${confirmDelete.order?.title || ""
+          }"?`}
       />
 
       <Fab
@@ -588,9 +585,9 @@ const ListOrders = () => {
                   <strong>Delivery Date:</strong>{" "}
                   {selectedOrder.delivery_date
                     ? format(
-                        new Date(selectedOrder.delivery_date),
-                        "dd-MM-yyyy"
-                      )
+                      new Date(selectedOrder.delivery_date),
+                      "dd-MM-yyyy"
+                    )
                     : "-"}
                 </Typography>
                 {selectedOrder.delivered_date && (

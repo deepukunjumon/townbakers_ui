@@ -21,7 +21,6 @@ import ConfirmDialog from "../../../components/ConfirmDialog";
 import apiConfig from "../../../config/apiConfig";
 import { STRINGS } from "../../../constants/strings";
 import ButtonComponent from "../../../components/ButtonComponent";
-import { debounce } from "lodash";
 
 const statusOptions = [
   { name: "All", id: "" },
@@ -47,8 +46,6 @@ const Designations = () => {
   const [statusFilter, setStatusFilter] = useState(statusOptions[0]);
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimeout = useRef(null);
-  const controllerRef = useRef(null);
-  const debouncedFetchDesignationsRef = useRef();
 
   const [loadingSwitches, setLoadingSwitches] = useState({});
   const [loadingRow, setLoadingRow] = useState(null);
@@ -67,101 +64,49 @@ const Designations = () => {
     paginationRef.current = pagination;
   }, [pagination]);
 
-  const fetchDesignations = useCallback(
-    async (
-      status = statusFilter.id,
-      q = searchTerm,
-      page = paginationRef.current.current_page,
-      perPage = paginationRef.current.per_page
-    ) => {
-      if (controllerRef.current) {
-        controllerRef.current.abort();
-      }
+  const fetchDesignations = useCallback(async () => {
+    setLoading(true);
+    try {
       const token = localStorage.getItem("token");
-      const newController = new AbortController();
-      controllerRef.current = newController;
+      const params = new URLSearchParams({
+        page: pagination.current_page,
+        per_page: pagination.per_page,
+        search: searchTerm,
+        status: statusFilter.id,
+      }).toString();
 
-      setLoading(true);
+      const res = await fetch(`${apiConfig.DESIGNATIONS}?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
 
-      try {
-        const params = new URLSearchParams({
-          page,
-          per_page: perPage,
+      if (data.success) {
+        setDesignations(data.designations || []);
+        setPagination((prev) => ({
+          ...prev,
+          total: data.pagination?.total || 0,
+        }));
+      } else {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: data.message || "Failed to load designations",
         });
-
-        if (status) {
-          params.append("status", status);
-        }
-        if (q.trim()) {
-          params.append("q", q.trim());
-        }
-
-        const res = await fetch(
-          `${apiConfig.DESIGNATIONS}?${params.toString()}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            signal: newController.signal,
-          }
-        );
-
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-          setDesignations(data.designations || []);
-          setPagination((prev) => ({
-            ...prev,
-            total: data.pagination?.total || 0,
-            current_page: data.pagination?.current_page || page,
-            per_page: data.pagination?.per_page || perPage,
-          }));
-        } else {
-          throw new Error(data.message || "Failed to load designations");
-        }
-      } catch (error) {
-        if (error.name !== "AbortError") {
-          setSnack({
-            open: true,
-            severity: "error",
-            message: error.message || "Failed to load designations",
-          });
-        }
-      } finally {
-        setLoading(false);
       }
-    },
-    [setDesignations, setPagination, setSnack, controllerRef]
-  );
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to load designations",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [pagination.current_page, pagination.per_page, searchTerm, statusFilter.id]);
 
   useEffect(() => {
-    debouncedFetchDesignationsRef.current = debounce(fetchDesignations, 300);
-
-    debouncedFetchDesignationsRef.current(
-      statusFilter.id,
-      "",
-      pagination.current_page,
-      pagination.per_page
-    );
-
-    return () => {
-      if (debouncedFetchDesignationsRef.current) {
-        debouncedFetchDesignationsRef.current.cancel();
-      }
-      if (controllerRef.current) {
-        controllerRef.current.abort();
-      }
-    };
-  }, [fetchDesignations, pagination.current_page, pagination.per_page]);
-
-  useEffect(() => {
-    debouncedFetchDesignationsRef.current(
-      statusFilter.id,
-      searchTerm,
-      pagination.current_page,
-      pagination.per_page
-    );
-  }, [statusFilter.id, searchTerm, pagination.current_page, pagination.per_page]);
+    fetchDesignations();
+  }, [fetchDesignations, statusFilter.id]);
 
   const handleToggleStatus = async (id, currentStatus) => {
     setConfirmModalOpen(true);
@@ -275,7 +220,7 @@ const Designations = () => {
       setSelectedDesignation(null);
       setIsEditMode(false);
       setPagination((prev) => ({ ...prev, current_page: 1 }));
-      await fetchDesignations(statusFilter.id, searchTerm, 1, pagination.per_page);
+      await fetchDesignations();
 
       setSnack({
         open: true,
@@ -433,7 +378,7 @@ const Designations = () => {
       current_page: page,
       per_page: rowsPerPage,
     }));
-    fetchDesignations(statusFilter.id, searchTerm, page, rowsPerPage);
+    fetchDesignations();
   };
 
   const handleStatusChange = (event) => {
@@ -456,7 +401,7 @@ const Designations = () => {
 
   const getConfirmationDialogProps = () => {
     const { currentStatus } = confirmPayload;
-    
+
     if (currentStatus === 1) {
       return {
         title: "Disable Designation",
@@ -466,7 +411,7 @@ const Designations = () => {
         confirmColor: "warning",
       };
     }
-    
+
     return {
       title: "Enable Designation",
       content: STRINGS.ENABLE_DESIGNATION,
