@@ -20,6 +20,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import { getToken } from "../../utils/auth";
@@ -29,7 +30,7 @@ import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ModalComponent from "../../components/ModalComponent";
 import Loader from "../../components/Loader";
 import ChipComponent from "../../components/ChipComponent";
-import { ORDER_STATUS_CONFIG } from "../../constants/statuses";
+import { ORDER_STATUS_CONFIG, ORDER_PAYMENT_STATUS_CONFIG } from "../../constants/statuses";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getRoleFromToken } from "../../utils/auth";
 import { ROUTES } from "../../constants/routes";
@@ -125,7 +126,6 @@ const OrdersList = () => {
     fetchBranches();
   }, []);
 
-  // Ensure orderToEdit.branch and employee always match the latest branchList/employeeList objects
   useEffect(() => {
     if (editModalOpen && orderToEdit && branchList.length && employeeList.length) {
       const branchObj = branchList.find(b => String(b.id) === String(orderToEdit.branch?.id)) || null;
@@ -278,7 +278,7 @@ const OrdersList = () => {
           severity: "success",
           message: data.message || "Order deleted successfully",
         });
-        fetchOrders(); // Refresh the list
+        fetchOrders();
       } else {
         throw new Error(data.message || "Failed to delete order");
       }
@@ -466,6 +466,16 @@ const OrdersList = () => {
     ),
     actions: (
       <Box sx={{ display: "flex", gap: 1 }}>
+        <IconButtonComponent
+          icon={VisibilityIcon}
+          color="info"
+          size="small"
+          title="View Order Details"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleOrderClick(order.id);
+          }}
+        />
         {order.is_deletable && (
           <IconButtonComponent
             icon={DeleteIcon}
@@ -548,7 +558,7 @@ const OrdersList = () => {
 
         <Grid item xs={12} md={2.5} lg={2.5}>
           <FormControl sx={{ width: "100%" }} variant="outlined">
-            <InputLabel shrink={true}>Status</InputLabel>
+            <InputLabel shrink={true}>Order Status</InputLabel>
             <Select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -608,7 +618,6 @@ const OrdersList = () => {
           page={pagination.current_page - 1}
           rowsPerPage={pagination.per_page}
           onPaginationChange={handlePaginationChange}
-          onRowClick={(row) => handleOrderClick(row.id)}
         />
       )}
 
@@ -690,7 +699,7 @@ const OrdersList = () => {
               </Typography>
               <Divider sx={{ my: 2 }} />
               <Typography>
-                <strong>Status:</strong>{" "}
+                <strong>Order Status:</strong>{" "}
                 <ChipComponent
                   size="small"
                   variant="filled"
@@ -700,6 +709,20 @@ const OrdersList = () => {
                   }
                   color={
                     ORDER_STATUS_CONFIG[selectedOrder.status]?.color || "info"
+                  }
+                />
+              </Typography>
+              <Typography>
+                <strong>Payment Status:</strong>{" "}
+                <ChipComponent
+                  size="small"
+                  variant="filled"
+                  label={
+                    ORDER_PAYMENT_STATUS_CONFIG[selectedOrder.payment_status]?.label ||
+                    "Unknown"
+                  }
+                  color={
+                    ORDER_PAYMENT_STATUS_CONFIG[selectedOrder.payment_status]?.color || "info"
                   }
                 />
               </Typography>

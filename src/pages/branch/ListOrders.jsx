@@ -17,6 +17,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import TableComponent from "../../components/TableComponent";
 import ButtonComponent from "../../components/ButtonComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
@@ -392,7 +393,17 @@ const ListOrders = () => {
     ),
     actions: (
       <Box sx={{ display: "flex", gap: 1 }}>
-        {order.is_deletable && (
+        <IconButtonComponent
+          icon={VisibilityIcon}
+          color="info"
+          size="small"
+          title="View Order Details"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleOrderClick(order.id);
+          }}
+        />
+        {order.is_deletable ? (
           <IconButtonComponent
             icon={DeleteIcon}
             color="error"
@@ -403,19 +414,14 @@ const ListOrders = () => {
               handleDeleteClick(order);
             }}
           />
-        )}
-        {order.is_editable && (
+        ) : order.is_editable ? (
           <IconButtonComponent
             icon={EditIcon}
             color="primary"
             size="small"
             title="Edit Order"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`${ROUTES.BRANCH.CREATE_ORDER}/${order.id}`);
-            }}
           />
-        )}
+        ) : null}
       </Box>
     ),
   }));
@@ -494,7 +500,7 @@ const ListOrders = () => {
 
         <Grid item xs={12} md={2.5} lg={2.5}>
           <FormControl sx={{ width: { xs: 150, md: 160 } }} variant="outlined">
-            <InputLabel>Status</InputLabel>
+            <InputLabel>Order Status</InputLabel>
             <Select
               value={statusFilter}
               onChange={handleStatusFilterChange}
@@ -527,7 +533,6 @@ const ListOrders = () => {
           page={pagination.current_page - 1}
           rowsPerPage={pagination.per_page}
           onPaginationChange={handlePaginationChange}
-          onRowClick={(row) => handleOrderClick(row.id)}
         />
       )}
 
