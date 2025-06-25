@@ -71,7 +71,7 @@ const Designations = () => {
       const params = new URLSearchParams({
         page: pagination.current_page,
         per_page: pagination.per_page,
-        search: searchTerm,
+        q: searchTerm,
         status: statusFilter.id,
       }).toString();
 
