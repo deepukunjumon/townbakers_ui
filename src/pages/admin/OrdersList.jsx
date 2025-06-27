@@ -38,6 +38,7 @@ import IconButtonComponent from "../../components/IconButtonComponent";
 import TimePickerComponent from "../../components/TimePickerComponent";
 import SelectFieldComponent from "../../components/SelectFieldComponent";
 import TextFieldComponent from "../../components/TextFieldComponent";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 const OrdersList = () => {
   const navigate = useNavigate();
@@ -1164,53 +1165,20 @@ const OrdersList = () => {
         }
       />
 
-      <ModalComponent
+      <ConfirmDialog
         open={deleteModalOpen}
         onClose={() => {
           setDeleteModalOpen(false);
           setOrderToDelete(null);
         }}
-        title="Confirm Delete"
-        content={
-          orderToDelete ? (
-            <Box>
-              <Typography>
-                Are you sure you want to delete the order "{orderToDelete.title}
-                "?
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                This action cannot be undone.
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: 1,
-                  mt: 2,
-                }}
-              >
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    setDeleteModalOpen(false);
-                    setOrderToDelete(null);
-                  }}
-                  disabled={deleting}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={() => handleDeleteOrder(orderToDelete.id)}
-                  disabled={deleting}
-                >
-                  {deleting ? "Deleting..." : "Delete"}
-                </Button>
-              </Box>
-            </Box>
-          ) : null
-        }
+        onConfirm={() => handleDeleteOrder(orderToDelete?.id)}
+        title="Delete Order"
+        content={orderToDelete ? `Are you sure you want to delete the order "${orderToDelete.title}"?` : ""}
+        description="This action cannot be undone."
+        type="danger"
+        confirmText={deleting ? "Deleting..." : "Delete"}
+        confirmColor="error"
+        loading={deleting}
       />
     </Box>
   );
