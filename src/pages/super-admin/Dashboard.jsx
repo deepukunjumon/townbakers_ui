@@ -138,6 +138,10 @@ const SuperAdminDashboard = () => {
       .then((res) => {
         if (res.data.success) {
           setBranchList(res.data.branches || []);
+          // Set default branch if not already selected
+          if (!selectedBranch && res.data.branches && res.data.branches.length > 0) {
+            setSelectedBranch(res.data.branches[0]);
+          }
         }
       });
   }, []);
@@ -145,25 +149,30 @@ const SuperAdminDashboard = () => {
   // Fetch pie chart data when date range or branch changes
   useEffect(() => {
     if (!startDate || !endDate || !selectedBranch) return;
+    console.log('Pie chart effect triggered', { startDate, endDate, selectedBranch });
     setPieLoading(true);
     setPieData(null);
-    const params = new URLSearchParams({
-      start_date: startDate.toISOString().split("T")[0],
-      end_date: endDate.toISOString().split("T")[0],
-      branch_id: selectedBranch.id,
-    }).toString();
     axios
-      .get(`/api/admin/dashboard/order/stats?${params}`, {
+      .get(apiConfig.SUPER_ADMIN.ORDER_STATS, {
+        params: {
+          start_date: startDate.toISOString().split("T")[0],
+          end_date: endDate.toISOString().split("T")[0],
+          branch_id: selectedBranch.id,
+        },
         headers: { Authorization: getToken() },
       })
       .then((res) => {
-        if (res.data.success && res.data.data && res.data.data.length > 0) {
-          const branch = res.data.data[0];
-          setPieData([
-            { name: "Pending", value: branch.pending, color: STATUS_COLORS.pending },
-            { name: "Delivered", value: branch.delivered, color: STATUS_COLORS.delivered },
-            { name: "Cancelled", value: branch.cancelled, color: STATUS_COLORS.cancelled },
-          ]);
+        if (res.data.success && res.data.data) {
+          const branch = Array.isArray(res.data.data) ? res.data.data[0] : res.data.data;
+          if (branch) {
+            setPieData([
+              { name: "Pending", value: branch.pending, color: STATUS_COLORS.pending },
+              { name: "Delivered", value: branch.delivered, color: STATUS_COLORS.delivered },
+              { name: "Cancelled", value: branch.cancelled, color: STATUS_COLORS.cancelled },
+            ]);
+          } else {
+            setPieData(null);
+          }
         } else {
           setPieData(null);
         }
@@ -190,71 +199,71 @@ const SuperAdminDashboard = () => {
       </Box>
       <Divider sx={{ mb: 2 }} />
       <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
-          <Box sx={{ width: "100%", height: 400 }}>
-            <Typography variant="h6" gutterBottom>
-              Order Status Breakdown
-            </Typography>
-            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-              <DateSelectorComponent
-                label="Start Date"
-                value={startDate}
-                onChange={setStartDate}
-                maxDate={endDate}
-              />
-              <DateSelectorComponent
-                label="End Date"
-                value={endDate}
-                onChange={setEndDate}
-                minDate={startDate}
-              />
-              <SelectFieldComponent
-                label="Branch"
-                value={selectedBranch}
-                onChange={(e, newValue) => setSelectedBranch(newValue)}
-                options={branchList}
-                valueKey="id"
-                displayKey={(b) => `${b.code} - ${b.name}`}
-                required
-                sx={{ minWidth: 200 }}
-              />
-            </Box>
-            {pieLoading ? (
-              <Box display="flex" justifyContent="center" alignItems="center" height={300}>
-                <CircularProgress />
-              </Box>
-            ) : pieData ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    label
-                  >
-                    {pieData.map((entry, idx) => (
-                      <Cell key={`cell-${idx}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 4 }}>
-                No data available for the selected range/branch.
-              </Typography>
-            )}
-          </Box>
-        </Grid>
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
             <StatCard {...stat} />
           </Grid>
         ))}
+      </Grid>
+      <Grid item xs={6} md={6}>
+        <Box sx={{ width: "50%", height: "auto" }}>
+          <Typography variant="h6" gutterBottom>
+            Order Status Breakdown
+          </Typography>
+          <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+            <DateSelectorComponent
+              label="Start Date"
+              value={startDate}
+              onChange={setStartDate}
+              maxDate={endDate}
+            />
+            <DateSelectorComponent
+              label="End Date"
+              value={endDate}
+              onChange={setEndDate}
+              minDate={startDate}
+            />
+            <SelectFieldComponent
+              label="Branch"
+              value={selectedBranch}
+              onChange={(e, newValue) => setSelectedBranch(newValue)}
+              options={branchList}
+              valueKey="id"
+              displayKey={(b) => `${b.code} - ${b.name}`}
+              required
+              sx={{ minWidth: 200 }}
+            />
+          </Box>
+          {pieLoading ? (
+            <Box display="flex" justifyContent="center" alignItems="center" height={300}>
+              <CircularProgress />
+            </Box>
+          ) : pieData ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  label
+                >
+                  {pieData.map((entry, idx) => (
+                    <Cell key={`cell-${idx}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 4 }}>
+              No data available for the selected range/branch.
+            </Typography>
+          )}
+        </Box>
       </Grid>
     </Box>
   );
