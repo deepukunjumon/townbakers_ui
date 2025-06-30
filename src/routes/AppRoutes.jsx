@@ -15,11 +15,13 @@ import AdminLayout from "../layouts/AdminLayout";
 import BranchLayout from "../layouts/BranchLayout";
 
 import SuperAdminDashboard from "../pages/super-admin/Dashboard";
+import Settings from "../pages/super-admin/Settings";
 
 import AdminDashboard from "../pages/admin/Dashboard";
 import AllEmployees from "../pages/admin/AllEmployees";
 import CreateBranch from "../pages/admin/CreateBranch";
 import ViewBranches from "../pages/admin/ViewBranches";
+import AdminSettings from "../pages/admin/Settings";
 
 import CreateEmployeeByAdmin from "../pages/admin/CreateEmployee";
 import ViewBranchStockSummary from "../pages/admin/ViewBranchStockSummary";
@@ -93,6 +95,7 @@ const AppRoutes = () => (
       <Route path={ROUTES.SUPER_ADMIN.DEVELOPER_TOOLS} element={<DeveloperTools />} />
       <Route path={ROUTES.SUPER_ADMIN.AUDIT_LOGS} element={<AuditLogs />} />
       <Route path={ROUTES.SUPER_ADMIN.EMAIL_LOGS} element={<EmailLogs />} />
+      <Route path={ROUTES.SUPER_ADMIN.SETTINGS} element={<Settings />} />
     </Route>
 
     {/* Admin Protected */}
@@ -114,6 +117,7 @@ const AppRoutes = () => (
       <Route path={ROUTES.ADMIN.CREATE_ORDER} element={<AdminCreateOrder />} />
       <Route path={ROUTES.ADMIN.ALL_ORDERS} element={<OrdersList />} />
       <Route path={ROUTES.ADMIN.EMAIL_LOGS} element={<EmailLogs />} />
+      <Route path={ROUTES.ADMIN.SETTINGS} element={<AdminSettings />} />
     </Route>
 
     {/* Branch Protected */}

@@ -17,6 +17,10 @@ const apiConfig = {
   DESIGNATIONS: `${API_BASE_URL}/designations`,
   ACTIVE_DESIGNATIONS: `${API_BASE_URL}/designations/active`,
 
+  // Settings APIs
+  SETTINGS: `${API_BASE_URL}/settings`,
+  UPDATE_SETTING: `${API_BASE_URL}/update/settings`,
+
   EMPLOYEE_DETAILS: (id) => `${API_BASE_URL}/employee/${id}`,
   UPDATE_EMPLOYEE_DETAILS: (id) => `${API_BASE_URL}/employee/update/${id}`,
   UPDATE_EMPLOYEE_STATUS: `${API_BASE_URL}/employee/update-status`,

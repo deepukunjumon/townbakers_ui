@@ -18,6 +18,7 @@ import {
   MultipleStop,
   Groups,
   Mail,
+  Settings
 } from "@mui/icons-material";
 
 const SuperAdminLayout = () => {
@@ -124,6 +125,11 @@ const SuperAdminLayout = () => {
           ],
         },
       ],
+    },
+    {
+      label: "Settings",
+      icon: <Settings />,
+      onClick: () => navigate(ROUTES.SUPER_ADMIN.SETTINGS),
     },
   ];
 
