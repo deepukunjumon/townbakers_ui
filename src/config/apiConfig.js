@@ -8,6 +8,7 @@ const apiConfig = {
 
   // Common APIs
   LOGIN_URL: `${API_BASE_URL}/login`,
+  DEFAULT_PASSWORD_RESET_URL: `${API_BASE_URL}/default-password/reset`,
   RESET_PASSWORD_URL: `${API_BASE_URL}/password/reset`,
   PROFILE: `${API_BASE_URL}/profile`,
   UPDATE_PROFILE: `${API_BASE_URL}/update/profile`,

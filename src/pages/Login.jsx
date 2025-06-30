@@ -67,7 +67,7 @@ const Login = () => {
 
         setTimeout(() => {
           navigate(ROUTES.DEFAULT_PASSWORD_RESET);
-        }, 1000);
+        }, 500);
 
         setLoading(false);
         return;
