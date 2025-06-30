@@ -63,7 +63,7 @@ const AppRoutes = () => (
       <Route path={ROUTES.PROFILE} element={<RoleBasedLayout />}>
         <Route index element={<ViewProfile />} />
       </Route>
-      <Route path={ROUTES.RESET_PASSWORD} element={<RoleBasedLayout />}>
+      <Route path={ROUTES.DEFAULT_PASSWORD_RESET} element={<RoleBasedLayout />}>
         <Route index element={<ResetPassword />} />
       </Route>
       <Route path={ROUTES.ITEMS_LIST} element={<RoleBasedLayout />}>

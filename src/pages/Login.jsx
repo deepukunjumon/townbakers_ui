@@ -66,7 +66,7 @@ const Login = () => {
         });
 
         setTimeout(() => {
-          navigate(ROUTES.RESET_PASSWORD);
+          navigate(ROUTES.DEFAULT_PASSWORD_RESET);
         }, 1000);
 
         setLoading(false);
@@ -167,15 +167,15 @@ const Login = () => {
             }}
           >
             {isMobile ? (
-              <img 
-                src={logo} 
-                alt="Logo" 
-                style={{ 
-                  width: "100px", 
-                  height: "auto", 
+              <img
+                src={logo}
+                alt="Logo"
+                style={{
+                  width: "100px",
+                  height: "auto",
                   marginBottom: "8px",
-                  objectFit: "contain" 
-                }} 
+                  objectFit: "contain"
+                }}
               />
             ) : (
               <Avatar sx={{ bgcolor: "primary.main", mb: 1 }}>
