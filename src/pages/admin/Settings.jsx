@@ -124,7 +124,6 @@ const Settings = () => {
     };
 
     const handleValueChange = async (key, value) => {
-        // If boolean, convert to 1/0
         const settingType = settings[key]?.type;
         let newValue = value;
         if (settingType === "boolean") {
@@ -216,9 +215,9 @@ const Settings = () => {
     }
 
     return (
-        <Box sx={{ p: 3 }}>
-            <Box sx={{ mb: 3 }}>
-                <Typography variant="h4" component="h1">
+        <Box sx={{ maxWidth: "auto" }}>
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <Typography variant="h5" component="h1">
                     System Settings
                 </Typography>
             </Box>

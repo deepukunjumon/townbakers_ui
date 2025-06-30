@@ -216,9 +216,9 @@ const Settings = () => {
     }
 
     return (
-        <Box sx={{ p: 3 }}>
-            <Box sx={{ mb: 3 }}>
-                <Typography variant="h4" component="h1">
+        <Box sx={{ maxWidth: "auto" }}>
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <Typography variant="h5" component="h1">
                     System Settings
                 </Typography>
             </Box>
