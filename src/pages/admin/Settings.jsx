@@ -76,7 +76,7 @@ const Settings = () => {
 
             const currentSetting = settings[key];
 
-            const response = await fetch(apiConfig.UPDATE_SETTING, {
+            const response = await fetch(apiConfig.UPDATE_SETTINGS, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
