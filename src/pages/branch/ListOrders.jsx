@@ -79,6 +79,7 @@ const ListOrders = () => {
     open: false,
     order: null,
   });
+
   const debouncedSearchRef = useRef();
 
   const fetchOrders = useCallback(async () => {
@@ -391,6 +392,7 @@ const ListOrders = () => {
         color={ORDER_STATUS_CONFIG[order.status]?.color || "default"}
       />
     ),
+
     actions: (
       <Box sx={{ display: "flex", gap: 1 }}>
         <IconButtonComponent

@@ -96,6 +96,7 @@ const AppRoutes = () => (
       <Route path={ROUTES.SUPER_ADMIN.AUDIT_LOGS} element={<AuditLogs />} />
       <Route path={ROUTES.SUPER_ADMIN.EMAIL_LOGS} element={<EmailLogs />} />
       <Route path={ROUTES.SUPER_ADMIN.SETTINGS} element={<Settings />} />
+
     </Route>
 
     {/* Admin Protected */}
