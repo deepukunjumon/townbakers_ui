@@ -348,7 +348,7 @@ const ViewProfile = () => {
           <ButtonComponent
             variant="contained"
             color="primary"
-            onClick={() => navigate(ROUTES.RESET_PASSWORD)}
+            onClick={() => navigate(ROUTES.DEFAULT_PASSWORD_RESET)}
             sx={{ minWidth: 120 }}
           >
             Reset Password

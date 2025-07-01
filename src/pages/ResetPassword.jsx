@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography} from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import TextFieldComponent from "../components/TextFieldComponent";
 import SnackbarAlert from "../components/SnackbarAlert";
 import apiConfig from "../config/apiConfig";
@@ -51,7 +51,7 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(apiConfig.RESET_PASSWORD_URL, {
+      const res = await fetch(apiConfig.DEFAULT_PASSWORD_RESET_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -131,9 +131,9 @@ const ResetPassword = () => {
           alignItems: "center"
         }}
       >
-        <Typography 
-          variant="h5" 
-          sx={{ 
+        <Typography
+          variant="h5"
+          sx={{
             mb: 4,
             fontWeight: 500,
             textAlign: "center"
@@ -178,8 +178,8 @@ const ResetPassword = () => {
             setShowPassword={() => toggleShowPassword("new_password_confirmation")}
             sx={{ mb: 3 }}
           />
-          <Box sx={{ 
-            display: 'flex', 
+          <Box sx={{
+            display: 'flex',
             gap: 2,
             width: '100%'
           }}>

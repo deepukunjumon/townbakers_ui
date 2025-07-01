@@ -2,6 +2,7 @@ export const ROUTES = {
   ROOT: "/",
   LOGIN: "/login",
   RESET_PASSWORD: "/password/reset",
+  DEFAULT_PASSWORD_RESET: "/default-password/reset",
   UNAUTHORIZED: "/unauthorized",
   PROFILE: "/profile",
   FORGOT_PASSWORD: "/forgot-password",
@@ -12,6 +13,7 @@ export const ROUTES = {
     ROOT: "/super-admin",
     DASHBOARD: "/super-admin/dashboard",
     DESIGNATIONS: "/super-admin/designations",
+    SETTINGS: "/super-admin/settings",
 
     CREATE_USER: "/super-admin/create/user",
     USERS_LIST: "/super-admin/users-list",
@@ -37,6 +39,7 @@ export const ROUTES = {
     ROOT: "/admin",
     DASHBOARD: "/admin/dashboard",
     DESIGNATIONS: "/admin/designations",
+    SETTINGS: "/admin/settings",
 
     CREATE_BRANCH: "/admin/create/branch",
     BRANCH_LIST: "/admin/view/branches",

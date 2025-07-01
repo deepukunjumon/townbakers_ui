@@ -1,14 +1,15 @@
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
     ? "https://api-tbms.up.railway.app/api" //Production URL
-    : "http://localhost:8000/api"; //Development URL
+    : "http://localhost:8080/api"; //Development URL
 
 const apiConfig = {
   BASE_URL: API_BASE_URL,
 
   // Common APIs
   LOGIN_URL: `${API_BASE_URL}/login`,
-  RESET_PASSWORD_URL: `${API_BASE_URL}/password/reset`,
+  DEFAULT_PASSWORD_RESET_URL: `${API_BASE_URL}/default-password/reset`,
+  RESET_PASSWORD: `${API_BASE_URL}/password/reset`,
   PROFILE: `${API_BASE_URL}/profile`,
   UPDATE_PROFILE: `${API_BASE_URL}/update/profile`,
   LOGOUT_URL: `${API_BASE_URL}/logout`,
@@ -16,6 +17,10 @@ const apiConfig = {
   MINIMAL_EMPLOYEES: `${API_BASE_URL}/employees/minimal`,
   DESIGNATIONS: `${API_BASE_URL}/designations`,
   ACTIVE_DESIGNATIONS: `${API_BASE_URL}/designations/active`,
+
+  // Settings APIs
+  SETTINGS: `${API_BASE_URL}/settings`,
+  UPDATE_SETTINGS: `${API_BASE_URL}/update/settings`,
 
   EMPLOYEE_DETAILS: (id) => `${API_BASE_URL}/employee/${id}`,
   UPDATE_EMPLOYEE_DETAILS: (id) => `${API_BASE_URL}/employee/update/${id}`,
@@ -99,7 +104,6 @@ const apiConfig = {
 
   FORGOT_PASSWORD: `${API_BASE_URL}/forgot-password`,
   VERIFY_OTP: `${API_BASE_URL}/verify-otp`,
-  RESET_PASSWORD: `${API_BASE_URL}/reset-password`,
 };
 
 export default apiConfig;
