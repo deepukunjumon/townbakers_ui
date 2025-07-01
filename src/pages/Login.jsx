@@ -190,7 +190,7 @@ const Login = () => {
               sx={{ mt: 2, width: "100%", maxWidth: { xs: 290, ms: 360 } }}
             >
               <TextFieldComponent
-                label="Login ID"
+                label="Username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
