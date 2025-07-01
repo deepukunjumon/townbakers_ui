@@ -1,7 +1,7 @@
 const API_BASE_URL =
   process.env.NODE_ENV === "production"
     ? "https://api-tbms.up.railway.app/api" //Production URL
-    : "http://localhost:8000/api"; //Development URL
+    : "http://localhost:8080/api"; //Development URL
 
 const apiConfig = {
   BASE_URL: API_BASE_URL,
@@ -9,7 +9,7 @@ const apiConfig = {
   // Common APIs
   LOGIN_URL: `${API_BASE_URL}/login`,
   DEFAULT_PASSWORD_RESET_URL: `${API_BASE_URL}/default-password/reset`,
-  RESET_PASSWORD_URL: `${API_BASE_URL}/password/reset`,
+  RESET_PASSWORD: `${API_BASE_URL}/password/reset`,
   PROFILE: `${API_BASE_URL}/profile`,
   UPDATE_PROFILE: `${API_BASE_URL}/update/profile`,
   LOGOUT_URL: `${API_BASE_URL}/logout`,
@@ -104,7 +104,6 @@ const apiConfig = {
 
   FORGOT_PASSWORD: `${API_BASE_URL}/forgot-password`,
   VERIFY_OTP: `${API_BASE_URL}/verify-otp`,
-  RESET_PASSWORD: `${API_BASE_URL}/reset-password`,
 };
 
 export default apiConfig;
