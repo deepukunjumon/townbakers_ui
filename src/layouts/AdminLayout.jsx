@@ -100,11 +100,6 @@ const AdminLayout = () => {
         },
         {
           icon: <Assignment />,
-          label: "Create Order",
-          onClick: () => navigate(ROUTES.ADMIN.CREATE_ORDER),
-        },
-        {
-          icon: <Assignment />,
           label: "All Orders",
           onClick: () => navigate(ROUTES.ADMIN.ALL_ORDERS),
         },
