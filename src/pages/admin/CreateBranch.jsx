@@ -163,21 +163,21 @@ const CreateBranch = () => {
           </Grid>
           <Grid item xs={12}>
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-            <ButtonComponent
-              type="button"
-              variant="outlined"
-              onClick={() => setForm(initialState)}
-            >
-              Reset
-            </ButtonComponent>
-            <ButtonComponent
-              type="submit"
-              variant="contained"
-              color="primary"
-              disabled={loading || !isFormValid()}
-            >
-              {loading ? "Creating..." : "Create Branch"}
-            </ButtonComponent>
+              <ButtonComponent
+                type="button"
+                variant="outlined"
+                onClick={() => setForm(initialState)}
+              >
+                Reset
+              </ButtonComponent>
+              <ButtonComponent
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={loading || !isFormValid()}
+              >
+                {loading ? "Creating..." : "Create Branch"}
+              </ButtonComponent>
             </Box>
           </Grid>
         </Grid>
