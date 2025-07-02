@@ -146,8 +146,8 @@ const AllEmployees = () => {
         const designationsList = Array.isArray(data.designations)
           ? data.designations
           : Array.isArray(data.data)
-          ? data.data
-          : [];
+            ? data.data
+            : [];
         setDesignations(designationsList);
       } catch (error) {
         console.error("Error fetching designations:", error);
@@ -351,7 +351,7 @@ const AllEmployees = () => {
   // Confirmation modal content
   const getConfirmationDialogProps = () => {
     const { action, currentStatus } = confirmPayload;
-    
+
     if (action === "delete") {
       return {
         title: "Delete Employee",
@@ -361,7 +361,7 @@ const AllEmployees = () => {
         confirmColor: "error",
       };
     }
-    
+
     if (currentStatus === 1) {
       return {
         title: "Disable Employee",
@@ -371,7 +371,7 @@ const AllEmployees = () => {
         confirmColor: "warning",
       };
     }
-    
+
     return {
       title: "Enable Employee",
       content: STRINGS.ENABLE_EMPLOYEE_CONFIRMATION,
@@ -409,10 +409,20 @@ const AllEmployees = () => {
           <TextFieldComponent
             fullWidth
             label="Mobile"
-            type = "mobile"
+            type="mobile"
             value={editFormData.mobile}
             onChange={(e) =>
               setEditFormData((prev) => ({ ...prev, mobile: e.target.value }))
+            }
+            margin="normal"
+          />
+          <TextFieldComponent
+            fullWidth
+            label="Email"
+            type="email"
+            value={editFormData.email}
+            onChange={(e) =>
+              setEditFormData((prev) => ({ ...prev, email: e.target.value }))
             }
             margin="normal"
           />
@@ -514,6 +524,7 @@ const AllEmployees = () => {
     },
     { field: "name", headerName: "Name", flex: 1 },
     { field: "mobile", headerName: "Mobile", flex: 1 },
+    { field: "email", headerName: "Email", flex: 1 },
     { field: "designation", headerName: "Designation", flex: 1 },
     { field: "branch_code", headerName: "Branch Code", flex: 1 },
     { field: "branch_name", headerName: "Branch Name", flex: 1 },

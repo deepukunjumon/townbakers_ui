@@ -209,7 +209,7 @@ const BranchEmployees = () => {
 
   const getConfirmationDialogProps = () => {
     const { currentStatus } = confirmPayload;
-    
+
     if (currentStatus === 1) {
       return {
         title: "Disable Employee",
@@ -219,7 +219,7 @@ const BranchEmployees = () => {
         confirmColor: "warning",
       };
     }
-    
+
     return {
       title: "Enable Employee",
       content: STRINGS.ENABLE_EMPLOYEE_CONFIRMATION,
@@ -256,6 +256,7 @@ const BranchEmployees = () => {
     },
     { field: "name", headerName: "Name", flex: 1 },
     { field: "mobile", headerName: "Mobile", flex: 1 },
+    { field: "email", headerName: "Email", flex: 1 },
     { field: "designation", headerName: "Designation", flex: 1 },
     {
       field: "status",
