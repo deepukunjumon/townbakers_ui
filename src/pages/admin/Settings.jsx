@@ -137,7 +137,7 @@ const Settings = () => {
     };
 
     const renderSettingField = (setting) => {
-        const { key, value, type, description } = setting;
+        const { key, value, type } = setting;
         const isUpdating = updating[key];
 
         switch (type) {

@@ -17,7 +17,7 @@ import apiConfig from "../config/apiConfig";
 import SnackbarAlert from "../components/SnackbarAlert";
 import { STRINGS } from "../constants/strings";
 import { ROUTES } from "../constants/routes";
-import login_page_image from "../assets/images/login_page_image.svg";
+import forgot_password_image from "../assets/images/forgot-password.svg";
 import logo from "../assets/images/logo.svg";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -313,7 +313,7 @@ const ForgotPassword = () => {
               }}
             >
               <img
-                src={login_page_image}
+                src={forgot_password_image}
                 alt="Forgot Password Illustration"
                 width={340}
                 style={{ maxWidth: "100%" }}
@@ -334,15 +334,15 @@ const ForgotPassword = () => {
             }}
           >
             {isMobile ? (
-              <img 
-                src={logo} 
-                alt="Logo" 
-                style={{ 
-                  width: "100px", 
-                  height: "auto", 
+              <img
+                src={logo}
+                alt="Logo"
+                style={{
+                  width: "100px",
+                  height: "auto",
                   marginBottom: "8px",
-                  objectFit: "contain" 
-                }} 
+                  objectFit: "contain"
+                }}
               />
             ) : (
               <Avatar sx={{ bgcolor: "primary.main", mb: 1 }}>
