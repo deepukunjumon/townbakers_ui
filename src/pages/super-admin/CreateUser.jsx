@@ -164,13 +164,13 @@ const CreateUser = () => {
         message={snack.message}
       />
 
-      <Typography variant="h5" fontWeight={600} sx={{ mb: 3 }}>
-        Create New User
+      <Typography variant="h5" sx={{ flexGrow: 1, mb: 2 }}>
+        Create User
       </Typography>
       <Divider sx={{ mb: 2 }} />
 
       <form onSubmit={handleSubmit}>
-        <FormControl component="fieldset" sx={{ mb: 3, display: "block" }}>
+        <FormControl component="fieldset" sx={{ mb: 1, display: "block" }}>
           <FormLabel component="legend" sx={{ mb: 1 }}>
             Role
           </FormLabel>
@@ -183,7 +183,7 @@ const CreateUser = () => {
 
         {/* Username only for admin */}
         {form.role === "admin" && (
-          <Box sx={{ mb: 3 }}>
+          <Box sx={{ mb: 1 }}>
             <TextFieldComponent
               name="username"
               label="Username"
@@ -198,7 +198,7 @@ const CreateUser = () => {
         {/* Branch role fields */}
         {form.role === "branch" && (
           <>
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <TextFieldComponent
                 name="code"
                 label="Branch Code"
@@ -208,7 +208,7 @@ const CreateUser = () => {
                 fullWidth
               />
             </Box>
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <TextFieldComponent
                 name="name"
                 label="Branch Name"
@@ -218,7 +218,7 @@ const CreateUser = () => {
                 fullWidth
               />
             </Box>
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <TextFieldComponent
                 name="address"
                 label="Branch Address"
@@ -230,7 +230,7 @@ const CreateUser = () => {
                 rows={4}
               />
             </Box>
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <TextFieldComponent
                 type="mobile"
                 name="mobile"
@@ -241,7 +241,7 @@ const CreateUser = () => {
                 fullWidth
               />
             </Box>
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <TextFieldComponent
                 type="phone"
                 label="Phone"
@@ -251,7 +251,7 @@ const CreateUser = () => {
                 fullWidth
               />
             </Box>
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <TextFieldComponent
                 name="email"
                 label="Email"
@@ -268,7 +268,7 @@ const CreateUser = () => {
         {/* Admin or Employee role */}
         {(form.role === "admin" || form.role === "employee") && (
           <>
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <TextFieldComponent
                 name="name"
                 label="Name"
@@ -278,7 +278,7 @@ const CreateUser = () => {
                 fullWidth
               />
             </Box>
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <TextFieldComponent
                 type="mobile"
                 name="mobile"
@@ -290,7 +290,7 @@ const CreateUser = () => {
                 fullWidth
               />
             </Box>
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <TextFieldComponent
                 name="email"
                 label="Email"
@@ -306,7 +306,7 @@ const CreateUser = () => {
         {/* Employee-specific fields */}
         {form.role === "employee" && (
           <>
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <TextFieldComponent
                 name="employee_code"
                 label="Employee Code"
@@ -316,7 +316,7 @@ const CreateUser = () => {
                 fullWidth
               />
             </Box>
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <SelectFieldComponent
                 label="Designation"
                 name="designation_id"
@@ -333,7 +333,7 @@ const CreateUser = () => {
                 fullWidth
               />
             </Box>
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 1 }}>
               <SelectFieldComponent
                 name="branch_id"
                 label="Branch"
