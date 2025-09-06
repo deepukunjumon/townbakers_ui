@@ -96,6 +96,7 @@ const CreateEmployee = () => {
           employee_code: "",
           name: "",
           mobile: "",
+          email: "",
           designation_id: "",
         });
       }
@@ -111,7 +112,7 @@ const CreateEmployee = () => {
   };
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       maxWidth: 600,
       display: 'flex',
       flexDirection: 'column',
@@ -119,8 +120,8 @@ const CreateEmployee = () => {
       mx: 'auto'
     }}>
       {loading && <Loader message="Creating employee..." />}
-      <Typography 
-        variant="h5" 
+      <Typography
+        variant="h5"
         gutterBottom
         sx={{
           alignSelf: { xs: 'flex-start', sm: 'center' },
@@ -136,12 +137,12 @@ const CreateEmployee = () => {
         message={snack.message}
       />
 
-      <Divider 
-        sx={{ 
+      <Divider
+        sx={{
           mb: 3,
           width: '100%',
           borderColor: 'rgba(0, 0, 0, 0.12)'
-        }} 
+        }}
       />
 
       <form onSubmit={handleSubmit}>
@@ -170,6 +171,14 @@ const CreateEmployee = () => {
           onChange={handleChange}
           fullWidth
           required
+          margin="normal"
+        />
+        <TextFieldComponent
+          name="email"
+          label="Email"
+          value={form.email}
+          onChange={handleChange}
+          fullWidth
           margin="normal"
         />
         <SelectFieldComponent

@@ -18,6 +18,7 @@ import ButtonComponent from "../../components/ButtonComponent";
 import { getToken } from "../../utils/auth";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import Loader from "../../components/Loader";
+import { STRINGS } from "../../constants/strings";
 
 // Custom hook for form handling
 const useFormState = (initialState) => {
@@ -126,7 +127,7 @@ const DeveloperTools = () => {
     whatsappState.setResponse(null);
 
     try {
-      const res = await fetch(apiConfig.WHATSAPP_TEST, {
+      const res = await fetch(apiConfig.SUPER_ADMIN.WHATSAPP_TEST, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -135,7 +136,7 @@ const DeveloperTools = () => {
         body: JSON.stringify({
           phone: whatsappState.form.phone,
           message:
-            whatsappState.form.message || "Test message from developer tools",
+            whatsappState.form.message || STRINGS.WHATSAPP_TEST_MESSAGE,
         }),
       });
 

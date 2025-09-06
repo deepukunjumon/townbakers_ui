@@ -33,7 +33,8 @@ const SuperAdminDashboard = () => {
       loading: true,
       color: "warning",
       icon: <AssignmentIcon />,
-      onClick: () => navigate(ROUTES.SUPER_ADMIN.ALL_ORDERS, {
+      onClick: () =>
+        navigate(ROUTES.SUPER_ADMIN.ALL_ORDERS, {
           state: { status: "pending", todayOnly: true },
         }),
     },
@@ -42,9 +43,10 @@ const SuperAdminDashboard = () => {
       loading: true,
       color: "success",
       icon: <AssignmentIcon />,
-      onClick: () => navigate(ROUTES.SUPER_ADMIN.ALL_ORDERS, {
-        state: { status: "delivered", todayOnly: true },
-      }),
+      onClick: () =>
+        navigate(ROUTES.SUPER_ADMIN.ALL_ORDERS, {
+          state: { status: "delivered", todayOnly: true },
+        }),
     },
   ]);
 
@@ -58,7 +60,7 @@ const SuperAdminDashboard = () => {
     axios
       .get(apiConfig.SUPER_ADMIN.DASHBOARD_STATS, {
         params: {
-          orders : true
+          orders: true,
         },
         headers: {
           Authorization: getToken(),
@@ -98,7 +100,7 @@ const SuperAdminDashboard = () => {
                   loading: false,
                 };
               }
-            return stat;
+              return stat;
             })
           );
         }
@@ -114,9 +116,7 @@ const SuperAdminDashboard = () => {
 
   return (
     <Box sx={{ maxWidth: "auto" }}>
-      <Box
-        sx={{ display: "flex", alignItems: "center", mb: 2 }}
-      >
+      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
           Dashboard
         </Typography>

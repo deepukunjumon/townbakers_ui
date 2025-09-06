@@ -13,10 +13,14 @@ import {
   Autocomplete,
   Fab,
   Button,
-  IconButton,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import TableComponent from "../../components/TableComponent";
 import SnackbarAlert from "../../components/SnackbarAlert";
 import { getToken } from "../../utils/auth";
@@ -26,11 +30,15 @@ import DateSelectorComponent from "../../components/DateSelectorComponent";
 import ModalComponent from "../../components/ModalComponent";
 import Loader from "../../components/Loader";
 import ChipComponent from "../../components/ChipComponent";
-import { ORDER_STATUS_CONFIG } from "../../constants/statuses";
+import { ORDER_STATUS_CONFIG, ORDER_PAYMENT_STATUS_CONFIG } from "../../constants/statuses";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getRoleFromToken } from "../../utils/auth";
 import { ROUTES } from "../../constants/routes";
 import IconButtonComponent from "../../components/IconButtonComponent";
+import TimePickerComponent from "../../components/TimePickerComponent";
+import SelectFieldComponent from "../../components/SelectFieldComponent";
+import TextFieldComponent from "../../components/TextFieldComponent";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 const OrdersList = () => {
   const navigate = useNavigate();
@@ -55,6 +63,7 @@ const OrdersList = () => {
     return todayOnly ? currentDate : currentDate;
   });
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState(() => {
     const { status } = location.state || {};
     if (status === "pending") return "0";
@@ -69,6 +78,15 @@ const OrdersList = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [orderToEdit, setOrderToEdit] = useState(null);
+  const [originalOrder, setOriginalOrder] = useState(null);
+  const [updating, setUpdating] = useState(false);
+  const [branchList, setBranchList] = useState([]);
+  const [employeeList, setEmployeeList] = useState([]);
+  const [paymentStatus, setPaymentStatus] = useState("0");
+  const [advanceError, setAdvanceError] = useState("");
+
   const [snack, setSnack] = useState({
     open: false,
     severity: "error",
@@ -110,6 +128,20 @@ const OrdersList = () => {
     fetchBranches();
   }, []);
 
+  useEffect(() => {
+    if (editModalOpen && orderToEdit && branchList.length && employeeList.length) {
+      const branchObj = branchList.find(b => String(b.id) === String(orderToEdit.branch?.id)) || null;
+      const employeeObj = employeeList.find(e => String(e.id) === String(orderToEdit.employee?.id)) || null;
+      if (orderToEdit.branch !== branchObj || orderToEdit.employee !== employeeObj) {
+        setOrderToEdit(prev => ({
+          ...prev,
+          branch: branchObj,
+          employee: employeeObj,
+        }));
+      }
+    }
+  }, [editModalOpen, orderToEdit, branchList, employeeList]);
+
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     const token = getToken();
@@ -119,7 +151,7 @@ const OrdersList = () => {
       end_date: format(endDate, "yyyy-MM-dd"),
       page: pagination.current_page,
       per_page: pagination.per_page,
-      search,
+      search: debouncedSearch,
       status: statusFilter,
       branch_id: branchFilter,
     });
@@ -160,10 +192,17 @@ const OrdersList = () => {
     pagination.per_page,
     startDate,
     endDate,
-    search,
+    debouncedSearch,
     statusFilter,
     branchFilter,
   ]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [search]);
 
   useEffect(() => {
     fetchOrders();
@@ -231,7 +270,7 @@ const OrdersList = () => {
     try {
       const token = getToken();
       const res = await fetch(`${apiConfig.DELETE_ORDER(orderId)}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: { Authorization: `${token}` },
       });
       const data = await res.json();
@@ -241,7 +280,7 @@ const OrdersList = () => {
           severity: "success",
           message: data.message || "Order deleted successfully",
         });
-        fetchOrders(); // Refresh the list
+        fetchOrders();
       } else {
         throw new Error(data.message || "Failed to delete order");
       }
@@ -261,6 +300,166 @@ const OrdersList = () => {
   const handleDeleteClick = (order) => {
     setOrderToDelete(order);
     setDeleteModalOpen(true);
+  };
+
+  const handleEditClick = async (order) => {
+    setEditModalOpen(true);
+    setModalLoading(true);
+
+    try {
+      const [orderRes, branchesRes, employeesRes] = await Promise.all([
+        fetch(apiConfig.ORDER_DETAILS(order.id), {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        }),
+        fetch(apiConfig.MINIMAL_BRANCHES, {
+          headers: { Authorization: getToken() },
+        }),
+        fetch(apiConfig.MINIMAL_EMPLOYEES, {
+          headers: { Authorization: getToken() },
+        }),
+      ]);
+      const orderData = await orderRes.json();
+      const branchesData = await branchesRes.json();
+      const employeesData = await employeesRes.json();
+
+      if (
+        orderData.success &&
+        orderData.order &&
+        branchesData.success &&
+        employeesData.success
+      ) {
+        setBranchList(branchesData.branches || []);
+        setEmployeeList(employeesData.employees || []);
+
+        const branchId = orderData.order.branch?.id;
+        const employeeId = orderData.order.employee?.id;
+        const branchObj =
+          (branchesData.branches || []).find(
+            (b) => String(b.id) === String(branchId)
+          ) || null;
+        const employeeObj =
+          (employeesData.employees || []).find(
+            (e) => String(e.id) === String(employeeId)
+          ) || null;
+
+        setOrderToEdit({
+          ...orderData.order,
+          branch: branchObj,
+          employee: employeeObj,
+          delivery_date: orderData.order.delivery_date
+            ? new Date(orderData.order.delivery_date)
+            : null,
+        });
+        setOriginalOrder({
+          ...orderData.order,
+          branch: branchObj,
+          employee: employeeObj,
+          delivery_date: orderData.order.delivery_date
+            ? new Date(orderData.order.delivery_date)
+            : null,
+        });
+        setPaymentStatus(orderData.order.payment_status?.toString() || "0");
+      } else {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Failed to load order or reference data.",
+        });
+      }
+    } catch {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to load order or reference data.",
+      });
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const handleUpdateOrder = async () => {
+    if (!orderToEdit || !originalOrder) return;
+
+    const updatedOrder = { ...orderToEdit, payment_status: paymentStatus };
+
+    setUpdating(true);
+    try {
+      const token = getToken();
+      const fieldsToCheck = [
+        "title",
+        "description",
+        "remarks",
+        "delivery_date",
+        "delivery_time",
+        "customer_name",
+        "customer_email",
+        "customer_mobile",
+        "total_amount",
+        "advance_amount",
+      ];
+      const updatedFields = {};
+      fieldsToCheck.forEach((field) => {
+        if (updatedOrder[field] !== originalOrder[field]) {
+          updatedFields[field] = updatedOrder[field];
+        }
+      });
+      if (updatedOrder.payment_status !== originalOrder.payment_status) {
+        updatedFields.payment_status = updatedOrder.payment_status;
+      }
+      if (
+        (orderToEdit.branch?.id || null) !== (originalOrder.branch?.id || null)
+      ) {
+        updatedFields.branch_id = orderToEdit.branch?.id || null;
+      }
+      if (
+        (orderToEdit.employee?.id || null) !==
+        (originalOrder.employee?.id || null)
+      ) {
+        updatedFields.employee_id = orderToEdit.employee?.id || null;
+      }
+      updatedFields.id = orderToEdit.id;
+      if (updatedFields.delivery_date) {
+        updatedFields.delivery_date = updatedFields.delivery_date
+          ? typeof updatedFields.delivery_date === "string"
+            ? updatedFields.delivery_date
+            : format(new Date(updatedFields.delivery_date), "yyyy-MM-dd")
+          : null;
+      }
+      const res = await fetch(
+        `${apiConfig.ADMIN_UPDATE_ORDER(orderToEdit.id)}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatedFields),
+        }
+      );
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSnack({
+          open: true,
+          severity: "success",
+          message: data.message || "Order updated successfully",
+        });
+        setEditModalOpen(false);
+        setOrderToEdit(null);
+        setOriginalOrder(null);
+        fetchOrders();
+      } else {
+        throw new Error(data.message || "Failed to update order");
+      }
+    } catch (err) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: err.message || "Failed to update order",
+      });
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const tableRows = orders.map((order) => ({
@@ -283,20 +482,44 @@ const OrdersList = () => {
         }
       />
     ),
-    actions: order.status !== 1 ? (
+    actions: (
       <Box sx={{ display: "flex", gap: 1 }}>
         <IconButtonComponent
-          icon={DeleteIcon}
+          icon={VisibilityIcon}
+          color="info"
           size="small"
+          title="View Order Details"
           onClick={(e) => {
             e.stopPropagation();
-            handleDeleteClick(order);
+            handleOrderClick(order.id);
           }}
-          color="error"
-          title="Delete"
         />
+        {order.is_deletable && (
+          <IconButtonComponent
+            icon={DeleteIcon}
+            color="error"
+            size="small"
+            title="Delete Order"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteClick(order);
+            }}
+          />
+        )}
+        {order.is_editable && (
+          <IconButtonComponent
+            icon={EditIcon}
+            color="primary"
+            size="small"
+            title="Edit Order"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEditClick(order);
+            }}
+          />
+        )}
       </Box>
-    ) : null,
+    ),
   }));
 
   const columns = [
@@ -353,7 +576,7 @@ const OrdersList = () => {
 
         <Grid item xs={12} md={2.5} lg={2.5}>
           <FormControl sx={{ width: "100%" }} variant="outlined">
-            <InputLabel shrink={true}>Status</InputLabel>
+            <InputLabel shrink={true}>Order Status</InputLabel>
             <Select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -413,7 +636,6 @@ const OrdersList = () => {
           page={pagination.current_page - 1}
           rowsPerPage={pagination.per_page}
           onPaginationChange={handlePaginationChange}
-          onRowClick={(row) => handleOrderClick(row.id)}
         />
       )}
 
@@ -495,7 +717,7 @@ const OrdersList = () => {
               </Typography>
               <Divider sx={{ my: 2 }} />
               <Typography>
-                <strong>Status:</strong>{" "}
+                <strong>Order Status:</strong>{" "}
                 <ChipComponent
                   size="small"
                   variant="filled"
@@ -505,6 +727,20 @@ const OrdersList = () => {
                   }
                   color={
                     ORDER_STATUS_CONFIG[selectedOrder.status]?.color || "info"
+                  }
+                />
+              </Typography>
+              <Typography>
+                <strong>Payment Status:</strong>{" "}
+                <ChipComponent
+                  size="small"
+                  variant="filled"
+                  label={
+                    ORDER_PAYMENT_STATUS_CONFIG[selectedOrder.payment_status]?.label ||
+                    "Unknown"
+                  }
+                  color={
+                    ORDER_PAYMENT_STATUS_CONFIG[selectedOrder.payment_status]?.color || "info"
                   }
                 />
               </Typography>
@@ -550,44 +786,400 @@ const OrdersList = () => {
       />
 
       <ModalComponent
-        open={deleteModalOpen}
+        open={editModalOpen}
+        title="Edit Order"
         onClose={() => {
-          setDeleteModalOpen(false);
-          setOrderToDelete(null);
+          setEditModalOpen(false);
+          setOrderToEdit(null);
+          setOriginalOrder(null);
         }}
-        title="Confirm Delete"
         content={
-          orderToDelete ? (
-            <Box>
-              <Typography>
-                Are you sure you want to delete the order "{orderToDelete.title}"?
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                This action cannot be undone.
-              </Typography>
-              <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, mt: 2 }}>
+          modalLoading ? (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight={150}>
+              <CircularProgress />
+            </Box>
+          ) : orderToEdit ? (
+            <Box
+              component="form"
+              noValidate
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleUpdateOrder();
+              }}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 4,
+              }}
+            >
+              {/* Order Info */}
+              <Box>
+                <Typography variant="h6" mb={2}>
+                  Order Information
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextFieldComponent
+                      label="Order Title"
+                      name="title"
+                      value={orderToEdit.title}
+                      onChange={(e) =>
+                        setOrderToEdit({
+                          ...orderToEdit,
+                          title: e.target.value,
+                        })
+                      }
+                      sx={{ minWidth: { xs: 300, sm: 520 } }}
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextFieldComponent
+                      label="Description"
+                      name="description"
+                      value={orderToEdit.description}
+                      onChange={(e) =>
+                        setOrderToEdit({
+                          ...orderToEdit,
+                          description: e.target.value,
+                        })
+                      }
+                      multiline
+                      rows={3}
+                      sx={{ minWidth: { xs: 300, sm: 250 } }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextFieldComponent
+                      label="Remarks"
+                      name="remarks"
+                      value={orderToEdit.remarks}
+                      onChange={(e) =>
+                        setOrderToEdit({
+                          ...orderToEdit,
+                          remarks: e.target.value,
+                        })
+                      }
+                      multiline
+                      rows={3}
+                      sx={{ minWidth: { xs: 300, sm: 250 } }}
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+
+              <Divider sx={{ my: 0.5 }} />
+
+              {/* Delivery Info */}
+              <Box>
+                <Typography variant="h6" mb={2}>
+                  Delivery Information
+                </Typography>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6}>
+                    <DateSelectorComponent
+                      label="Delivery Date"
+                      name="delivery_date"
+                      value={orderToEdit.delivery_date}
+                      onChange={(date) =>
+                        setOrderToEdit({ ...orderToEdit, delivery_date: date })
+                      }
+                      minDate={new Date()}
+                      sx={{ maxWidth: { xs: "100%", sm: "100%" } }}
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TimePickerComponent
+                      label="Delivery Time"
+                      name="delivery_time"
+                      value={orderToEdit.delivery_time}
+                      onChange={(time) =>
+                        setOrderToEdit({ ...orderToEdit, delivery_time: time })
+                      }
+                      sx={{ maxWidth: { xs: "100%", sm: "100%" } }}
+                      required
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+
+              <Divider sx={{ my: 0.5 }} />
+
+              {/* Customer Info */}
+              <Box>
+                <Typography variant="h6" mb={2}>
+                  Customer Information
+                </Typography>
+                <Grid container spacing={3} gap={{ xs: 2, sm: 3 }} pr={{ xs: 0, sm: 3 }}>
+                  <Grid item xs={12} sm={6}>
+                    <TextFieldComponent
+                      label="Customer Name"
+                      name="customer_name"
+                      value={orderToEdit.customer_name}
+                      onChange={(e) =>
+                        setOrderToEdit({
+                          ...orderToEdit,
+                          customer_name: e.target.value,
+                        })
+                      }
+                      sx={{ minWidth: { xs: 300, sm: 250 } }}
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextFieldComponent
+                      label="Customer Mobile"
+                      name="customer_mobile"
+                      value={orderToEdit.customer_mobile}
+                      onChange={(e) =>
+                        setOrderToEdit({
+                          ...orderToEdit,
+                          customer_mobile: e.target.value,
+                        })
+                      }
+                      sx={{ minWidth: { xs: 300, sm: 250 } }}
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextFieldComponent
+                      label="Customer Email"
+                      name="customer_email"
+                      value={orderToEdit.customer_email}
+                      onChange={(e) =>
+                        setOrderToEdit({
+                          ...orderToEdit,
+                          customer_email: e.target.value,
+                        })
+                      }
+                      sx={{ minWidth: { xs: 300 } }}
+                      type="email"
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+
+              <Divider sx={{ my: 0.5 }} />
+
+              {/* Financial Details */}
+              <Box>
+                <Typography variant="h6" mb={2}>
+                  Financial Details
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextFieldComponent
+                      label="Total Amount"
+                      name="total_amount"
+                      type="number"
+                      value={orderToEdit.total_amount}
+                      onChange={(e) =>
+                        setOrderToEdit({
+                          ...orderToEdit,
+                          total_amount: e.target.value,
+                        })
+                      }
+                      fullWidth
+                      required
+                      inputProps={{ min: 0, step: 0.01 }}
+                    />
+                  </Grid>
+                  {paymentStatus === "1" && (
+                    <Grid item xs={12} sm={6}>
+                      <TextFieldComponent
+                        label="Advance Amount"
+                        name="advance_amount"
+                        type="number"
+                        value={orderToEdit.advance_amount}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          let error = "";
+                          if (Number(val) < 0)
+                            error = "Advance cannot be negative";
+                          else if (
+                            Number(val) > Number(orderToEdit.total_amount || 0)
+                          )
+                            error = "Advance cannot exceed total amount";
+                          setAdvanceError(error);
+                          setOrderToEdit({
+                            ...orderToEdit,
+                            advance_amount: val,
+                          });
+                        }}
+                        required
+                        fullWidth
+                        inputProps={{
+                          min: 0,
+                          max: orderToEdit.total_amount || undefined,
+                          step: 0.01,
+                        }}
+                        error={!!advanceError}
+                        helperText={advanceError}
+                      />
+                    </Grid>
+                  )}
+                  <Grid item xs={12} sm={6} sx={{ mt: 0 }}>
+                    <TextFieldComponent
+                      label="Balance Amount"
+                      name="balance_amount"
+                      type="number"
+                      disabled
+                      value={(() => {
+                        if (paymentStatus === "2") return "0.00";
+                        if (paymentStatus === "0")
+                          return Number(orderToEdit.total_amount || 0).toFixed(
+                            2
+                          );
+                        // Advance Only
+                        return Math.max(
+                          0,
+                          Number(orderToEdit.total_amount || 0) -
+                          Number(orderToEdit.advance_amount || 0)
+                        ).toFixed(2);
+                      })()}
+                      inputProps={{
+                        min: 0,
+                        max: orderToEdit.total_amount || undefined,
+                        step: 0.01,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} sx={{ mt: -3 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                      Payment
+                    </Typography>
+                    <RadioGroup
+                      row
+                      value={paymentStatus}
+                      onChange={(e) => setPaymentStatus(e.target.value)}
+                    >
+                      <FormControlLabel
+                        value="2"
+                        control={<Radio />}
+                        label="Full paid"
+                      />
+                      <FormControlLabel
+                        value="1"
+                        control={<Radio />}
+                        label="Advance Only"
+                      />
+                      <FormControlLabel
+                        value="0"
+                        control={<Radio />}
+                        label="Unpaid"
+                      />
+                    </RadioGroup>
+                  </Grid>
+                </Grid>
+              </Box>
+
+              <Divider sx={{ my: 0.5 }} />
+
+              {/* Branch Details */}
+              <Box>
+                <Typography variant="h6" mb={2}>
+                  Branch Details
+                </Typography>
+                <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <SelectFieldComponent
+                      label="Branch"
+                      value={orderToEdit.branch}
+                      onChange={(e, newValue) => {
+                        if (!newValue) {
+                          setOrderToEdit(prev => ({
+                            ...prev,
+                            branch: originalOrder.branch,
+                          }));
+                        } else {
+                          const branchObj = branchList.find(b => b.id === newValue.id) || null;
+                          setOrderToEdit(prev => ({
+                            ...prev,
+                            branch: branchObj,
+                            employee: null,
+                          }));
+                        }
+                      }}
+                      options={branchList}
+                      valueKey="id"
+                      displayKey={(b) => `${b.code} - ${b.name}`}
+                      required
+                      fullWidth
+                      sx={{ minWidth: { xs: 320 } }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <SelectFieldComponent
+                      label="Employee"
+                      value={orderToEdit.employee}
+                      onChange={(e, newValue) => {
+                        if (!newValue) {
+                          setOrderToEdit(prev => ({
+                            ...prev,
+                            employee: originalOrder.employee,
+                          }));
+                        } else {
+                          const employeeObj = employeeList.find(emp => emp.id === newValue.id) || null;
+                          setOrderToEdit(prev => ({
+                            ...prev,
+                            employee: employeeObj,
+                          }));
+                        }
+                      }}
+                      options={employeeList}
+                      valueKey="id"
+                      displayKey={(emp) => `${emp.employee_code} - ${emp.name}`}
+                      required
+                      fullWidth
+                      sx={{ minWidth: { xs: 320 } }}
+                      disabled={!orderToEdit.branch}
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* Actions */}
+              <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
                 <Button
-                  variant="outlined"
+                  variant="text"
                   onClick={() => {
-                    setDeleteModalOpen(false);
-                    setOrderToDelete(null);
+                    setEditModalOpen(false);
+                    setOrderToEdit(null);
+                    setOriginalOrder(null);
                   }}
-                  disabled={deleting}
+                  disabled={updating}
                 >
                   Cancel
                 </Button>
                 <Button
+                  type="submit"
                   variant="contained"
-                  color="error"
-                  onClick={() => handleDeleteOrder(orderToDelete.id)}
-                  disabled={deleting}
+                  color="primary"
+                  disabled={updating}
                 >
-                  {deleting ? "Deleting..." : "Delete"}
+                  {updating ? "Updating..." : "Update"}
                 </Button>
               </Box>
             </Box>
           ) : null
         }
+      />
+
+      <ConfirmDialog
+        open={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setOrderToDelete(null);
+        }}
+        onConfirm={() => handleDeleteOrder(orderToDelete?.id)}
+        title="Delete Order"
+        content={orderToDelete ? `Are you sure you want to delete the order "${orderToDelete.title}"?` : ""}
+        description="This action cannot be undone."
+        type="danger"
+        confirmText={deleting ? "Deleting..." : "Delete"}
+        confirmColor="error"
+        loading={deleting}
       />
     </Box>
   );

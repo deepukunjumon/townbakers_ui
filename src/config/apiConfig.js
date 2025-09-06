@@ -8,7 +8,8 @@ const apiConfig = {
 
   // Common APIs
   LOGIN_URL: `${API_BASE_URL}/login`,
-  RESET_PASSWORD_URL: `${API_BASE_URL}/password/reset`,
+  DEFAULT_PASSWORD_RESET_URL: `${API_BASE_URL}/default-password/reset`,
+  RESET_PASSWORD: `${API_BASE_URL}/password/reset`,
   PROFILE: `${API_BASE_URL}/profile`,
   UPDATE_PROFILE: `${API_BASE_URL}/update/profile`,
   LOGOUT_URL: `${API_BASE_URL}/logout`,
@@ -16,6 +17,10 @@ const apiConfig = {
   MINIMAL_EMPLOYEES: `${API_BASE_URL}/employees/minimal`,
   DESIGNATIONS: `${API_BASE_URL}/designations`,
   ACTIVE_DESIGNATIONS: `${API_BASE_URL}/designations/active`,
+
+  // Settings APIs
+  SETTINGS: `${API_BASE_URL}/settings`,
+  UPDATE_SETTINGS: `${API_BASE_URL}/update/settings`,
 
   EMPLOYEE_DETAILS: (id) => `${API_BASE_URL}/employee/${id}`,
   UPDATE_EMPLOYEE_DETAILS: (id) => `${API_BASE_URL}/employee/update/${id}`,
@@ -32,7 +37,8 @@ const apiConfig = {
   DELETE_ORDER: (id) => `${API_BASE_URL}/order/${id}`,
 
   CREATE_DESIGNATION: `${API_BASE_URL}/create/designation`,
-  UPDATE_DESIGNATION_DETAILS: (id) => `${API_BASE_URL}/designation/update/${id}`,
+  UPDATE_DESIGNATION_DETAILS: (id) =>
+    `${API_BASE_URL}/designation/update/${id}`,
   UPDATE_DESIGNATION_STATUS: `${API_BASE_URL}/designation/update-status`,
 
   //Sample Files
@@ -41,12 +47,15 @@ const apiConfig = {
   //Super Admin APIs
   SUPER_ADMIN: {
     DASHBOARD_STATS: `${API_BASE_URL}/super-admin/dashboard/stats`,
+    ORDER_STATS: `${API_BASE_URL}/admin/dashboard/order/stats`,
     CREATE_USER: `${API_BASE_URL}/super-admin/create/user`,
     USER_ROLES: `${API_BASE_URL}/super-admin/user-roles`,
     USERS_LIST: `${API_BASE_URL}/super-admin/users`,
     UPDATE_USER_STATUS: `${API_BASE_URL}/super-admin/user/update-status`,
-    UPDATE_USER_DETAILS: (id) => `${API_BASE_URL}/super-admin/user/update/${id}`,
+    UPDATE_USER_DETAILS: (id) =>
+      `${API_BASE_URL}/super-admin/user/update/${id}`,
     MAIL_TEST: `${API_BASE_URL}/super-admin/test-mail`,
+    WHATSAPP_TEST: `${API_BASE_URL}/super-admin/whatsapp/send-message`,
     AUDIT_LOGS: `${API_BASE_URL}/super-admin/logs/audit-logs`,
     AUDIT_LOG_ACTIONS: `${API_BASE_URL}/super-admin/audit-log/actions`,
     TABLES_LIST: `${API_BASE_URL}/super-admin/list/tables`,
@@ -85,12 +94,16 @@ const apiConfig = {
   BRANCH_EMPLOYEES: `${API_BASE_URL}/branch/employees`,
 
   CREATE_ORDER: `${API_BASE_URL}/branch/create/order`,
+  ADMIN_UPDATE_ORDER: (id) => `${API_BASE_URL}/admin/order/${id}/update`,
   BRANCH_ORDERS: `${API_BASE_URL}/branch/orders`,
   UPDATE_ORDER_STATUS: (id) => `${API_BASE_URL}/order/${id}/status`,
 
   ADD_STOCK: `${API_BASE_URL}/stock/add`,
   STOCK_SUMMARY: `${API_BASE_URL}/branch/stock/summary`,
   SEND_STOCK_SUMMARY: `${API_BASE_URL}/branch/stock/summary/email`,
+
+  FORGOT_PASSWORD: `${API_BASE_URL}/forgot-password`,
+  VERIFY_OTP: `${API_BASE_URL}/verify-otp`,
 };
 
 export default apiConfig;

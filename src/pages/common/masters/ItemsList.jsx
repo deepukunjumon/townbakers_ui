@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Box, Typography, Divider, Switch, Fab, Button } from "@mui/material";
+import { Box, Typography, Divider, Switch, Fab, Link } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import TableComponent from "../../../components/TableComponent";
 import Loader from "../../../components/Loader";
 import SnackbarAlert from "../../../components/SnackbarAlert";
 import ModalComponent from "../../../components/ModalComponent";
+import ConfirmDialog from "../../../components/ConfirmDialog";
 import apiConfig from "../../../config/apiConfig";
 import SearchFieldComponent from "../../../components/SearchFieldComponent";
 import TextFieldComponent from "../../../components/TextFieldComponent";
@@ -423,52 +424,37 @@ const ItemsList = () => {
         placeholder="Add a description for the item"
       />
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <Button onClick={handleModalClose} sx={{ mr: 1 }}>
+        <ButtonComponent variant="outlined" onClick={handleModalClose} sx={{ mr: 1 }}>
           Cancel
-        </Button>
-        <Button variant="text" onClick={handleCreateItem}>
+        </ButtonComponent>
+        <ButtonComponent variant="contained" onClick={handleCreateItem}>
           {isEditMode ? "Update" : "Create"}
-        </Button>
+        </ButtonComponent>
       </Box>
     </Box>
   );
 
-  const renderConfirmationModal = () => (
-    <ModalComponent
-      open={confirmModalOpen}
-      hideCloseIcon={true}
-      onClose={handleConfirmCancel}
-      title="Confirm Status Change"
-      content={
-        <Box>
-          <Typography>
-            {selectedItem?.currentStatus === 1
-              ? STRINGS.DISABLE_ITEM_CONFIRMATION(selectedItem?.name)
-              : STRINGS.ENABLE_ITEM_CONFIRMATION(selectedItem?.name)}
-          </Typography>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-            <ButtonComponent
-              variant="text"
-              color="primary"
-              onClick={handleConfirmCancel}
-              sx={{ mr: 1 }}
-            >
-              {STRINGS.CANCEL}
-            </ButtonComponent>
-            <ButtonComponent
-              variant="text"
-              color={selectedItem?.currentStatus === 1 ? "error" : "success"}
-              onClick={confirmToggleStatus}
-            >
-              {selectedItem?.currentStatus === 1
-                ? STRINGS.DISABLE
-                : STRINGS.ENABLE}
-            </ButtonComponent>
-          </Box>
-        </Box>
-      }
-    />
-  );
+  const getConfirmationDialogProps = () => {
+    if (!selectedItem) return {};
+    
+    if (selectedItem.currentStatus === 1) {
+      return {
+        title: "Disable Item",
+        content: STRINGS.DISABLE_ITEM_CONFIRMATION(selectedItem.name),
+        type: "warning",
+        confirmText: "Disable",
+        confirmColor: "warning",
+      };
+    }
+    
+    return {
+      title: "Enable Item",
+      content: STRINGS.ENABLE_ITEM_CONFIRMATION(selectedItem.name),
+      type: "success",
+      confirmText: "Enable",
+      confirmColor: "success",
+    };
+  };
 
   return (
     <Box sx={{ maxWidth: "auto" }}>
@@ -539,7 +525,12 @@ const ItemsList = () => {
         <AddIcon />
       </Fab>
 
-      {renderConfirmationModal()}
+      <ConfirmDialog
+        open={confirmModalOpen}
+        onClose={handleConfirmCancel}
+        onConfirm={confirmToggleStatus}
+        {...getConfirmationDialogProps()}
+      />
 
       <ModalComponent
         open={modalOpen}
@@ -564,23 +555,22 @@ const ItemsList = () => {
               onChange={handleFileChange}
               disabled={importing}
             />
-            <Button
+            <ButtonComponent
               onClick={handleImport}
               disabled={!file || importing}
               sx={{ mt: 2 }}
               variant="contained"
             >
               {importing ? "Importing..." : "Import"}
-            </Button>
+            </ButtonComponent>
             <Box sx={{ mb: 2 }}>
-              <a
+              <Link
                 href={`${apiConfig.BASE_URL}/../sample-files/items.xlsx`}
-                download
-                style={{ textDecoration: "underline", color: "#1976d2" }}
-                rel="noopener noreferrer"
+                variant="body2"
+                sx={{ textDecoration: "none" }}
               >
                 Sample File
-              </a>
+              </Link>
             </Box>
             {importResult && (
               <Box sx={{ mt: 2 }}>

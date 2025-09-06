@@ -5,6 +5,7 @@ import { ROUTES } from "../constants/routes";
 import Login from "../pages/Login";
 import ResetPassword from "../pages/ResetPassword";
 import Unauthorized from "../pages/Unauthorized";
+import ForgotPassword from "../pages/ForgotPassword";
 
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -14,11 +15,13 @@ import AdminLayout from "../layouts/AdminLayout";
 import BranchLayout from "../layouts/BranchLayout";
 
 import SuperAdminDashboard from "../pages/super-admin/Dashboard";
+import Settings from "../pages/super-admin/Settings";
 
 import AdminDashboard from "../pages/admin/Dashboard";
 import AllEmployees from "../pages/admin/AllEmployees";
 import CreateBranch from "../pages/admin/CreateBranch";
 import ViewBranches from "../pages/admin/ViewBranches";
+import AdminSettings from "../pages/admin/Settings";
 
 import CreateEmployeeByAdmin from "../pages/admin/CreateEmployee";
 import ViewBranchStockSummary from "../pages/admin/ViewBranchStockSummary";
@@ -50,6 +53,7 @@ const AppRoutes = () => (
     <Route path={ROUTES.ROOT} element={<Login />} />
     <Route path={ROUTES.LOGIN} element={<Login />} />
     <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
+    <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPassword />} />
 
     <Route
       element={
@@ -59,7 +63,7 @@ const AppRoutes = () => (
       <Route path={ROUTES.PROFILE} element={<RoleBasedLayout />}>
         <Route index element={<ViewProfile />} />
       </Route>
-      <Route path={ROUTES.RESET_PASSWORD} element={<RoleBasedLayout />}>
+      <Route path={ROUTES.DEFAULT_PASSWORD_RESET} element={<RoleBasedLayout />}>
         <Route index element={<ResetPassword />} />
       </Route>
       <Route path={ROUTES.ITEMS_LIST} element={<RoleBasedLayout />}>
@@ -91,6 +95,8 @@ const AppRoutes = () => (
       <Route path={ROUTES.SUPER_ADMIN.DEVELOPER_TOOLS} element={<DeveloperTools />} />
       <Route path={ROUTES.SUPER_ADMIN.AUDIT_LOGS} element={<AuditLogs />} />
       <Route path={ROUTES.SUPER_ADMIN.EMAIL_LOGS} element={<EmailLogs />} />
+      <Route path={ROUTES.SUPER_ADMIN.SETTINGS} element={<Settings />} />
+
     </Route>
 
     {/* Admin Protected */}
@@ -112,6 +118,7 @@ const AppRoutes = () => (
       <Route path={ROUTES.ADMIN.CREATE_ORDER} element={<AdminCreateOrder />} />
       <Route path={ROUTES.ADMIN.ALL_ORDERS} element={<OrdersList />} />
       <Route path={ROUTES.ADMIN.EMAIL_LOGS} element={<EmailLogs />} />
+      <Route path={ROUTES.ADMIN.SETTINGS} element={<AdminSettings />} />
     </Route>
 
     {/* Branch Protected */}

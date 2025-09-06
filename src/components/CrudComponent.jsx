@@ -17,6 +17,7 @@ import {
   Add as AddIcon,
 } from "@mui/icons-material";
 import TableComponent from "./TableComponent";
+import ConfirmDialog from "./ConfirmDialog";
 
 const CrudComponent = ({
   data,
@@ -124,18 +125,17 @@ const CrudComponent = ({
       />
 
       {/* Delete confirmation dialog */}
-      <Dialog open={openDeleteDialog} onClose={handleDeleteCancel}>
-        <DialogTitle>Confirm Delete</DialogTitle>
-        <DialogContent>
-          <Typography>{deleteConfirmMessage}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDeleteCancel}>Cancel</Button>
-          <Button onClick={handleDeleteConfirm} color="error" autoFocus>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <ConfirmDialog
+        open={openDeleteDialog}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Item"
+        content={deleteConfirmMessage}
+        description="This action cannot be undone."
+        type="danger"
+        confirmText="Delete"
+        confirmColor="error"
+      />
     </Box>
   );
 };

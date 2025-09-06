@@ -242,8 +242,8 @@ const ViewProfile = () => {
   };
 
   return (
-    <Box sx={{ 
-      maxWidth: 800, 
+    <Box sx={{
+      maxWidth: 800,
       mx: 'auto',
       px: { xs: 2, sm: 3 },
       py: 3
@@ -254,8 +254,8 @@ const ViewProfile = () => {
         severity={snack.severity}
         message={snack.message}
       />
-      <Box sx={{ 
-        display: "flex", 
+      <Box sx={{
+        display: "flex",
         flexDirection: "column",
         alignItems: "center",
         gap: 3,
@@ -286,7 +286,7 @@ const ViewProfile = () => {
         </Box>
       </Box>
 
-      <Box sx={{ 
+      <Box sx={{
         maxWidth: 600,
         mx: 'auto',
         px: { xs: 2, sm: 3 }
@@ -332,14 +332,14 @@ const ViewProfile = () => {
           </ListItem>
         </List>
 
-        <Stack 
-          direction="row" 
-          spacing={2} 
+        <Stack
+          direction="row"
+          spacing={2}
           justifyContent="center"
           sx={{ mt: 4 }}
         >
-          <ButtonComponent 
-            variant="outlined" 
+          <ButtonComponent
+            variant="outlined"
             onClick={() => setModalOpen(true)}
             sx={{ minWidth: 120 }}
           >
@@ -348,7 +348,7 @@ const ViewProfile = () => {
           <ButtonComponent
             variant="contained"
             color="primary"
-            onClick={() => navigate(ROUTES.RESET_PASSWORD)}
+            onClick={() => navigate(ROUTES.DEFAULT_PASSWORD_RESET)}
             sx={{ minWidth: 120 }}
           >
             Reset Password
@@ -372,19 +372,18 @@ const ViewProfile = () => {
               error={Boolean(errors.username)}
               helperText={errors.username}
             />
-            {profile.role === "admin" ||
-              (profile.role === "super_admin" && (
-                <TextFieldComponent
-                  label="Name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  fullWidth
-                  error={Boolean(errors.name)}
-                  helperText={errors.name}
-                  required
-                />
-              ))}
+            {(profile.role === "Admin" || profile.role === "Super Admin") && (
+              <TextFieldComponent
+                label="Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                fullWidth
+                error={Boolean(errors.name)}
+                helperText={errors.name}
+                required
+              />
+            )}
             {profile.role === "Branch" && (
               <TextFieldComponent
                 label="Branch Name"

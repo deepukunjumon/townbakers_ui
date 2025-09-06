@@ -16,7 +16,9 @@ import {
   Article,
   Assignment,
   MultipleStop,
-  Mail
+  Mail,
+  AssignmentAdd,
+  Settings
 } from "@mui/icons-material";
 
 const AdminLayout = () => {
@@ -92,7 +94,7 @@ const AdminLayout = () => {
       icon: <Assignment />,
       children: [
         {
-          icon: <Assignment />,
+          icon: <AssignmentAdd />,
           label: "Create Order",
           onClick: () => navigate(ROUTES.ADMIN.CREATE_ORDER),
         },
@@ -113,6 +115,11 @@ const AdminLayout = () => {
           onClick: () => navigate(ROUTES.ADMIN.EMAIL_LOGS),
         },
       ],
+    },
+    {
+      label: "Settings",
+      icon: <Settings />,
+      onClick: () => navigate(ROUTES.ADMIN.SETTINGS),
     },
   ];
 

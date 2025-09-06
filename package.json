@@ -33,6 +33,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "sync-theme": "node scripts/sync-theme-color.js",
+    "prebuild": "npm run sync-theme",
     "build": "react-scripts build",
     "prod": "npm run build",
     "test": "react-scripts test",

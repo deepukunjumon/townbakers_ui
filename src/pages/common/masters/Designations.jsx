@@ -5,7 +5,6 @@ import {
   Divider,
   TextField,
   Switch,
-  Button,
   CircularProgress,
   Fab,
 } from "@mui/material";
@@ -18,8 +17,10 @@ import SelectFieldComponent from "../../../components/SelectFieldComponent";
 import ModalComponent from "../../../components/ModalComponent";
 import ChipComponent from "../../../components/ChipComponent";
 import IconButtonComponent from "../../../components/IconButtonComponent";
+import ConfirmDialog from "../../../components/ConfirmDialog";
 import apiConfig from "../../../config/apiConfig";
 import { STRINGS } from "../../../constants/strings";
+import ButtonComponent from "../../../components/ButtonComponent";
 
 const statusOptions = [
   { name: "All", id: "" },
@@ -30,8 +31,7 @@ const statusOptions = [
 
 const Designations = () => {
   const [designations, setDesignations] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [initialLoad, setInitialLoad] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [snack, setSnack] = useState({
     open: false,
     severity: "error",
@@ -42,10 +42,10 @@ const Designations = () => {
     per_page: 10,
     total: 0,
   });
+  const paginationRef = useRef(pagination);
   const [statusFilter, setStatusFilter] = useState(statusOptions[0]);
   const [searchTerm, setSearchTerm] = useState("");
   const searchTimeout = useRef(null);
-  const controllerRef = useRef(null);
 
   const [loadingSwitches, setLoadingSwitches] = useState({});
   const [loadingRow, setLoadingRow] = useState(null);
@@ -60,78 +60,53 @@ const Designations = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedDesignation, setSelectedDesignation] = useState(null);
 
-  const fetchDesignations = useCallback(
-    async (
-      status = statusFilter.id,
-      q = searchTerm,
-      page = pagination.current_page,
-      perPage = pagination.per_page
-    ) => {
-      if (controllerRef.current) {
-        controllerRef.current.abort();
-      }
+  useEffect(() => {
+    paginationRef.current = pagination;
+  }, [pagination]);
+
+  const fetchDesignations = useCallback(async () => {
+    setLoading(true);
+    try {
       const token = localStorage.getItem("token");
-      const newController = new AbortController();
-      controllerRef.current = newController;
+      const params = new URLSearchParams({
+        page: pagination.current_page,
+        per_page: pagination.per_page,
+        q: searchTerm,
+        status: statusFilter.id,
+      }).toString();
 
-      setLoading(true);
-      setInitialLoad(true);
+      const res = await fetch(`${apiConfig.DESIGNATIONS}?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
 
-      try {
-        const params = new URLSearchParams({
-          page,
-          per_page: perPage,
+      if (data.success) {
+        setDesignations(data.designations || []);
+        setPagination((prev) => ({
+          ...prev,
+          total: data.pagination?.total || 0,
+        }));
+      } else {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: data.message || "Failed to load designations",
         });
-
-        if (status) {
-          params.append("status", status);
-        }
-        if (q.trim()) {
-          params.append("q", q.trim());
-        }
-
-        const res = await fetch(
-          `${apiConfig.DESIGNATIONS}?${params.toString()}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-            signal: newController.signal,
-          }
-        );
-
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-          setDesignations(data.designations || []);
-          setPagination((prev) => ({
-            ...prev,
-            total: data.pagination?.total || 0,
-            current_page: data.pagination?.current_page || page,
-            per_page: data.pagination?.per_page || perPage,
-          }));
-        } else {
-          throw new Error(data.message || "Failed to load designations");
-        }
-      } catch (error) {
-        if (error.name !== "AbortError") {
-          setSnack({
-            open: true,
-            severity: "error",
-            message: error.message || "Failed to load designations",
-          });
-        }
-      } finally {
-        setLoading(false);
-        setInitialLoad(false);
       }
-    },
-    [pagination.current_page, pagination.per_page, statusFilter.id, searchTerm]
-  );
+    } catch (error) {
+      setSnack({
+        open: true,
+        severity: "error",
+        message: "Failed to load designations",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [pagination.current_page, pagination.per_page, searchTerm, statusFilter.id]);
 
   useEffect(() => {
     fetchDesignations();
-  }, [fetchDesignations]);
+  }, [fetchDesignations, statusFilter.id]);
 
   const handleToggleStatus = async (id, currentStatus) => {
     setConfirmModalOpen(true);
@@ -403,6 +378,7 @@ const Designations = () => {
       current_page: page,
       per_page: rowsPerPage,
     }));
+    fetchDesignations();
   };
 
   const handleStatusChange = (event) => {
@@ -423,21 +399,27 @@ const Designations = () => {
     }, 500);
   };
 
-  const confirmationModalContent = (
-    <Box>
-      {confirmPayload.currentStatus === 1
-        ? STRINGS.DISABLE_DESIGNATION
-        : STRINGS.ENABLE_DESIGNATION}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
-        <Button variant="text" onClick={() => setConfirmModalOpen(false)}>
-          Cancel
-        </Button>
-        <Button variant="text" onClick={handleConfirmToggle} autoFocus>
-          Confirm
-        </Button>
-      </Box>
-    </Box>
-  );
+  const getConfirmationDialogProps = () => {
+    const { currentStatus } = confirmPayload;
+
+    if (currentStatus === 1) {
+      return {
+        title: "Disable Designation",
+        content: STRINGS.DISABLE_DESIGNATION,
+        type: "warning",
+        confirmText: "Disable",
+        confirmColor: "warning",
+      };
+    }
+
+    return {
+      title: "Enable Designation",
+      content: STRINGS.ENABLE_DESIGNATION,
+      type: "success",
+      confirmText: "Enable",
+      confirmColor: "success",
+    };
+  };
 
   const modalContent = (
     <Box component="form" sx={{ mt: 1 }} noValidate autoComplete="off">
@@ -451,12 +433,12 @@ const Designations = () => {
         autoFocus
       />
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-        <Button onClick={handleModalClose} sx={{ mr: 1 }}>
+        <ButtonComponent variant="outlined" onClick={handleModalClose} sx={{ mr: 1 }}>
           Cancel
-        </Button>
-        <Button variant="text" onClick={handleCreateDesignation}>
+        </ButtonComponent>
+        <ButtonComponent variant="contained" onClick={handleCreateDesignation}>
           {isEditMode ? 'Update' : 'Create'}
-        </Button>
+        </ButtonComponent>
       </Box>
     </Box>
   );
@@ -509,7 +491,7 @@ const Designations = () => {
       />
 
       <Box sx={{ position: "relative" }}>
-        {loading || initialLoad ? (
+        {loading ? (
           <Loader message="Loading..." />
         ) : (
           <TableComponent
@@ -532,11 +514,11 @@ const Designations = () => {
         content={modalContent}
       />
 
-      <ModalComponent
+      <ConfirmDialog
         open={confirmModalOpen}
         onClose={() => setConfirmModalOpen(false)}
-        title="Confirm Status Change"
-        content={confirmationModalContent}
+        onConfirm={handleConfirmToggle}
+        {...getConfirmationDialogProps()}
       />
 
       <Fab

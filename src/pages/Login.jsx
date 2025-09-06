@@ -4,14 +4,15 @@ import { jwtDecode } from "jwt-decode";
 import {
   Box,
   Typography,
-  Button,
   Grid,
   Avatar,
   useTheme,
   useMediaQuery,
+  Link,
 } from "@mui/material";
 import { STRINGS } from "../constants/strings";
 import FooterComponent from "../components/FooterComponent";
+import ButtonComponent from "../components/ButtonComponent";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 import { ROUTES } from "../constants/routes";
@@ -19,6 +20,7 @@ import apiConfig from "../config/apiConfig";
 import TextFieldComponent from "../components/TextFieldComponent";
 import SnackbarAlert from "../components/SnackbarAlert";
 import login_page_image from "../assets/images/login_page_image.svg";
+import logo from "../assets/images/logo.svg";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -64,8 +66,8 @@ const Login = () => {
         });
 
         setTimeout(() => {
-          navigate(ROUTES.RESET_PASSWORD);
-        }, 1000);
+          navigate(ROUTES.DEFAULT_PASSWORD_RESET);
+        }, 500);
 
         setLoading(false);
         return;
@@ -164,9 +166,22 @@ const Login = () => {
               alignItems: "center",
             }}
           >
-            <Avatar sx={{ bgcolor: "primary.main", mb: 1 }}>
-              <LockOutlinedIcon />
-            </Avatar>
+            {isMobile ? (
+              <img
+                src={logo}
+                alt="Logo"
+                style={{
+                  width: "100px",
+                  height: "auto",
+                  marginBottom: "8px",
+                  objectFit: "contain"
+                }}
+              />
+            ) : (
+              <Avatar sx={{ bgcolor: "primary.main", mb: 1 }}>
+                <LockOutlinedIcon />
+              </Avatar>
+            )}
             <Typography variant="h5">Sign in</Typography>
 
             <Box
@@ -175,7 +190,7 @@ const Login = () => {
               sx={{ mt: 2, width: "100%", maxWidth: { xs: 290, ms: 360 } }}
             >
               <TextFieldComponent
-                label="Login ID"
+                label="Username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -191,7 +206,7 @@ const Login = () => {
                 required
               />
 
-              <Button
+              <ButtonComponent
                 type="submit"
                 disabled={loading}
                 variant="contained"
@@ -199,7 +214,23 @@ const Login = () => {
                 sx={{ mt: 2 }}
               >
                 {loading ? "Logging in..." : "SIGN IN"}
-              </Button>
+              </ButtonComponent>
+
+              <Grid container sx={{ mt: 1 }}>
+                <Grid item>
+                  <Link
+                    href="#"
+                    variant="body2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigate(ROUTES.FORGOT_PASSWORD);
+                    }}
+                    sx={{ textDecoration: "none" }}
+                  >
+                    Forgot password?
+                  </Link>
+                </Grid>
+              </Grid>
             </Box>
           </Box>
         </Grid>
